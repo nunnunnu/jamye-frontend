@@ -6,9 +6,14 @@
                     <div class="col-lg-6">
                         <!-- Mashead text and app badges-->
                         <div class="mb-5 mb-lg-0 text-center text-lg-start">
-                            <h1 class="display-1 lh-1 mb-3">Showcase your app beautifully.</h1>
-                            <p class="lead fw-normal text-muted mb-5">Launch your mobile app landing page faster with this free, open source theme from Start Bootstrap!</p>
-                            <button type="button" class="btn btn-dark">로그인 후 뽑기</button>
+                            <h1 class="display-1 lh-1 mb-3" style="font-weight: bold;">잼얘 가챠</h1>
+                            <p class="lead fw-normal text-muted mb-5">Talk Funny(잼얘해봐)<br>U GO GIRL(님선하세요 소녀여)</p>
+                            <div v-if="!this.isLogin">
+                                <button type="button" class="btn btn-dark" @click="login">로그인 후 뽑기</button>
+                            </div>
+                            <div v-if="this.isLogin">
+                                <button type="button" class="btn btn-dark">뽑기</button>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -48,10 +53,23 @@
   
   <script>
 
+export default {
+    name: 'MainHome',
+    methods: {
+        login() {
+            this.$router.push("/login")
+        }
+    },
+    props: {
+        isLogin: {
+            type: Boolean,
+            required: true
+        }
+    },
+}
+
 </script>
   <style>
-    @import "@/css/styles.css";
-  
     a {
       text-decoration: none;
       color: black
