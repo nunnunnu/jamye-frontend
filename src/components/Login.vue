@@ -1,9 +1,10 @@
 <template>
-    <div class="login-container">
+    <div class="b-container">
         <br>
         <br>
         <br>
-        <br>
+        <br><br>
+
         <h2 class="pb-4 mb-4 fst-italic border-bottom">로그인</h2>
         <form @submit.prevent="submitForm">
             <div class="input-group mb-3">
@@ -49,14 +50,10 @@
                     };
                     axios.post('/api/user/login', param)
                         .then(response => {
-                            console.log(response);
-                            
-                            // 응답에서 데이터 구조에 맞게 접근합니다.
-                            const token = response.data.data.token; // 수정된 부분
-                            const accessToken = token.accessToken; // 수정된 부분
-                            const refreshToken = token.refreshToken; // 수정된 부분
+                            const token = response.data.data.token;
+                            const accessToken = token.accessToken; 
+                            const refreshToken = token.refreshToken; 
 
-                            // 토큰이 비어있는지 확인합니다.
                             if (!accessToken || !refreshToken) {
                                 alert("토큰을 받아오는 데 실패했습니다.");
                                 return;
@@ -64,8 +61,8 @@
 
                             this.$cookies.set('accessToken', accessToken);
                             this.$cookies.set('refreshToken', refreshToken);
-                            this.$cookies.set('id', response.data.data.id); // 수정된 부분
-
+                            this.$cookies.set('id', response.data.data.id);
+                            this.$emit("isLoginChange", true)
                             if (this.$cookies.get('beforePage') != null) {
                                 this.$cookies.remove('beforePage');
                                 this.$router.push("/");
@@ -89,10 +86,5 @@
 <style>
 .clickable:hover {
   cursor: pointer;
-}
-.login-container {
-    max-width: 500px;
-    margin: 0 auto; /* 중앙 정렬 */
-    padding: 20px; /* 위아래 여백 */
 }
 </style>

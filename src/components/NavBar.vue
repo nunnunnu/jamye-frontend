@@ -13,7 +13,7 @@
                         <li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li> -->
                     </ul>
                     <div v-if="isLogin">
-                        <button type="button" class="btn btn-light">MY</button>
+                        <button type="button" class="btn btn-light" @click="myPage">MY</button>
                     </div>
                     <div v-if="!isLogin">
                         <button type="button" class="btn btn-primary" @click="login">로그인</button>
@@ -63,6 +63,9 @@ export default {
       },
       home() {
         this.$router.push("/")
+      },
+      myPage() {
+        this.$router.push("/my")
       }
   }
 };

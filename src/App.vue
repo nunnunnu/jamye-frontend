@@ -1,6 +1,6 @@
 <template>
   <Navbar :isLogin="isLogin"></Navbar>
-  <router-view :isLogin="isLogin"></router-view>
+  <router-view :isLogin="isLogin" @isLoginChange="isLoginChange"></router-view>
 </template>
 
 <script>
@@ -14,8 +14,12 @@ export default {
         }
     },
     mounted() {
-      console.log(this.$cookies.get('accessToken') !== null)
         this.isLogin = this.$cookies.get('accessToken') !== null;
+    },
+    methods: {
+      isLoginChange(isLoginChange) {
+        this.isLogin = isLoginChange
+      }
     },
   components: {
     Navbar
@@ -25,4 +29,10 @@ export default {
 
 <style>
 @import "@/css/styles.css";
+
+.b-container {
+    max-width: 600px;
+    margin: 0 auto; /* 중앙 정렬 */
+    padding: 20px; /* 위아래 여백 */
+}
 </style>
