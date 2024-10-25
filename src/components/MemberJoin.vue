@@ -19,19 +19,24 @@
         </div>
         <div class="duplicateMessage-error" v-if="emailConfirmError!=null && emailConfirmError">이메일 형식이 아닙니다.</div>
         <div class="duplicateMessage-error" v-if="emailIsDuplicate!=null && emailIsDuplicate">이미 가입된 이메일입니다.</div>
-        <div class="duplicateMessage-success" v-if="emailIsDuplicate!=null && !emailIsDuplicate">사용 가능한 이메일입니다.</div>
+        <div class="duplicateMessage-success" v-if="emailIsDuplicate!=null && !emailIsDuplicate">인증코드가 전송되었습니다. 이메일이 도착하지않았다면 재발송 버튼을 눌러주세요</div>
         <div class="duplicate-message-space" v-if="emailIsDuplicate==null && (emailConfirmError == null || !emailConfirmError)"></div>
         <div class="form-group verification-group">
             <input type="email" id="email" v-model="email" class="form-control" placeholder="이메일" />
-            <button @click="emailCheck" class="btn btn-dark btn-sm">중복 확인</button>
+            <button v-if="!emailCodeSend" @click="emailCheck" class="btn btn-dark btn-sm">이메일 검증</button>
+            <button v-if="emailCodeSend && !verifcationSuccess" @click="emailCheck" class="btn btn-dark btn-sm">재발송</button>
+            <button v-if="emailCodeSend && verifcationSuccess" @click="emailCheck" class="btn btn-dark btn-sm" disabled>재발송</button>
         </div>
-
+        <div class="duplicateMessage-success" v-if="verifcationSuccess!=null && verifcationSuccess">인증 성공</div>
+        <div class="duplicateMessage-error" v-if="verifcationSuccess!=null && !verifcationSuccess">인증실패. 인증코드를 재확인해주세요.</div>
+        <div class="duplicate-message-space" v-if="verifcationSuccess==null"></div>
         <div class="form-group verification-group">
             <input type="text" id="verificationCode" v-model="verificationCode" class="form-control" placeholder="인증코드" />
-            <button @click="sendVerification" class="btn btn-dark btn-sm">인증</button>
+            <button v-if="!this.verifcationSuccess" @click="sendVerification" class="btn btn-dark btn-sm">인증</button>
+            <button v-if="this.verifcationSuccess" @click="sendVerification" class="btn btn-dark btn-sm" disabled>인증</button>
         </div>
 
-        <div v-if="verifcationSuccess">
+        <div v-if="verifcationSuccess !=null & verifcationSuccess && idIsDuplicate != null & !idIsDuplicate && emailIsDuplicate != null & !emailIsDuplicate && passwordConfirmError != null & !passwordConfirmError">
             <button @click="signup" class="btn btn-dark signup-btn">회원가입</button>
         </div>
         <div v-else>
@@ -50,11 +55,12 @@ export default ({
             comfirmPassword: null,
             email: null,
             verificationCode: null,
-            verifcationSuccess: false,
+            verifcationSuccess: null,
             idIsDuplicate: null,
             emailIsDuplicate: null,
             passwordConfirmError: false,
-            emailConfirmError: null
+            emailConfirmError: null,
+            emailCodeSend: false
         }
     },
     props: {
@@ -88,11 +94,29 @@ export default ({
                 this.emailConfirmError = true
             }
             this.emailIsDuplicate = null
-        }
+            this.verifcationSuccess = null
+        },
+        password() {
+            if(this.comfirmPassword != this.password) {
+                this.passwordConfirmError=true
+            } else {
+                this.passwordConfirmError = false
+            }
+        },
     },
     methods: {
         signup() {
-    
+            if(!this.verifcationSuccess | this.idIsDuplicate || this.emailIsDuplicate || this.passwordConfirmError) {
+                alert("모든 인증을 성공한 후 회원가입이 가능합니다.")
+            } else {
+                axios.post("/api/user/join", {
+                    "id":this.userId,
+                    "password": this.password,
+                    "email":this.email
+                })
+                this.$router.go("/login")
+                alert("회원가입이 완료되었습니다.")
+            }
         },
         idCheck(){
             if(this.userId==undefined || this.userId == null || this.userId=="" || this.userId==" "){
@@ -109,19 +133,45 @@ export default ({
             }
         },
         emailCheck(){
-            if(this.emailConfirmError) {
+            if(this.email==undefined || this.email == null || this.email=="" || this.email==" "){
+                alert("이메일을 입력하지않으셨습니다")
+            } else if(this.emailConfirmError) {
                 alert("이메일 형식이 올바르지 않습니다.")
-                alert("아이디를 입력하지않으셨습니다")
+            } else if(this.verifcationSuccess) {
+                alert("이미 이메일 인증이 완료되었습니다.")
             } else {
                 axios.get("/api/user/check/email/"+this.email)
                 .then((e) => {
                             if(e.data.data){
                                 this.emailIsDuplicate=false
+                                this.emailCodeSend = true
+                                axios.post("/api/email/send?email="+this.email)
                             }else{
                                 this.emailIsDuplicate=true
                             }
                         })
             }
+        },
+        sendVerification() {
+            if(this.verificationCode == null) {
+                alert("인증코드를 입력하지않으셨습니다.")
+            } else if(this.emailConfirmError || this.emailIsDuplicate) {
+                alert("이메일 검증을 먼저 진행해주세요.")
+            } else if(this.verifcationSuccess) {
+                alert("이미 인증을 완료하셨습니다.")
+            }else {
+                axios.post("/api/email/verify", {
+                "email": this.email,
+                "verifyCode": this.verificationCode
+            }).then(e => {
+                if(e.data.data) {
+                    this.verifcationSuccess = true
+                } else {
+                    this.verifcationSuccess = false
+                }
+            })
+            }
+            
         }
     }
 })
@@ -157,7 +207,7 @@ export default ({
     margin-top: 2px;
     margin-bottom: 2px;
     margin-left: 10px;
-    width: 100px;
+    width: 120px;
     border-radius: 15px;
 }
 .duplicateMessage-error {
