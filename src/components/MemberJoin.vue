@@ -1,21 +1,29 @@
 <template>
     <div class="b-container"><br><br><br>
         <h2 class="pb-4 mb-4 fst-italic border-bottom">회원 가입</h2>
+        <div class="duplicateMessage-error" v-if="idIsDuplicate!=null && idIsDuplicate">이미 가입된 ID입니다.</div>
+        <div class="duplicateMessage-success" v-if="idIsDuplicate!=null && !idIsDuplicate">사용 가능한 ID입니다.</div>
+        <div v-if="idIsDuplicate==null"><div class="duplicate-message-space"></div></div>
         <div class="form-group verification-group">
             <input type="text" id="userId" v-model="userId" class="form-control" placeholder="사용자ID" />
-            <button @click="sendVerification" class="btn btn-dark btn-sm">중복 확인</button>
+            <button @click="idCheck" class="btn btn-dark btn-sm">중복 확인</button>
         </div>
+        <div class="message">비밀번호는 8자리 이상 입력해주세요.<span class="success" v-if="password != null && password.length >= 8"> 적합. </span><span class= "error" v-if="password != null && password.length<8">부적합</span></div>
         <div class="form-group">
             <input type="password" id="password" v-model="password" class="form-control" placeholder="비밀번호" />
         </div>
-
+        <div v-if="passwordConfirmError==null || passwordConfirmError==false"><div class="duplicate-message-space"></div></div>
+        <div v-if="passwordConfirmError" class="duplicateMessage-error">비밀번호가 일치하지 않습니다.</div>
         <div class="form-group">
-            <input type="password" id="confirmPassword" v-model="confirmPassword" class="form-control" placeholder="비밀번호 확인" />
+            <input type="password" id="comfirmPassword" v-model="comfirmPassword" class="form-control" placeholder="비밀번호 확인" />
         </div>
-
+        <div class="duplicateMessage-error" v-if="emailConfirmError!=null && emailConfirmError">이메일 형식이 아닙니다.</div>
+        <div class="duplicateMessage-error" v-if="emailIsDuplicate!=null && emailIsDuplicate">이미 가입된 이메일입니다.</div>
+        <div class="duplicateMessage-success" v-if="emailIsDuplicate!=null && !emailIsDuplicate">사용 가능한 이메일입니다.</div>
+        <div class="duplicate-message-space" v-if="emailIsDuplicate==null && (emailConfirmError == null || !emailConfirmError)"></div>
         <div class="form-group verification-group">
             <input type="email" id="email" v-model="email" class="form-control" placeholder="이메일" />
-            <button @click="sendVerification" class="btn btn-dark btn-sm">중복 확인</button>
+            <button @click="emailCheck" class="btn btn-dark btn-sm">중복 확인</button>
         </div>
 
         <div class="form-group verification-group">
@@ -32,6 +40,7 @@
     </div>
 </template>
 <script>
+import axios from 'axios';
 
 export default ({
     data() {
@@ -41,9 +50,80 @@ export default ({
             comfirmPassword: null,
             email: null,
             verificationCode: null,
-            verifcationSuccess: false
+            verifcationSuccess: false,
+            idIsDuplicate: null,
+            emailIsDuplicate: null,
+            passwordConfirmError: false,
+            emailConfirmError: null
         }
     },
+    props: {
+        isLogin: {
+            type: Boolean,
+            required: true
+        }
+    },
+    created() {
+        if(this.isLogin) {
+            alert("이미 로그인중입니다.")
+            this.$router.go("/")
+        }
+    },
+    watch: {
+        userId(){
+            this.idIsDuplicate=null
+        },
+        comfirmPassword() {
+            if(this.comfirmPassword != this.password) {
+                this.passwordConfirmError=true
+            } else {
+                this.passwordConfirmError = false
+            }
+        },
+        email() {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (emailPattern.test(this.email)) {
+                this.emailConfirmError = false
+            } else {
+                this.emailConfirmError = true
+            }
+            this.emailIsDuplicate = null
+        }
+    },
+    methods: {
+        signup() {
+    
+        },
+        idCheck(){
+            if(this.userId==undefined || this.userId == null || this.userId=="" || this.userId==" "){
+                alert("아이디를 입력하지않으셨습니다")
+            }else{
+                axios.get("/api/user/check/id/"+this.userId)
+                .then((e) => {
+                            if(e.data.data){
+                                this.idIsDuplicate=false
+                            }else{
+                                this.idIsDuplicate=true
+                            }
+                        })
+            }
+        },
+        emailCheck(){
+            if(this.emailConfirmError) {
+                alert("이메일 형식이 올바르지 않습니다.")
+                alert("아이디를 입력하지않으셨습니다")
+            } else {
+                axios.get("/api/user/check/email/"+this.email)
+                .then((e) => {
+                            if(e.data.data){
+                                this.emailIsDuplicate=false
+                            }else{
+                                this.emailIsDuplicate=true
+                            }
+                        })
+            }
+        }
+    }
 })
 </script>
 
@@ -79,5 +159,40 @@ export default ({
     margin-left: 10px;
     width: 100px;
     border-radius: 15px;
+}
+.duplicateMessage-error {
+    color: rgb(224, 100, 100);
+    font-size: 14px;
+}
+.duplicateMessage-success {
+    color: rgb(86, 186, 240);
+    font-size: 14px;
+}
+.duplicate-message-space {
+  height: 21px; /* 원하는 높이 설정 */
+}
+.message {
+    color: rgb(127, 127, 127);
+    font-size: 14px;
+}
+.success {
+    width: 10px;            /* 직사각형의 너비 */
+    height: 20px;
+    background-color: rgb(86, 186, 240); /* 배경색 */
+    border-radius: 5px;     /* 모서리 둥글게 */
+    font-size: 11px;        /* 글자 크기 */
+    color: #ffffff;            /* 글자 색 */
+    margin: 5px 7px;        /* 상하 여백 */
+    margin-bottom: 20px;
+}
+.error {
+    width: 10px;            /* 직사각형의 너비 */
+    height: 20px;
+    background-color: rgb(224, 100, 100); /* 배경색 */
+    border-radius: 5px;     /* 모서리 둥글게 */
+    font-size: 11px;        /* 글자 크기 */
+    color: #ffffff;            /* 글자 색 */
+    margin: 5px 7px;        /* 상하 여백 */
+    margin-bottom: 20px;
 }
 </style>
