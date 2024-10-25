@@ -97,10 +97,10 @@ export default {
   justify-content: space-between;
   align-items: center;
   background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 10px;
   outline-style: solid;
   outline-color: #d7d7d7;
+  padding: 10px;
+  border-radius: 10px;
   overflow: hidden; /* 내용이 넘칠 경우 숨김 처리 */
 }
 

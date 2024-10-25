@@ -35,4 +35,7 @@ export default {
     margin: 0 auto; /* 중앙 정렬 */
     padding: 20px; /* 위아래 여백 */
 }
+.btn-block {
+    width: 100%;
+}
 </style>
