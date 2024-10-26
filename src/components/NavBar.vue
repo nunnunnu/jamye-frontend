@@ -9,8 +9,8 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto me-4 my-3 my-lg-0">
-                        <!-- <li class="nav-item"><a class="nav-link me-lg-3" href="#features">Features</a></li>
-                        <li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li> -->
+                        <li class="nav-item"><a class="nav-link me-lg-3" @click="groups">그룹 정보</a></li>
+                        <!-- <li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li> -->
                     </ul>
                     <div v-if="isLogin">
                         <button type="button" class="btn btn-light" @click="myPage">MY</button>
@@ -66,6 +66,9 @@ export default {
       },
       myPage() {
         this.$router.push("/my")
+      },
+      groups() {
+        this.$router.push("/groups")
       }
   }
 };

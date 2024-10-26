@@ -8,7 +8,7 @@
             <input type="text" id="userId" v-model="userId" class="form-control" placeholder="사용자ID" />
             <button @click="idCheck" class="btn btn-dark btn-sm">중복 확인</button>
         </div>
-        <div class="message">비밀번호는 8자리 이상 입력해주세요.<span class="success" v-if="password != null && password.length >= 8"> 적합. </span><span class= "error" v-if="password != null && password.length<8">부적합</span></div>
+        <div class="message">비밀번호는 8자리 이상 입력해주세요.<span class="success" v-if="password != null && password.length >= 8">적합</span><span class= "error" v-if="password != null && password.length<8">부적합</span></div>
         <div class="form-group">
             <input type="password" id="password" v-model="password" class="form-control" placeholder="비밀번호" />
         </div>
@@ -32,8 +32,8 @@
         <div class="duplicate-message-space" v-if="verifcationSuccess==null"></div>
         <div class="form-group verification-group">
             <input type="text" id="verificationCode" v-model="verificationCode" class="form-control" placeholder="인증코드" />
-            <button v-if="!this.verifcationSuccess" @click="sendVerification" class="btn btn-dark btn-sm">인증</button>
-            <button v-if="this.verifcationSuccess" @click="sendVerification" class="btn btn-dark btn-sm" disabled>인증</button>
+            <button v-if="this.emailCodeSend != null & this.emailCodeSend != false & !this.verifcationSuccess" @click="sendVerification" class="btn btn-dark btn-sm">인증</button>
+            <button v-if="this.emailCodeSend != true | this.verifcationSuccess" @click="sendVerification" class="btn btn-dark btn-sm" disabled>인증</button>
         </div>
 
         <div v-if="verifcationSuccess !=null & verifcationSuccess && idIsDuplicate != null & !idIsDuplicate && emailIsDuplicate != null & !emailIsDuplicate && passwordConfirmError != null & !passwordConfirmError">
@@ -71,8 +71,8 @@ export default ({
     },
     created() {
         if(this.isLogin) {
+            this.$router.push("/")
             alert("이미 로그인중입니다.")
-            this.$router.go("/")
         }
     },
     watch: {
@@ -95,6 +95,7 @@ export default ({
             }
             this.emailIsDuplicate = null
             this.verifcationSuccess = null
+            this.emailCodeSend = false
         },
         password() {
             if(this.comfirmPassword != this.password) {
@@ -114,8 +115,8 @@ export default ({
                     "password": this.password,
                     "email":this.email
                 })
-                this.$router.go("/login")
                 alert("회원가입이 완료되었습니다.")
+                this.$router.push("/")
             }
         },
         idCheck(){
@@ -229,7 +230,7 @@ export default ({
     width: 10px;            /* 직사각형의 너비 */
     height: 20px;
     background-color: rgb(86, 186, 240); /* 배경색 */
-    border-radius: 5px;     /* 모서리 둥글게 */
+    border-radius: 2px;     /* 모서리 둥글게 */
     font-size: 11px;        /* 글자 크기 */
     color: #ffffff;            /* 글자 색 */
     margin: 5px 7px;        /* 상하 여백 */
@@ -239,7 +240,7 @@ export default ({
     width: 10px;            /* 직사각형의 너비 */
     height: 20px;
     background-color: rgb(224, 100, 100); /* 배경색 */
-    border-radius: 5px;     /* 모서리 둥글게 */
+    border-radius: 2px;     /* 모서리 둥글게 */
     font-size: 11px;        /* 글자 크기 */
     color: #ffffff;            /* 글자 색 */
     margin: 5px 7px;        /* 상하 여백 */

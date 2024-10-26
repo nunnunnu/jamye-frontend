@@ -3,6 +3,7 @@ import MainHome from "../components/MainHome.vue"
 import Login from "../components/Login.vue"
 import MyPage from "../components/MyPage.vue"
 import MemberJoin from '@/components/MemberJoin.vue'
+import GroupInfos from '@/components/GroupInfos.vue'
 
 const routes = [
     {
@@ -24,6 +25,11 @@ const routes = [
         path: "/join",
         name: "join",
         component: MemberJoin
+    },
+    {
+        path: "/groups",
+        name: "groups",
+        component: GroupInfos
     }
 ]
 
