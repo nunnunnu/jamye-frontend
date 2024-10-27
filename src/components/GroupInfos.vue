@@ -8,8 +8,11 @@
         <div v-if="groupCreateModal">
             <GroupCreate></GroupCreate>
         </div>
-        <div class="btn btn-dark btn-block btn-group">
+        <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="inviteModal">
             초대코드 입력
+        </button>
+        <div v-if="groupInviteModal">
+            <inviteGroup></inviteGroup>
         </div>
     </div>
 </template>
@@ -17,15 +20,18 @@
 <script>
 import axios from 'axios';
 import GroupCreate from './GroupCreate.vue';
+import InviteGroup from './InviteGroup.vue';
 
 export default {
     components: {
-        GroupCreate
+        GroupCreate,
+        InviteGroup
     },
     data() {
         return {
             groups: null,
-            groupCreateModal: null
+            groupCreateModal: null,
+            groupInviteModal: null
         };
     },
     props: {
@@ -65,6 +71,9 @@ export default {
         },
         createModal() {
             this.groupCreateModal = true
+        },
+        inviteModal() {
+            this.groupInviteModal = true
         }
     }
 };
