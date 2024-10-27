@@ -6,13 +6,13 @@
             그룹 생성
         </button>
         <div v-if="groupCreateModal">
-            <GroupCreate></GroupCreate>
+            <GroupCreate @createModalClose="createModalClose"></GroupCreate>
         </div>
         <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="inviteModal">
             초대코드 입력
         </button>
         <div v-if="groupInviteModal">
-            <inviteGroup></inviteGroup>
+            <inviteGroup @inviteModalClose="inviteModalClose"></inviteGroup>
         </div>
     </div>
 </template>
@@ -74,6 +74,12 @@ export default {
         },
         inviteModal() {
             this.groupInviteModal = true
+        },
+        createModalClose() {
+            this.groupCreateModal = false
+        },
+        inviteModalClose() {
+            this.groupInviteModal = false
         }
     }
 };

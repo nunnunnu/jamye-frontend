@@ -1,25 +1,24 @@
 <template>
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" @click="modalClose">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 v-if="step === 1" class="modal-title fs-5" id="exampleModalLabel">초대코드 입력</h1>
                     <h1 v-if="step === 2" class="modal-title fs-5" id="exampleModalLabel">초대코드 입력 - 그룹 정보 확인</h1>
                     <h1 v-if="step === 3" class="modal-title fs-5" id="exampleModalLabel">초대코드 입력 - 내 프로필 생성</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="modalClose"></button>
                 </div>
                 <div class="modal-body">
                     <template v-if="step === 1">
-                        <!-- 그룹 정보 입력 화면 -->
+                        <!-- 초대코드 입력 화면 -->
                         <div class="form-group">
                             <input type="text" id="groupName" class="group-name form-control" placeholder=" " v-model="inviteCode" />
-                            <label for="inviteCode" class="placeholder-label">초대코드<span class="required">*</span></label>
-                        </div>
+                            <label for="groupName" class="placeholder-label">초대코드<span class="required">*</span></label>
+                        </div> 
                     </template>
                     <template v-if="step === 2">
                         <!-- 그룹 정보 확인 -->
                         <div class="upload-container">
-                            <input type="file" id="profileImageUpload" accept="image/*" @change="profilePreviewImage" style="display: none; disabled">
                             <label for="profileImageUpload" class="upload-label">
                                 <img v-if="groupInfo.imageUrl != null" :src="groupInfo.imageUrl" alt="Image Preview" class="image-preview" />
                                 <!-- <span v-else class="upload-icon">+</span> -->
@@ -34,10 +33,26 @@
                             <label for="groupDescription" class="placeholder-label2">{{ groupInfo.description }}</label>
                         </div>
                     </template>
+                    <template v-if="step === 3">
+                        <div class="upload-container">
+                            <input type="file" id="profileImageUpload" accept="image/*" @change="profilePreviewImage" style="display: none;">
+                            <label for="profileImageUpload" class="upload-label">
+                                <img v-if="profileimageSrc" :src="profileimageSrc" alt="Image Preview" class="image-preview" />
+                                <span v-else class="upload-icon">+</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="nickname" />
+                            <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
+                        </div>
+                    </template>
                 </div>
                 <div class="modal-footer">
                     <button v-if="step === 1" type="button" class="btn btn-dark btn-block" @click="nextOne">다음</button>
-                    <button v-if="step === 2" type="button" class="btn btn-dark btn-block" @click="nextTwo" >다음</button>
+                    <div v-if="step === 2" class="mt-3 d-flex justify-content-between">
+                        <button type="button" class="btn btn-dark btn-block" @click="back" >이전</button>
+                        <button type="button" class="btn btn-dark btn-block" @click="nextTwo" >다음</button>
+                    </div>
                     <button v-if="step === 3" type="button" class="btn btn-dark btn-block" @click="create">가입</button>
 
                 </div> 
@@ -47,7 +62,6 @@
 </template>
 
 <script>
-import { Modal } from 'bootstrap';
 import axios from 'axios';
 export default {
     data() {
@@ -76,34 +90,23 @@ export default {
             .then(resposne => {
                 this.groupInfo = resposne.data.data
                 this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
+                this.inviteCode = null
+            })
+            .catch(e => {
+                console.log(e)
+                console.log(e.message)
+                console.log(e.response)
+                alert(e.response.data.message)
             })
             
         },
         nextTwo() {            
-            this.step = 3; // '다음' 버튼 클릭 시 다음 단계로 이동
+            this.step = 3;
 
         },
-        create() {
-            if(this.nickname == '' || this.nickname == null || this.nickname == undefined) {
-                alert("닉네임을 입력하지않으셨습니다.")
-                return
-            }
-            alert("생성 완료!");
-            axios.post("/api/group", {
-                "name": this.groupName,
-                "imageUrl": this.imageSrc,
-                "description": this.groupDescription,
-                "nickname": this.nickname,
-                "profileImageUrl": this.profileimageSrc
-            }, {
-                headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
-                }
-            })
-            this.step = 1; // 단계 초기화
-            this.resetForm(); // 폼 리셋
-            const modalInstance = Modal.getInstance(document.getElementById('exampleModal'));
-            if (modalInstance) modalInstance.hide();
+        back() {            
+            this.step = 1;
+
         },
         previewImage(event) {
             const file = event.target.files[0];
@@ -130,7 +133,11 @@ export default {
             this.groupName = '';
             this.nickname = '';
             this.imageSrc = null;
-        }
+        },
+        modalClose() {
+            console.log("test")
+            this.$emit("inviteModalClose", false)
+        },
     }
 }
 </script>
@@ -164,7 +171,7 @@ export default {
     object-fit: cover;
 }
 .group-name {
-    margin-top: 20px;
+    margin-top: 7px;
     background-color: #f0f0f0;
     outline: solid #d7d7d7;
     height: 50px;
