@@ -22,28 +22,29 @@
                             <label for="groupName" class="placeholder-label">그룹 명<span class="required">*</span></label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="groupDescription" v-model="groupDescription" class="form-control group-description" placeholder=" " />
+                            <input type="text" id="groupDescription" v-model="groupDescription" class="group-description form-control group-description" placeholder=" " />
                             <label for="groupDescription" class="placeholder-label2">그룹 설명(200자)</label>
                         </div>
                     </template>
                     <template v-if="step === 2">
                         <!-- 내 프로필 생성 화면 -->
                         <div class="upload-container">
-                            <input type="file" id="profileImageUpload" accept="image/*" @change="previewImage" style="display: none;">
+                            <input type="file" id="profileImageUpload" accept="image/*" @change="profilePreviewImage" style="display: none;">
                             <label for="profileImageUpload" class="upload-label">
-                                <img v-if="imageSrc" :src="imageSrc" alt="Image Preview" class="image-preview" />
+                                <img v-if="profileimageSrc" :src="profileimageSrc" alt="Image Preview" class="image-preview" />
                                 <span v-else class="upload-icon">+</span>
                             </label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="nickname" class="group-name form-control" placeholder=" " v-model="nickname" />
+                            <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="nickname" />
                             <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
                         </div>
                     </template>
                 </div>
                 <div class="modal-footer">
                     <button v-if="step === 1" type="button" class="btn btn-dark btn-block" @click="next">다음</button>
-                    <button v-if="step === 2" type="button" class="btn btn-dark btn-block" data-bs-dismiss="modal">생성</button>
+                    <button v-if="step === 2" type="button" class="btn btn-dark btn-block" @click="create">생성</button>
+
                 </div>
             </div>
         </div>
@@ -51,6 +52,8 @@
 </template>
 
 <script>
+import { Modal } from 'bootstrap';
+import axios from 'axios';
 export default {
     data() {
         return {
@@ -58,19 +61,39 @@ export default {
             groupDescription: '',
             groupName: '',
             nickname: '',
-            step: 1
+            step: 1,
+            profileimageSrc: null
         }
     },
     methods: {
         next() {
+            if(this.groupName == '' || this.groupName == null || this.groupName == undefined) {
+                alert("그룹 명을 입력하지않으셨습니다.")
+                return
+            }
             this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
         },
         create() {
-            // 생성 버튼 클릭 시 실행될 함수
+            if(this.nickname == '' || this.nickname == null || this.nickname == undefined) {
+                alert("닉네임을 입력하지않으셨습니다.")
+                return
+            }
             alert("생성 완료!");
+            axios.post("/api/group", {
+                "name": this.groupName,
+                "imageUrl": this.imageSrc,
+                "description": this.groupDescription,
+                "nickname": this.nickname,
+                "profileImageUrl": this.profileimageSrc
+            }, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
             this.step = 1; // 단계 초기화
             this.resetForm(); // 폼 리셋
-            this.$emit("createModalClose", false)
+            const modalInstance = Modal.getInstance(document.getElementById('exampleModal'));
+            if (modalInstance) modalInstance.hide();
         },
         previewImage(event) {
             const file = event.target.files[0];
@@ -78,6 +101,16 @@ export default {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.imageSrc = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+        profilePreviewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.profileimageSrc = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
@@ -178,8 +211,8 @@ export default {
 .group-description:not(:placeholder-shown) .placeholder-label2 {
     opacity: 0;
 }
-.nickname:focus,
-.nickname:not(:placeholder-shown) .placeholder-label3 {
+.nickname:focus + .placeholder-label3,
+.nickname:not(:placeholder-shown) + .placeholder-label3 {
     opacity: 0;
 }
 input::placeholder {
