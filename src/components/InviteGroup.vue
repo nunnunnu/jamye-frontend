@@ -1,5 +1,5 @@
 <template>
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" @click="modalClose">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -53,8 +53,7 @@
                         <button type="button" class="btn btn-dark btn-block" @click="back" >이전</button>
                         <button type="button" class="btn btn-dark btn-block" @click="nextTwo" >다음</button>
                     </div>
-                    <button v-if="step === 3" type="button" class="btn btn-dark btn-block" @click="create">가입</button>
-
+                    <button v-if="step === 3" type="button" class="btn btn-dark btn-block"  data-bs-dismiss="modal" aria-label="Close" @click="create">가입</button>
                 </div> 
             </div>
         </div>
@@ -90,7 +89,6 @@ export default {
             .then(resposne => {
                 this.groupInfo = resposne.data.data
                 this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
-                this.inviteCode = null
             })
             .catch(e => {
                 console.log(e)
@@ -106,6 +104,8 @@ export default {
         },
         back() {            
             this.step = 1;
+            this.inviteCode = null
+            this.groupInfo = null
 
         },
         previewImage(event) {
@@ -138,6 +138,27 @@ export default {
             console.log("test")
             this.$emit("inviteModalClose", false)
         },
+        create() {
+            if(this.nickname == null) {
+                alert("가입할 그룹에서 사용할 프로필을 작성해주세요")
+                return
+            }
+            console.log(this.groupInfo)
+            axios.post("/api/group/invite", {
+                "groupSequence": this.groupInfo.groupSequence,
+                "inviteCode": this.inviteCode,
+                "nickName": this.nickname,
+                "profileImageUrl": this.profileimageSrc
+            }, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(r => {
+                alert("성공")
+                console.log(r)
+                this.modalClose()  
+            })
+        }
     }
 }
 </script>

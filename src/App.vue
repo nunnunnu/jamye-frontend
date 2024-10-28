@@ -13,7 +13,7 @@ export default {
             isLogin: null
         }
     },
-    mounted() {
+    created() {
         this.isLogin = this.$cookies.get('accessToken') !== null;
     },
     methods: {

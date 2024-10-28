@@ -2,17 +2,19 @@
     <br><br><br>
     <div class="b-container">
         <h2 class="title">그룹 정보</h2>
-        <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="createModal">
-            그룹 생성
-        </button>
-        <div v-if="groupCreateModal">
-            <GroupCreate @createModalClose="createModalClose"></GroupCreate>
-        </div>
-        <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="inviteModal">
-            초대코드 입력
-        </button>
-        <div v-if="groupInviteModal">
-            <inviteGroup @inviteModalClose="inviteModalClose"></inviteGroup>
+        <div>
+            <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="createModal">
+                그룹 생성
+            </button>
+            <div v-if="groupCreateModal">
+                <GroupCreate @createModalClose="createModalClose"></GroupCreate>
+            </div>
+            <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="inviteModal">
+                초대코드 입력
+            </button>
+            <div v-if="groupInviteModal">
+                <inviteGroup @inviteModalClose="inviteModalClose"></inviteGroup>
+            </div>
         </div>
     </div>
 </template>
