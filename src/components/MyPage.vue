@@ -15,7 +15,7 @@
         <br><br>
         <div class="group-header">
             <h2 class="title">내 그룹</h2>
-            <button type="button" class="btn btn-outline-danger btn-sm">+</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" @click="groupAdd">+</button>
         </div>
         <div>
             <div v-if="groups==0"> 아직 소속된 그룹이 없습니다.</div>
@@ -86,12 +86,16 @@ export default {
                 this.groups = response.data.data
             })
             
+        },
+        groupAdd() {
+            this.$router.push("/add")
         }
     }
     
 }
 </script>
 <style scoped>
+@import url("../css/group-box.css");
 .user-info-box {
   display: flex;
   justify-content: space-between;
@@ -135,12 +139,6 @@ export default {
 .btn-block {
     width: 100%;
 }
-.group-header {
-  display: flex; /* 플렉스 박스를 사용하여 요소들을 가로로 배치 */
-  align-items: center; /* 수직 정렬을 가운데로 */
-  justify-content: space-between; /* 제목과 버튼 사이에 공간을 자동으로 배분 */
-  margin-bottom: 20px; /* 하단 여백 추가 (필요에 따라 조정) */
-}
 
 .title {
   font-size: 24px; /* 제목 크기 조정 */
@@ -160,89 +158,5 @@ export default {
 
 .add-group-btn:hover {
   background-color: #0056b3; /* 호버 시 버튼 색상 변경 */
-}
-
-.group-info-box-container {
-    max-height: 500px; /* 최대 높이를 설정 */
-    overflow-y: auto; /* 세로 스크롤을 자동으로 추가 */
-    padding-right: 10px; /* 스크롤바와 내용 사이 간격 */
-}
-
-/* 기존 스타일 */
-.group-info-box {
-    display: flex; /* Flexbox 사용 */
-    align-items: center; /* 세로 중앙 정렬 */
-    margin-bottom: 20px; /* 아래쪽 여백 추가 */
-    margin-top: 10px;
-    margin-left: 5px;
-    background-color: #f0f0f0;
-    border-radius: 20px;
-    height: 90px;
-    outline-style: solid;
-    outline-color: #d7d7d7;
-    overflow: hidden; /* 내용이 넘칠 경우 숨김 처리 */
-}
-
-.group-image {
-    width: 60px; /* 이미지 크기 설정 */
-    height: 60px; /* 이미지 크기 설정 */
-    border-radius: 50%; /* 동그라미 형태 */
-    overflow: hidden; /* 이미지가 동그라미를 넘지 않도록 설정 */
-    margin-left: 10px;
-    margin-right: 10px; /* 그룹명과의 간격 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.group-image img {
-    width: 100%; /* 부모 요소에 맞춰서 크기 조정 */
-    height: 100%; /* 부모 요소에 맞춰서 크기 조정 */
-    object-fit: cover; /* 이미지 비율 유지 */
-}
-
-.group-details {
-    flex-grow: 1; /* 남은 공간을 차지하도록 설정 */
-}
-
-.group-name {
-    font-size: 18px; /* 그룹명 크기 */
-    font-weight: bold; /* 굵게 */
-}
-
-.small-font {
-    font-size: 14px; /* 작은 글씨 크기 */
-    color: #666; /* 색상 */
-}
-.group-actions {
-    display: flex;
-    gap: 10px;
-    margin-right: 10px;
-}
-
-.edit-btn, .delete-btn {
-    font-size: 14px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.edit-btn {
-    background-color: #000000;
-    color: white;
-}
-
-.edit-btn:hover {
-    background-color: #3a3a3a;
-}
-
-.delete-btn {
-    background-color: #dc3545;
-    color: white;
-}
-
-.delete-btn:hover {
-    background-color: #c82333;
 }
 </style>

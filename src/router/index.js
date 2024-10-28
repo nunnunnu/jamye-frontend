@@ -4,6 +4,7 @@ import Login from "../components/Login.vue"
 import MyPage from "../components/MyPage.vue"
 import MemberJoin from '@/components/MemberJoin.vue'
 import GroupInfos from '@/components/GroupInfos.vue'
+import GroupAdd from '@/components/GroupAdd.vue'
 
 const routes = [
     {
@@ -30,6 +31,11 @@ const routes = [
         path: "/groups",
         name: "groups",
         component: GroupInfos
+    },
+    {
+        path: "/add",
+        name: "add",
+        component: GroupAdd
     }
 ]
 

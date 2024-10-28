@@ -78,6 +78,7 @@
                             this.$cookies.set('accessToken', accessToken);
                             this.$cookies.set('refreshToken', refreshToken);
                             this.$cookies.set('id', response.data.data.id);
+                            this.$cookies.set('sequence', response.data.data.sequence);
                             if(this.idSave) {
                                 this.$cookies.set("saveId", response.data.data.id)
                             } else {
