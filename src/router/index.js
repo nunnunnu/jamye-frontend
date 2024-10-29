@@ -5,6 +5,7 @@ import MyPage from "../components/MyPage.vue"
 import MemberJoin from '@/components/MemberJoin.vue'
 import GroupInfos from '@/components/GroupInfos.vue'
 import GroupAdd from '@/components/GroupAdd.vue'
+import GroupInfo from '@/components/GroupInfo.vue'
 
 const routes = [
     {
@@ -36,6 +37,12 @@ const routes = [
         path: "/add",
         name: "add",
         component: GroupAdd
+    },
+    {
+        path: "/group:seq",
+        name: "groupInfo",
+        component: GroupInfo,
+        props: true
     }
 ]
 

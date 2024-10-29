@@ -21,32 +21,10 @@
                     </div>
                 </div>
                 <div class="group-actions">
-                    <button class="edit-btn" @click="selectGroup(group.groupSequence)">선택</button>
+                    <router-link class="btn btn-dark edit-button" :to="{name:'groupInfo', params:{seq:group.groupSequence}}">선택</router-link>
                 </div>
             </div>
             <br>
-        </div>
-        <br>
-        <div v-if="groupinfo!=null" class="group-container">
-            <div class="group-header">
-                <img src="@/assets/img/file.png" alt="Group Profile" class="group-profile-img" />
-                <div class="group-info">
-                    <span class="group-info-name">{{ groupinfo.name }}</span>
-                    <button class="btn btn-dark edit-button" v-if="groupinfo.isMaster" @click="editGroupName">수정</button>
-                </div>
-            </div>
-            <div class="user-list">
-                <div class="user-item" v-for="user in groupinfo.users" :key="user.userSequence">
-                    <img src="@/assets/img/file.png" alt="User Profile" class="user-profile-img" />
-                    <div class="user-info">
-                        <span class="user-name">
-                            {{ user.nickname }}
-                            <span v-if="user.grade=='MASTER'" class="master-badge">(마스터)</span>
-                        </span>
-                        <button v-if="user.userSequence==userSequence" class="btn btn-dark edit-button" @click="editUserName">수정</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -82,7 +60,6 @@ export default {
             alert("소속된 그룹이 없습니다. 그룹 생성 페이지로 이동합니다.")
             this.$router.push("/add")
         }
-        this.userSequence = this.$cookies.get("sequence")
     },
     methods: {
         loadMyGroupList() {
@@ -108,16 +85,6 @@ export default {
         groupAdd() {
             this.$router.push("/add")
         },
-        selectGroup(groupSeq) {
-            axios.get("/api/group/"+groupSeq,{
-                headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
-                }
-            })
-            .then(r => {
-                this.groupinfo = r.data.data
-            })
-        }
     }
 };
 </script>
@@ -132,92 +99,8 @@ export default {
     font-size: 30px;
 }
 .group-info-box-container {
-    max-height: 230px;
-}
-.group-container {
-    text-align: center;
-    max-width: 400px;
-    margin: 0 auto;
-    border: solid #ddd;
-    border-radius: 15px;
-    overflow: hidden;
-}
-.group-profile-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #ddd;
-}
-.group-info-name {
-    display: flex;
-    justify-content: space-between;
-    align-items: right;
-    width: 100%;
-    margin-left:10px;
-    font-weight: bold; /* 굵게 */
-}
-.user-list {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-}
-.user-item:last-child {
-    border-bottom: none;
-}
-.user-profile-img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #ddd;
-}
-.user-name {
-    font-size: 1em;
-    color: #333;
-    justify-content: space-between;
-    align-items: right;
-    margin-left: 10px;
-}
-.master-badge {
-    font-weight: bold;
-    color: #d62727;
-}
-edit-button {
-    display: inline;
-}
-.group-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* 왼쪽과 오른쪽 정렬 */
-    padding: 20px;
+    max-height:700px;
 }
 
-.group-info {
-    display: flex;
-    align-items: center;
-    width: 100%; /* 부모 요소의 전체 너비 사용 */
-    justify-content: space-between; /* 그룹명과 수정 버튼을 양 끝에 배치 */
-}
-
-.user-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* 사용자 이름과 수정 버튼을 양 끝에 배치 */
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* 사용자 이름과 수정 버튼을 양 끝에 배치 */
-    width: 100%; /* 부모 요소의 전체 너비 사용 */
-}
-.edit-button {
-    width: 70px;
-}
 
 </style>
