@@ -97,7 +97,7 @@
                         .catch(error => {
                             if (error.response) {
                                 alert(error.response.data.message);
-                                this.id = null
+                                this.id = this.$cookies.get("saveId")
                                 this.pwd = null
                             } else {
                                 alert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");

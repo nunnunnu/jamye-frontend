@@ -1,6 +1,6 @@
 <template>
-  <Navbar :isLogin="isLogin"></Navbar>
-  <router-view :isLogin="isLogin" @isLoginChange="isLoginChange"></router-view>
+  <Navbar :isLogin="isLogin" :currentGroup="currentGroup" @groupSelect="groupSelect"></Navbar>
+  <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" :key="currentGroup"></router-view>
 </template>
 
 <script>
@@ -10,15 +10,20 @@ export default {
   name: 'App',
   data() {
         return {
-            isLogin: null
+            isLogin: null,
+            currentGroup: null
         }
     },
     created() {
         this.isLogin = this.$cookies.get('accessToken') !== null;
+        this.currentGroup = this.$cookies.get("group")
     },
     methods: {
       isLoginChange(isLoginChange) {
         this.isLogin = isLoginChange
+      },
+      groupSelect(group) {
+        this.currentGroup = group
       }
     },
   components: {

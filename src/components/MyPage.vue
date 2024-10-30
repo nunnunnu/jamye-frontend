@@ -71,6 +71,8 @@ export default {
             this.$cookies.remove("accessToken")
             this.$cookies.remove("refreshToken")
             this.$cookies.remove("id")
+            this.$cookies.remove("sequence")
+            this.$cookies.remove("group")
             this.$emit('isLoginChange', false)
             this.$router.push("/")
         },

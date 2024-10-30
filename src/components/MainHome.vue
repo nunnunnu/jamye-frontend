@@ -12,7 +12,8 @@
                                 <button type="button" class="btn btn-dark" @click="login">로그인 후 뽑기</button>
                             </div>
                             <div v-if="this.isLogin">
-                                <button type="button" class="btn btn-dark">뽑기</button>
+                                <button v-if="currentGroup != null" type="button" class="btn btn-dark">뽑기</button>
+                                <button v-if="currentGroup == null" type="button" class="btn btn-dark" disabled>뽑기</button>
                             </div>
                         </div>
                     </div>
@@ -55,6 +56,11 @@
 
 export default {
     name: 'MainHome',
+    data() {
+        return {
+            currentGroup: null
+        }
+    },
     methods: {
         login() {
             this.$router.push("/login")
@@ -66,6 +72,9 @@ export default {
             required: true
         }
     },
+    created() {
+        this.currentGroup = this.$cookies.get("group")
+    }
 }
 
 </script>
