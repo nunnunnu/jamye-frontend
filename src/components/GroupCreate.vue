@@ -1,10 +1,10 @@
 <template>
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 v-if="step === 1" class="modal-title fs-5" id="exampleModalLabel">그룹 생성 - 그룹 정보 입력</h1>
-                    <h1 v-if="step === 2" class="modal-title fs-5" id="exampleModalLabel">그룹 생성 - 내 프로필 생성</h1>
+                    <h1 v-if="step === 1" class="modal-title fs-5" id="exampleModalLabel1">그룹 생성 - 그룹 정보 입력</h1>
+                    <h1 v-if="step === 2" class="modal-title fs-5" id="exampleModalLabel1">그룹 생성 - 내 프로필 생성</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="modalClose"></button>
                 </div>
                 <div class="modal-body">

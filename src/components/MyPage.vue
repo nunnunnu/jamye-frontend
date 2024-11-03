@@ -131,13 +131,7 @@ export default {
 .edit-btn:hover {
   background-color: #3a3a3a;
 }
-.custom-btn {
-    flex: 1; /* 버튼을 동일한 크기로 늘림 */
-    margin: 0 10px; /* 버튼 간의 간격 */
-    padding: 10px; /* 버튼 내부 여백 조정 */
-    text-align: center; /* 텍스트 중앙 정렬 */
-    border-radius: 5px; /* 모서리 둥글게 */
-}
+
 .btn-block {
     width: 100%;
 }

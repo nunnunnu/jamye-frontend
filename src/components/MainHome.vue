@@ -12,8 +12,46 @@
                                 <button type="button" class="btn btn-dark" @click="login">로그인 후 뽑기</button>
                             </div>
                             <div v-if="this.isLogin">
-                                <button v-if="currentGroup != null" type="button" class="btn btn-dark">뽑기</button>
-                                <button v-if="currentGroup == null" type="button" class="btn btn-dark" disabled>뽑기</button>
+                                <div v-if="currentGroup != null" class="mt-3 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-dark custom-btn">뽑기</button>
+                                    <button type="button" class="btn btn-dark custom-btn"  data-bs-toggle="modal" data-bs-target="#jamye-create">잼얘 넣기</button>
+                                        <div class="modal fade" id="jamye-create" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 v-if="step === 1" class="modal-title fs-5" id="jamye-create1">잼얘 생성 - 기본 정보 생성</h1>
+                                                        <h1 v-if="step === 2" class="modal-title fs-5" id="jamye-create2">잼얘 생성</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click.stop></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <template v-if="step === 1">
+                                                            <!-- 게시글 정보 입력 화면 -->
+                                                            <div class="form-group">
+                                                                <input type="text" class="form-control" name="post-title" id="post-title" placeholder="게시글 제목">
+                                                            </div>
+                                                            <br>
+                                                        </template>
+                                                        <template v-if="step === 2">
+                                                            <!-- 내 프로필 생성 화면 -->
+                                                            
+                                                        </template>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <div v-if="step == 1" class="mt-3 d-flex justify-content-between">
+                                                            <button class="btn btn-dark custom-btn">게시글 형식</button>
+                                                            <button class="btn btn-dark custom-btn">메세지 형식</button>
+                                                        </div>
+                                                        <button v-if="step === 2" type="button" class="btn btn-dark btn-block" @click="create">생성</button>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                </div>
+                                <div v-if="currentGroup == null">
+                                    <button type="button" class="btn btn-dark" disabled>뽑기</button>
+                                    <button type="button" class="btn btn-dark" disabled>잼얘 넣기</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -58,7 +96,8 @@ export default {
     name: 'MainHome',
     data() {
         return {
-            currentGroup: null
+            currentGroup: null,
+            step: 1
         }
     },
     methods: {

@@ -3,18 +3,14 @@
         <br><br><br>
         <h2 class="title">그룹 추가</h2>
         <div class="group-add">
-            <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="createModal">
+            <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal1">
                 그룹 생성
             </button>
-            <div v-if="groupCreateModal">
                 <GroupCreate @createModalClose="createModalClose"></GroupCreate>
-            </div>
-            <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="inviteModal">
+            <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal2">
                 초대코드 입력
             </button>
-            <div v-if="groupInviteModal">
                 <inviteGroup @inviteModalClose="inviteModalClose"></inviteGroup>
-            </div>
         </div>
     </div>
 </template>
@@ -57,12 +53,6 @@ export default {
                 };
                 reader.readAsDataURL(file);
             }
-        },
-        createModal() {
-            this.groupCreateModal = true
-        },
-        inviteModal() {
-            this.groupInviteModal = true
         },
         createModalClose() {
             this.groupCreateModal = false
