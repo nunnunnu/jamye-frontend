@@ -29,11 +29,64 @@
                                                             <div class="form-group">
                                                                 <input type="text" class="form-control" name="post-title" id="post-title" placeholder="게시글 제목">
                                                             </div>
-                                                            <br>
                                                             <div class="mt-3 d-flex justify-content-between">
                                                                 <button class="btn btn-dark custom-btn">게시글 형식</button>
-                                                                <button class="btn btn-dark custom-btn">메세지 형식</button>
+                                                                <button class="btn btn-dark custom-btn" data-bs-toggle="collapse" href="#collapseExample">메세지 형식</button>
                                                             </div>
+                                                            
+                                                            <div class="collapse" id="collapseExample">
+                                                                <br>
+                                                                <div class="row g-3">
+                                                                    <div class="col-auto">
+                                                                        <input type="text" readonly class="form-control-plaintext" id="staticEmail2" value="닉네임">
+                                                                    </div>
+                                                                    <div class="col-auto">
+                                                                        <input type="text" class="form-control" id="inputPassword2" placeholder="닉네임" v-model="name">
+                                                                    </div>
+                                                                    <div class="col-auto">
+                                                                        <button type="submit" class="btn btn-dark mb-3" @click="nicknameAdd(name)">추가</button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="nicknames-container">
+                                                                    <div
+                                                                    v-for="nickname in nicknames"
+                                                                    :key="nickname"
+                                                                    class="nickname"
+                                                                    >
+                                                                    {{ nickname }}
+                                                                    <span class="remove-button" @click="removeNickname(nickname)">X</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div class="row g-2">
+                                                                    <div class="col-auto">
+                                                                        <input type="file" class="form-control" id="inputPassword2" placeholder="" @change="messageImageChange">
+                                                                    </div>
+                                                                    <div class="col-auto">
+                                                                        <button type="submit" class="btn btn-dark mb-3" @click="messageListGet">메세지 변환</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                                    <div class="card card-body">
+                                                                        <div class="chat-room">
+                                                                            <div v-for="text in messageResponse" :key="text">
+                                                                                <div>{{ text.sendUser }}</div>
+                                                                                <div v-if="text.myMessage">
+                                                                                    <p>{{ text.sendDate }}</p>
+                                                                                    <div v-for="msg in text.message" :key="msg">
+                                                                                        <p class="from-me">{{ msg }}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div v-else>
+                                                                                    <div v-for="msg in text.message" :key="msg">
+                                                                                        <p class="from-them">{{ msg }}</p>
+                                                                                    </div>
+                                                                                    <p>{{ text.sendDate }}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                         </template>
                                                         <template v-if="step === 2">
                                                             <!-- 내 프로필 생성 화면 -->
@@ -94,19 +147,57 @@
   </template>
   
   <script>
+import axios from 'axios';
+
 
 export default {
     name: 'MainHome',
     data() {
         return {
             currentGroup: null,
-            step: 1
+            step: 1,
+            nicknames: new Set,
+            name: null,
+            messageImage: null,
+            messageResponse: null
         }
     },
     methods: {
         login() {
             this.$router.push("/login")
-        }
+        },
+        nicknameAdd(name) {
+            this.nicknames.add(name)
+        },
+        removeNickname(nickname) {
+            this.nicknames.delete(nickname);
+            this.nicknames = new Set([...this.nicknames]);
+        },
+        messageListGet() {
+            const formdata = new FormData()
+            formdata.append("image", this.messageImage)
+            const nicknameParam = [...this.nicknames].join(',');
+            axios.post("/api/post/message-text?sendUser=" + nicknameParam, formdata, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
+            .then(r => {
+                this.messageResponse = r.data.data
+            })
+            .catch(e => {
+                alert(e.data.message)
+            })
+        },
+        messageImageChange(event){
+                const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
+                if(event.target.files && event.target.files[0]){ //파일있는지 검사
+                    this.messageImage = event.target.files[0]
+                }else{
+                    imgbox.style.backgroundImage = ""
+                }
+                
+            }
     },
     props: {
         isLogin: {
@@ -134,4 +225,104 @@ export default {
     .home{
       padding-bottom: 102px;
     }
+    .chat-room {
+  border: 1px solid #000;
+  background-color: #fff;
+  border: 1px solid #e5e5ea;
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  font-family: "SanFrancisco";
+  font-size: 1.25rem;
+  margin: 0 auto 1rem;
+  max-width: 600px;
+  padding: 0.5rem 1.5rem;
+}
+.chat-room p {
+  border-radius: 1.15rem;
+  line-height: 1.25;
+  max-width: 75%;
+  padding: 0.5rem 0.875rem;
+  position: relative;
+  word-wrap: break-word;
+}
+.chat-room p::before,
+.chat-room p::after {
+  bottom: -0.1rem;
+  content: "";
+  height: 1rem;
+  position: absolute;
+}
+
+/* 상대방 */
+.chat-room p.from-them {
+  align-items: flex-start;
+  background-color: #e5e5ea;
+  color: #000;
+  width: fit-content;
+}
+.chat-room p.from-them::after {
+  background-color: #fff;
+  border-bottom-right-radius: 0.5rem;
+  left: 20px;
+  transform: translate(-30px, -2px);
+  width: 10px;
+}
+.chat-room p.from-them::before {
+  border-bottom-right-radius: 0.8rem 0.7rem;
+  border-left: 1rem solid #e5e5ea;
+  left: -0.35rem;
+  transform: translate(0, -0.1rem);
+}
+
+/* 나 */
+.chat-room p.from-me {
+  align-self: flex-end;
+  background-color: #248bf5;
+  color: #fff;
+  margin-left: 100px;
+}
+.chat-room p.from-me::after {
+  background-color: #fff;
+  border-bottom-left-radius: 0.5rem;
+  right: -40px;
+  transform: translate(-30px, -2px);
+  width: 10px;
+}
+.chat-room p.from-me::before {
+  border-bottom-left-radius: 0.8rem 0.7rem;
+  border-right: 1rem solid #248bf5;
+  right: -0.35rem;
+  transform: translate(0, -0.1rem);
+}
+
+.nicknames-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.nickname {
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.remove-button {
+  margin-left: 8px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  display: none;
+}
+
+.nickname:hover .remove-button {
+  display: inline;
+}
   </style>
