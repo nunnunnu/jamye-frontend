@@ -30,6 +30,10 @@
                                                                 <input type="text" class="form-control" name="post-title" id="post-title" placeholder="게시글 제목">
                                                             </div>
                                                             <br>
+                                                            <div class="mt-3 d-flex justify-content-between">
+                                                                <button class="btn btn-dark custom-btn">게시글 형식</button>
+                                                                <button class="btn btn-dark custom-btn">메세지 형식</button>
+                                                            </div>
                                                         </template>
                                                         <template v-if="step === 2">
                                                             <!-- 내 프로필 생성 화면 -->
@@ -38,8 +42,7 @@
                                                     </div>
                                                     <div class="modal-footer">
                                                         <div v-if="step == 1" class="mt-3 d-flex justify-content-between">
-                                                            <button class="btn btn-dark custom-btn">게시글 형식</button>
-                                                            <button class="btn btn-dark custom-btn">메세지 형식</button>
+                                                            <button class="btn btn-dark custom-btn">생성</button>
                                                         </div>
                                                         <button v-if="step === 2" type="button" class="btn btn-dark btn-block" @click="create">생성</button>
 

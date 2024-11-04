@@ -1,6 +1,6 @@
 <template>
   <Navbar :isLogin="isLogin" :currentGroup="currentGroup" @groupSelect="groupSelect"></Navbar>
-  <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" :key="currentGroup"></router-view>
+  <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" :key="currentGroup" @groupSelect="groupSelect"></router-view>
 </template>
 
 <script>

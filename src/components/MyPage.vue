@@ -62,6 +62,7 @@ export default {
         if(!this.isLogin) {
             alert("로그인 후 접속가능한 페이지입니다.")
             this.$router.push("/login")
+            return
         }
         this.id = this.$cookies.get("id")
         this.loadMyGroupList()
@@ -73,8 +74,9 @@ export default {
             this.$cookies.remove("id")
             this.$cookies.remove("sequence")
             this.$cookies.remove("group")
-            this.$emit('isLoginChange', false)
+            this.$emit("groupSelect", null)
             this.$router.push("/")
+            this.$emit('isLoginChange', false)
         },
         loadMyGroupList() {
             axios.get("/api/group/list", {
