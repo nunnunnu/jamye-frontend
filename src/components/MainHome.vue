@@ -30,11 +30,14 @@
                                                                 <input type="text" class="form-control" name="post-title" id="post-title" placeholder="게시글 제목">
                                                             </div>
                                                             <div class="mt-3 d-flex justify-content-between">
-                                                                <button class="btn btn-dark custom-btn">게시글 형식</button>
-                                                                <button class="btn btn-dark custom-btn" data-bs-toggle="collapse" href="#collapseExample">메세지 형식</button>
+                                                                <button class="btn btn-dark custom-btn" data-bs-toggle="collapse" href="#board-float">게시글 형식</button>
+                                                                <button class="btn btn-dark custom-btn" data-bs-toggle="collapse" href="#message-float">메세지 형식</button>
                                                             </div>
-                                                            
-                                                            <div class="collapse" id="collapseExample">
+                                                            <div class="collapse" id="board-float">
+                                                                <br>
+                                                                <textarea class="form-control detail-input" aria-label="With textarea"></textarea>
+                                                            </div>
+                                                            <div class="collapse" id="message-float">
                                                                 <br>
                                                                 <div class="row g-3">
                                                                     <div class="col-auto">
@@ -69,19 +72,17 @@
                                                             </div>
                                                                     <div class="card card-body">
                                                                         <div class="chat-room">
-                                                                            <div v-for="text in messageResponse" :key="text">
-                                                                                <div>{{ text.sendUser }}</div>
-                                                                                <div v-if="text.myMessage">
-                                                                                    <p>{{ text.sendDate }}</p>
-                                                                                    <div v-for="msg in text.message" :key="msg">
+                                                                            <div v-for="text in messageResponse" :key="text" class="message-me">
+                                                                                <div class="send-user">{{ text.sendUser }}</div>
+                                                                                <div v-if="text.myMessage" class="chat-message">
+                                                                                           <div v-for="(msg, index) in text.message" :key="index">
                                                                                         <p class="from-me">{{ msg }}</p>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div v-else>
-                                                                                    <div v-for="msg in text.message" :key="msg">
+                                                                                    <div v-for="(msg, index) in text.message" :key="index">
                                                                                         <p class="from-them">{{ msg }}</p>
                                                                                     </div>
-                                                                                    <p>{{ text.sendDate }}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -159,7 +160,7 @@ export default {
             nicknames: new Set,
             name: null,
             messageImage: null,
-            messageResponse: null
+            messageResponse: [{"sendUser":"이송은","message":["호떡믹스 토스에 8개 이만원인데 공구할","사람 없나","한개 이천오백원"],"sendDate":"오후 5:23","myMessage":false,"isReply":false,"replyMessage":null},{"sendUser":null,"message":["슬퍼"],"sendDate":"오후 5:50","myMessage":true,"isReply":false,"replyMessage":null},{"sendUser":null,"message":["근데사도안먹을듯"],"sendDate":"오후 5:51","myMessage":true,"isReply":false,"replyMessage":null},{"sendUser":"이송은","message":["난 호떡 좋아하니까 해먹을거같긴한데","8개는 넘 많아"],"sendDate":"오후 5:52","myMessage":false,"isReply":false,"replyMessage":null},{"sendUser":null,"message":["많긴 혀"],"sendDate":"오후 5:54","myMessage":true,"isReply":false,"replyMessage":null}]
         }
     },
     methods: {
@@ -245,6 +246,7 @@ export default {
   padding: 0.5rem 0.875rem;
   position: relative;
   word-wrap: break-word;
+    display: inline-block; /* 텍스트 길이에 맞게 박스 길이 조정 */
 }
 .chat-room p::before,
 .chat-room p::after {
@@ -260,6 +262,7 @@ export default {
   background-color: #e5e5ea;
   color: #000;
   width: fit-content;
+  font-size: 17px;
 }
 .chat-room p.from-them::after {
   background-color: #fff;
@@ -281,6 +284,9 @@ export default {
   background-color: #248bf5;
   color: #fff;
   margin-left: 100px;
+  text-align: right;
+  float: right;
+  font-size: 17px;
 }
 .chat-room p.from-me::after {
   background-color: #fff;
@@ -324,5 +330,15 @@ export default {
 
 .nickname:hover .remove-button {
   display: inline;
+}
+.message-me, message-them {
+    display: inline;
+    
+}
+.send-user {
+    font-size: 17px;
+}
+.detail-input {
+    height: 500px;
 }
   </style>
