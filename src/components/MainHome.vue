@@ -70,24 +70,58 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                                    <div class="card card-body">
-                                                                        <div class="chat-room">
-                                                                            <div v-for="text in messageResponse" :key="text" class="message-me">
-                                                                                <div class="send-user">{{ text.sendUser }}</div>
-                                                                                <div v-if="text.myMessage" class="chat-message">
-                                                                                           <div v-for="(msg, index) in text.message" :key="index">
-                                                                                        <p class="from-me">{{ msg }}</p>
+                                                            <div class="card card-body">
+                                                                <div class="card card-body">
+                                                                    <div class="chat-room">
+                                                                        <div v-for="[key, text] in Object.entries(messageResponse)" :key="key" class="message-me">                                                                        
+                                                                            <div v-if="text.myMessage" class="chat-message mt-3">
+                                                                                <div class="message-content">
+                                                                                    <div class="info-container">
+                                                                                        <div class="button-container">
+                                                                                            <button class="circle-btn add">
+                                                                                                <i class="fas fa-plus"></i>
+                                                                                            </button>
+                                                                                            <button class="circle-btn up-arrow">
+                                                                                                <i class="fas fa-arrow-up"></i>
+                                                                                            </button>
+                                                                                            <button class="circle-btn down-arrow">
+                                                                                                <i class="fas fa-arrow-down"></i>
+                                                                                            </button>
+                                                                                            <button class="circle-btn edit">
+                                                                                                <i class="fas fa-pencil-alt"></i>
+                                                                                            </button>
+                                                                                            <button class="circle-btn delete">
+                                                                                                <i class="fas fa-trash"></i>
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <span class="send-date">{{ text.sendDate }}</span>
+                                                                                        <div v-for="msg in text.message" :key="msg.seq">
+                                                                                            <p class="from-me">{{ msg.message }}</p>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div v-else>
-                                                                                    <div v-for="(msg, index) in text.message" :key="index">
-                                                                                        <p class="from-them">{{ msg }}</p>
+                                                                            </div>
+                                                                            <div v-else class="chat-message-them mt-3">
+                                                                                <div class="send-user">{{ text.sendUser }}</div>
+                                                                                <div v-for="msg in text.message" :key="msg.seq" class="message-container">
+                                                                                    <p class="from-them">{{ msg.message }}</p>
+                                                                                    <div class="info-container-them">
+                                                                                        <span class="send-date">{{ text.sendDate }}</span>
+                                                                                        <div class="button-container">
+                                                                                            <button class="circle-btn add"><i class="fas fa-plus"></i></button>
+                                                                                            <button class="circle-btn up-arrow"><i class="fas fa-arrow-up"></i></button>
+                                                                                            <button class="circle-btn down-arrow"><i class="fas fa-arrow-down"></i></button>
+                                                                                            <button class="circle-btn edit"><i class="fas fa-pencil-alt"></i></button>
+                                                                                            <button class="circle-btn delete"><i class="fas fa-trash"></i></button>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
+                                                        </div>
                                                         </template>
                                                         <template v-if="step === 2">
                                                             <!-- 내 프로필 생성 화면 -->
@@ -160,9 +194,69 @@ export default {
             nicknames: new Set,
             name: null,
             messageImage: null,
-            messageResponse: [{"sendUser":"이송은","message":["호떡믹스 토스에 8개 이만원인데 공구할","사람 없나","한개 이천오백원"],"sendDate":"오후 5:23","myMessage":false,"isReply":false,"replyMessage":null},{"sendUser":null,"message":["슬퍼"],"sendDate":"오후 5:50","myMessage":true,"isReply":false,"replyMessage":null},{"sendUser":null,"message":["근데사도안먹을듯"],"sendDate":"오후 5:51","myMessage":true,"isReply":false,"replyMessage":null},{"sendUser":"이송은","message":["난 호떡 좋아하니까 해먹을거같긴한데","8개는 넘 많아"],"sendDate":"오후 5:52","myMessage":false,"isReply":false,"replyMessage":null},{"sendUser":null,"message":["많긴 혀"],"sendDate":"오후 5:54","myMessage":true,"isReply":false,"replyMessage":null}]
+            messageResponse:  {
+        "1": {
+          "sendUser": "이송은",
+          "sendUserInGroupSeq": null,
+          "message": [
+            { "seq": 1, "message": "호떡믹스 토스에 8개 이만원인데 공구할" },
+            { "seq": 2, "message": "사람 없나" },
+            { "seq": 3, "message": "한개 이천오백원" }
+          ],
+          "sendDate": "오후 5:23",
+          "myMessage": false,
+          "isReply": false,
+          "replyMessage": null
+        },
+        "2": {
+          "sendUser": null,
+          "sendUserInGroupSeq": null,
+          "message": [
+            { "seq": 4, "message": "슬퍼" }
+          ],
+          "sendDate": "오후 5:50",
+          "myMessage": true,
+          "isReply": false,
+          "replyMessage": null
+        },
+        "3": {
+          "sendUser": null,
+          "sendUserInGroupSeq": null,
+          "message": [
+            { "seq": 5, "message": "근데사도안먹을듯" }
+          ],
+          "sendDate": "오후 5:51",
+          "myMessage": true,
+          "isReply": false,
+          "replyMessage": null
+        },
+        "4": {
+          "sendUser": "이송은",
+          "sendUserInGroupSeq": null,
+          "message": [
+            { "seq": 1, "message": "난 호떡 좋아하니까 해먹을거같긴한데" },
+            { "seq": 2, "message": "8개는 넘 많아" }
+          ],
+          "sendDate": "오후 5:52",
+          "myMessage": false,
+          "isReply": false,
+          "replyMessage": null
+        },
+        "5": {
+          "sendUser": null,
+          "sendUserInGroupSeq": null,
+          "message": [
+            { "seq": 3, "message": "많긴 혀" }
+          ],
+          "sendDate": "오후 5:54",
+          "myMessage": true,
+          "isReply": false,
+          "replyMessage": null
         }
-    },
+      }
+    }
+        }
+    ,
     methods: {
         login() {
             this.$router.push("/login")
@@ -226,119 +320,146 @@ export default {
     .home{
       padding-bottom: 102px;
     }
-    .chat-room {
-  border: 1px solid #000;
-  background-color: #fff;
-  border: 1px solid #e5e5ea;
-  border-radius: 0.25rem;
-  display: flex;
-  flex-direction: column;
-  font-family: "SanFrancisco";
-  font-size: 1.25rem;
-  margin: 0 auto 1rem;
-  max-width: 600px;
-  padding: 0.5rem 1.5rem;
-}
-.chat-room p {
-  border-radius: 1.15rem;
-  line-height: 1.25;
-  max-width: 75%;
-  padding: 0.5rem 0.875rem;
-  position: relative;
-  word-wrap: break-word;
-    display: inline-block; /* 텍스트 길이에 맞게 박스 길이 조정 */
-}
-.chat-room p::before,
-.chat-room p::after {
-  bottom: -0.1rem;
-  content: "";
-  height: 1rem;
-  position: absolute;
-}
+    .message-container {
+        display: flex;
+        align-items: center; /* 수직 중앙 정렬 */
+        gap: 8px; /* 요소 간 간격 */
+    }
 
-/* 상대방 */
-.chat-room p.from-them {
-  align-items: flex-start;
-  background-color: #e5e5ea;
-  color: #000;
-  width: fit-content;
-  font-size: 17px;
-}
-.chat-room p.from-them::after {
-  background-color: #fff;
-  border-bottom-right-radius: 0.5rem;
-  left: 20px;
-  transform: translate(-30px, -2px);
-  width: 10px;
-}
-.chat-room p.from-them::before {
-  border-bottom-right-radius: 0.8rem 0.7rem;
-  border-left: 1rem solid #e5e5ea;
-  left: -0.35rem;
-  transform: translate(0, -0.1rem);
-}
+    .chat-room .chat-message {
+    display: flex;
+    flex-direction: column;
+    }
 
-/* 나 */
-.chat-room p.from-me {
-  align-self: flex-end;
-  background-color: #248bf5;
-  color: #fff;
-  margin-left: 100px;
-  text-align: right;
-  float: right;
-  font-size: 17px;
-}
-.chat-room p.from-me::after {
-  background-color: #fff;
-  border-bottom-left-radius: 0.5rem;
-  right: -40px;
-  transform: translate(-30px, -2px);
-  width: 10px;
-}
-.chat-room p.from-me::before {
-  border-bottom-left-radius: 0.8rem 0.7rem;
-  border-right: 1rem solid #248bf5;
-  right: -0.35rem;
-  transform: translate(0, -0.1rem);
-}
+    .chat-message-then {
+        display: flex;
+        flex-direction: column;
+    }
 
-.nicknames-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
+    .chat-room p::before,
+    .chat-room p::after {
+        bottom: -0.1rem;
+        content: "";
+        height: 1rem;
+        position: absolute;
+    }
 
-.nickname {
-  background-color: black;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  position: relative;
-  transition: all 0.3s;
-}
+    /* 말풍선꼬리 */
+    .chat-room p.from-them::before { 
+        border-bottom-right-radius: 0.8rem 0.7rem;
+        border-left: 1rem solid #e5e5ea;
+        left: -0.35rem;
+        transform: translate(0, -0.1rem);
+    }
+    .chat-room p.from-me::before {
+        border-bottom-left-radius: 0.8rem 0.7rem;
+        border-right: 1rem solid #248bf5;
+        right: -0.35rem;
+        transform: translate(0, -0.1rem);
+    }
 
-.remove-button {
-  margin-left: 8px;
-  font-weight: bold;
-  color: white;
-  cursor: pointer;
-  display: none;
-}
+    .chat-room p.from-them::after {
+        background-color: #fff;
+        border-bottom-right-radius: 0.5rem;
+        left: 20px;
+        transform: translate(-30px, -2px);
+        width: 10px;
+    }
+    .chat-room p.from-me::after {
+        background-color: #fff;
+        border-bottom-left-radius: 0.5rem;
+        right: -40px;
+        transform: translate(-30px, -2px);
+        width: 10px ;
+    }
 
-.nickname:hover .remove-button {
-  display: inline;
-}
-.message-me, message-them {
-    display: inline;
+
+    .chat-room .message-content {
+    display: flex;
+    align-items: flex-end;
+    }
+
+    .chat-room p {
+    border-radius: 1.15rem;
+    line-height: 1.25;
+    padding: 0.5rem 0.875rem;
+    position: relative;
+    word-wrap: break-word;
+    display: inline-block;
     
-}
-.send-user {
+    }
+
+    /* 내 메시지 스타일링 */
+    .chat-room p.from-me {
+    align-self: flex-end;
+    background-color: #248bf5;
+    color: #fff;
+    margin-right: 10px;
+    text-align: left;
     font-size: 17px;
-}
-.detail-input {
-    height: 500px;
-}
-  </style>
+    white-space: nowrap;
+    }
+
+    /* 상대방 메시지 스타일링 */
+    .chat-room p.from-them {
+    background-color: #e5e5ea;
+    color: #000;
+    font-size: 17px;
+    text-align: left;
+    }
+
+    /* 날짜와 버튼 컨테이너 설정 */
+    .info-container {
+        display: flex;
+        align-items: center;
+        margin-left: auto; /* 오른쪽 정렬 */
+        gap: 5px;
+    }
+
+    .info-container-them {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+
+    .send-date {
+        font-size: 0.75em;
+        color: gray;
+        white-space: nowrap; /* 줄 바꿈 방지 */
+    }
+
+    .button-container {
+        display: flex;
+        gap: 4px;
+    }
+
+    /* 작은 동그라미 버튼 스타일 */
+    .circle-btn {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: rgba(94, 94, 94, 0.2);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    }
+
+    .circle-btn:hover {
+    background-color: rgba(128, 128, 128, 0.4);
+    }
+
+    .circle-btn:active {
+    background-color: rgba(128, 128, 128, 0.6);
+    }
+    .send-user {
+        font-size: 17px;
+        margin-bottom: 5px;
+    }
+
+</style>
