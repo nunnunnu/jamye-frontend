@@ -87,7 +87,7 @@
                                                                                             <button class="circle-btn down-arrow">
                                                                                                 <i class="fas fa-arrow-down"></i>
                                                                                             </button>
-                                                                                            <button class="circle-btn edit">
+                                                                                            <button class="circle-btn edit" @click="editMessage(key)">
                                                                                                 <i class="fas fa-pencil-alt"></i>
                                                                                             </button>
                                                                                             <button class="circle-btn delete">
@@ -96,7 +96,10 @@
                                                                                         </div>
                                                                                         <span class="send-date">{{ text.sendDate }}</span>
                                                                                         <div v-for="msg in text.message" :key="msg.seq">
-                                                                                            <p class="from-me">{{ msg.message }}</p>
+                                                                                            <p v-if="!isEditing[key]" class="from-me">{{ msg.message }}</p>
+                                                                                            <p v-else class="from-me">
+                                                                                                <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-me">
+                                                                                            </p>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
@@ -104,14 +107,17 @@
                                                                             <div v-else class="chat-message-them mt-3">
                                                                                 <div class="send-user">{{ text.sendUser }}</div>
                                                                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container">
-                                                                                    <p class="from-them">{{ msg.message }}</p>
+                                                                                    <p v-if="!isEditing[key]" class="from-them">{{ msg.message }}</p>
+                                                                                            <p v-else class="from-them">
+                                                                                                <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
+                                                                                            </p>
                                                                                     <div class="info-container-them">
                                                                                         <span class="send-date">{{ text.sendDate }}</span>
                                                                                         <div class="button-container">
                                                                                             <button class="circle-btn add"><i class="fas fa-plus"></i></button>
                                                                                             <button class="circle-btn up-arrow"><i class="fas fa-arrow-up"></i></button>
                                                                                             <button class="circle-btn down-arrow"><i class="fas fa-arrow-down"></i></button>
-                                                                                            <button class="circle-btn edit"><i class="fas fa-pencil-alt"></i></button>
+                                                                                            <button class="circle-btn edit" @click="editMessage(key)"><i class="fas fa-pencil-alt"></i></button>
                                                                                             <button class="circle-btn delete"><i class="fas fa-trash"></i></button>
                                                                                         </div>
                                                                                     </div>
@@ -194,6 +200,7 @@ export default {
             nicknames: new Set,
             name: null,
             messageImage: null,
+            isEditing: {},
             messageResponse:  {
         "1": {
           "sendUser": "이송은",
@@ -285,14 +292,22 @@ export default {
             })
         },
         messageImageChange(event){
-                const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
-                if(event.target.files && event.target.files[0]){ //파일있는지 검사
-                    this.messageImage = event.target.files[0]
-                }else{
-                    imgbox.style.backgroundImage = ""
-                }
-                
+            const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
+            if(event.target.files && event.target.files[0]){ //파일있는지 검사
+                this.messageImage = event.target.files[0]
+            }else{
+                imgbox.style.backgroundImage = ""
             }
+            
+        },
+        editMessage(key) {
+            this.isEditing[key] = true;
+        },
+        saveMessage(key, msg) {
+            console.log(msg)
+            this.isEditing[key] = false; // 편집 모드 비활성화
+        // 필요한 경우 여기에서 서버로 데이터 저장 로직 추가
+        }
     },
     props: {
         isLogin: {
@@ -327,8 +342,9 @@ export default {
     }
 
     .chat-room .chat-message {
-    display: flex;
-    flex-direction: column;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
 
     .chat-message-then {
@@ -400,12 +416,24 @@ export default {
     white-space: nowrap;
     }
 
+    input.from-me {
+        background-color: #248bf5;
+        color: #fff;
+        border: none;
+    }
+
     /* 상대방 메시지 스타일링 */
     .chat-room p.from-them {
     background-color: #e5e5ea;
     color: #000;
     font-size: 17px;
     text-align: left;
+    }
+
+    input.from-them {
+        background-color: #248bf5;
+        color: #fff;
+        border: none;
     }
 
     /* 날짜와 버튼 컨테이너 설정 */
@@ -460,6 +488,7 @@ export default {
     .send-user {
         font-size: 17px;
         margin-bottom: 5px;
+        text-align: left;
     }
 
 </style>
