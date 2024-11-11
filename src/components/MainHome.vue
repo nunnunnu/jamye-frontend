@@ -75,11 +75,11 @@
                                                                     <div class="chat-room">
                                                                         <div v-for="[key, text] in Object.entries(messageResponse)" :key="key">                                                                        
                                                                             <!-- 내 매세지 -->
-                                                                            <div v-if="text.myMessage" class="chat-message-them mt-3">
+                                                                            <div v-if="text.myMessage" class="chat-message mt-3">
                                                                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container-me">
                                                                                     <div class="info-container">
                                                                                         <div class="button-container">
-                                                                                            <button class="circle-btn add" @click="addEmptyMessage(key)">
+                                                                                            <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)">
                                                                                                 <i class="fas fa-plus"></i>
                                                                                             </button>
                                                                                             <button class="circle-btn up-arrow">
@@ -88,7 +88,7 @@
                                                                                             <button class="circle-btn down-arrow">
                                                                                                 <i class="fas fa-arrow-down"></i>
                                                                                             </button>
-                                                                                            <button class="circle-btn edit" @click="editMessage(key)">
+                                                                                            <button class="circle-btn edit" @click="editMessage(key, msg.seq)">
                                                                                                 <i class="fas fa-pencil-alt"></i>
                                                                                             </button>
                                                                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)">
@@ -97,27 +97,28 @@
                                                                                         </div>
                                                                                         <span class="send-date">{{ text.sendDate }}</span>
                                                                                 </div>
-                                                                                    <p v-if="!isEditing[key]" class="from-me">{{ msg.message }}</p>
-                                                                                    <p v-else class="from-me">
+                                                                                    <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me">
                                                                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-me">
                                                                                     </p>
+                                                                                    <p v-else class="from-me">{{ msg.message }}</p>
+                                                                                    
                                                                                 </div>
                                                                             </div>
                                                                             <!-- 상대 메세지 -->
-                                                                            <div v-else class="chat-message-them mt-3">
+                                                                            <div v-else class="chat-message mt-3">
                                                                                 <div class="send-user">{{ text.sendUser }}</div>
                                                                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container">
-                                                                                    <p v-if="!isEditing[key]" class="from-them">{{ msg.message }}</p>
-                                                                                    <p v-else class="from-them">
+                                                                                    <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them">
                                                                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
                                                                                     </p>
+                                                                                    <p v-else class="from-them">{{ msg.message }}</p>
                                                                                     <div class="info-container-them">
                                                                                         <span class="send-date">{{ text.sendDate }}</span>
                                                                                         <div class="button-container">
-                                                                                            <button class="circle-btn add" @click="addEmptyMessage(key)"><i class="fas fa-plus"></i></button>
+                                                                                            <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)"><i class="fas fa-plus"></i></button>
                                                                                             <button class="circle-btn up-arrow"><i class="fas fa-arrow-up"></i></button>
                                                                                             <button class="circle-btn down-arrow"><i class="fas fa-arrow-down"></i></button>
-                                                                                            <button class="circle-btn edit" @click="editMessage(key)"><i class="fas fa-pencil-alt"></i></button>
+                                                                                            <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
                                                                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)"><i class="fas fa-trash"></i></button>
                                                                                         </div>
                                                                                     </div>
@@ -300,8 +301,11 @@ export default {
             }
             
         },
-        editMessage(key) {
-            this.isEditing[key] = true;
+        editMessage(key, seq) {
+            if (!this.isEditing[key]) {
+                this.isEditing[key] = {}; 
+            }
+            this.isEditing[key][seq] = true; 
         },
         saveMessage(key, msg) {
             console.log(msg)
@@ -312,20 +316,32 @@ export default {
                 this.messageResponse[key].message = this.messageResponse[key].message.filter(
                     (msg) => msg.seq !== msgSeq
                 );
-            }
+                this.messageResponse[key].message.forEach(it => {
+                    if(it.seq > msgSeq) {
+                        it.seq = it.seq - 1
+                    }
+                });
+                if (!this.isEditing[key]) {
+                    this.isEditing[key] = {}; 
+                }
+                this.isEditing[key][msgSeq] = false 
+                }
         },
-        addEmptyMessage(key) {
-        if (this.messageResponse[key] && Array.isArray(this.messageResponse[key].message)) {
-            const lastSeq = this.messageResponse[key].message.length > 0
-                ? this.messageResponse[key].message[this.messageResponse[key].message.length - 1].seq + 1
-                : 1;
-
-            this.messageResponse[key].message.push({
-                seq: lastSeq,
-                message: ""
-            });
+        addEmptyMessage(key, msgSeq) {
+            if (this.messageResponse[key] && Array.isArray(this.messageResponse[key].message)) {
+                this.messageResponse[key].message.forEach(it => {
+                    if(it.seq > msgSeq) {
+                        it.seq = it.seq + 1
+                    }
+                });
+                this.messageResponse[key].message.push({
+                    seq: msgSeq + 1,
+                    message: "."
+                });    
+                this.messageResponse[key].message.sort((a, b) => a.seq - b.seq);
+                this.editMessage(key, msgSeq + 1)
+            }    
         }
-    }
     },
     props: {
         isLogin: {
