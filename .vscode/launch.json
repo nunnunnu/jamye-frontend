@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "pwa-chrome",
+        "name": "Vue-pwa-chrome",
+        "request": "launch",
+        "url": "http://localhost:8081/",
+        "breakOnLoad": true,
+        "webRoot": "${workspaceFolder}/frontend",
+        "pathMapping": {
+          "/_karma_webpack_": "${workspaceFolder}/frontend"
+        },
+        "outFiles": ["${workspaceFolder}/frontend/target/dist/**/*.js"],
+        "vueComponentPaths": [
+          "${workspaceFolder}/frontend/src/**/*.vue"
+        ],
+        "sourceMaps": true,
+        "sourceMapPathOverrides": {
+          "webpack:///./node_modules": "${webRoot}/node_modules",
+          "webpack:///./src/*": "${webRoot}/src/components/MainHome.vue"
+        }
+
+      }
+    ]
+  }

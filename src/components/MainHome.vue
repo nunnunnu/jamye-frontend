@@ -351,33 +351,58 @@ export default {
             // seq가 1인 경우 새로운 key로 객체 생성
             if (seq === 1) {
                 var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
+                console.log(messageText)
                 this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
+                console.log(this.messageResponse[key].message)
                 var orderSeq = 1
-                this.messageResponse[key].message.forEach(msg => {
-                    msg.seq = orderSeq++
-                })
+                console.log("1")
+                if(this.messageResponse[key].message.length != 0) {
+                    console.log("aaa")
+                    this.messageResponse[key].message.forEach(msg => {
+                        console.log(msg)
+                        msg.seq = orderSeq++
+                    })
+                } else {
+                    this.messageResponse[key] = {}
+                }
+                
                 console.log(this.messageResponse[key])
                 var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
                 
                 messageNewObject.message = messageText
                 messageNewObject.sendDate = null
-
+                console.log("new")
+                console.log(messageNewObject)
                 var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
+                // if(preMessageCut.sendUser = messageText.sendUser) {
+                //     const maxSeq = preMessageCut.reduce((max, msg) => {
+                //     return msg.seq > max ? msg.seq : max;
+                //     }, 0);
+                //     preMessageCut.message.push({
+                //         seq: maxSeq + 1,
+                //         message: messageText.message.pop()
+                //     })
+                // }
 
                 preMessageCut.message = [preMessageCut.message.pop()]
-                
+                console.log("cut")
+                console.log("1:" + preMessageCut)
                 var lastSeq = 0
                 preMessageCut.message.forEach(msg => {
                     lastSeq = msg.seq
                     msg.seq = 1
 
                 })
-
+                console.log("2:" + preMessageCut)
                 this.messageResponse[key - 1].message = this.messageResponse[key - 1].message.filter(msg => msg.seq != lastSeq)
 
                 var tempMap = new Map
                 var tempKey = key
                 for(let [id, value] of Object.entries(this.messageResponse)) {
+                    // if(value.message == 0) {
+                    //     break
+                    // }
+                    console.log("test:"+value)
                     if(id < key) {
                         tempMap[id] = value
                     } else if(id == key) {
