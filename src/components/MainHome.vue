@@ -82,7 +82,7 @@
                                                                                             <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)">
                                                                                                 <i class="fas fa-plus"></i>
                                                                                             </button>
-                                                                                            <button class="circle-btn up-arrow">
+                                                                                            <button class="circle-btn up-arrow" @click="moveMessageUp(key, msg.seq)">
                                                                                                 <i class="fas fa-arrow-up"></i>
                                                                                             </button>
                                                                                             <button class="circle-btn down-arrow">
@@ -116,7 +116,7 @@
                                                                                         <span class="send-date">{{ text.sendDate }}</span>
                                                                                         <div class="button-container">
                                                                                             <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)"><i class="fas fa-plus"></i></button>
-                                                                                            <button class="circle-btn up-arrow"><i class="fas fa-arrow-up"></i></button>
+                                                                                            <button class="circle-btn up-arrow" @click="moveMessageUp(key, msg.seq)"><i class="fas fa-arrow-up"></i></button>
                                                                                             <button class="circle-btn down-arrow"><i class="fas fa-arrow-down"></i></button>
                                                                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
                                                                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)"><i class="fas fa-trash"></i></button>
@@ -220,7 +220,7 @@ export default {
           "sendUser": null,
           "sendUserInGroupSeq": null,
           "message": [
-            { "seq": 4, "message": "슬퍼" }, {"seq":5, "message":"test"}
+            { "seq": 1, "message": "슬퍼" }, {"seq":2, "message":"test"}, {"seq":3, "message":"sss"}
           ],
           "sendDate": "오후 5:50",
           "myMessage": true,
@@ -231,7 +231,7 @@ export default {
           "sendUser": null,
           "sendUserInGroupSeq": null,
           "message": [
-            { "seq": 5, "message": "근데사도안먹을듯" }
+            { "seq": 1, "message": "근데사도안먹을듯" }
           ],
           "sendDate": "오후 5:51",
           "myMessage": true,
@@ -254,7 +254,7 @@ export default {
           "sendUser": null,
           "sendUserInGroupSeq": null,
           "message": [
-            { "seq": 3, "message": "많긴 혀"}
+            { "seq": 1, "message": "많긴 혀"}
           ],
           "sendDate": "오후 5:54",
           "myMessage": true,
@@ -341,6 +341,70 @@ export default {
                 this.messageResponse[key].message.sort((a, b) => a.seq - b.seq);
                 this.editMessage(key, msgSeq + 1)
             }    
+        },
+        moveMessageUp(key, seq) {
+            if(key==1 && seq ==1) {
+                return
+            }
+            const messageArray = this.messageResponse[key].message;
+            
+            // seq가 1인 경우 새로운 key로 객체 생성
+            if (seq === 1) {
+                var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
+                this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
+                var orderSeq = 1
+                this.messageResponse[key].message.forEach(msg => {
+                    msg.seq = orderSeq++
+                })
+                console.log(this.messageResponse[key])
+                var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
+                
+                messageNewObject.message = messageText
+                messageNewObject.sendDate = null
+
+                var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
+
+                preMessageCut.message = [preMessageCut.message.pop()]
+                
+                var lastSeq = 0
+                preMessageCut.message.forEach(msg => {
+                    lastSeq = msg.seq
+                    msg.seq = 1
+
+                })
+
+                this.messageResponse[key - 1].message = this.messageResponse[key - 1].message.filter(msg => msg.seq != lastSeq)
+
+                var tempMap = new Map
+                var tempKey = key
+                for(let [id, value] of Object.entries(this.messageResponse)) {
+                    if(id < key) {
+                        tempMap[id] = value
+                    } else if(id == key) {
+                        tempMap[tempKey++] = messageNewObject
+                        tempMap[tempKey++] = preMessageCut
+                        tempMap[tempKey++] = value
+                    } else {
+                        tempMap[tempKey++] = value
+                    }
+                    console.log(id)
+                    console.log(value)
+                }
+                console.log(tempMap)
+                this.messageResponse = tempMap
+                
+            } else {
+                // seq가 1이 아닌 경우 배열 내에서 순서 변경
+                const index = messageArray.findIndex(msg => msg.seq === seq);
+                if (index > 0) {
+                // 현재 메시지를 한 단계 위로 올림
+                [messageArray[index - 1], messageArray[index]] = [messageArray[index], messageArray[index - 1]];
+                
+                // seq 값을 업데이트
+                messageArray[index - 1].seq -= 1;
+                messageArray[index].seq += 1;
+                }
+            }
         }
     },
     props: {
