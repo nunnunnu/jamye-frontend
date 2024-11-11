@@ -73,30 +73,30 @@
                                                             <div class="card card-body">
                                                                 <div class="card card-body">
                                                                     <div class="chat-room">
-                                                                        <div v-for="[key, text] in Object.entries(messageResponse)" :key="key" class="message-me">                                                                        
+                                                                        <div v-for="[key, text] in Object.entries(messageResponse)" :key="key">                                                                        
                                                                             <!-- 내 매세지 -->
-                                                                            <div v-if="text.myMessage" class="chat-message mt-3">
-                                                                                <div class="info-container">
-                                                                                    <div class="button-container">
-                                                                                        <button class="circle-btn add" @click="addEmptyMessage(key)">
-                                                                                            <i class="fas fa-plus"></i>
-                                                                                        </button>
-                                                                                        <button class="circle-btn up-arrow">
-                                                                                            <i class="fas fa-arrow-up"></i>
-                                                                                        </button>
-                                                                                        <button class="circle-btn down-arrow">
-                                                                                            <i class="fas fa-arrow-down"></i>
-                                                                                        </button>
-                                                                                        <button class="circle-btn edit" @click="editMessage(key)">
-                                                                                            <i class="fas fa-pencil-alt"></i>
-                                                                                        </button>
-                                                                                        <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)">
-                                                                                            <i class="fas fa-trash"></i>
-                                                                                        </button>
-                                                                                    </div>
-                                                                                    <span class="send-date">{{ text.sendDate }}</span>
+                                                                            <div v-if="text.myMessage" class="chat-message-them mt-3">
+                                                                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me">
+                                                                                    <div class="info-container">
+                                                                                        <div class="button-container">
+                                                                                            <button class="circle-btn add" @click="addEmptyMessage(key)">
+                                                                                                <i class="fas fa-plus"></i>
+                                                                                            </button>
+                                                                                            <button class="circle-btn up-arrow">
+                                                                                                <i class="fas fa-arrow-up"></i>
+                                                                                            </button>
+                                                                                            <button class="circle-btn down-arrow">
+                                                                                                <i class="fas fa-arrow-down"></i>
+                                                                                            </button>
+                                                                                            <button class="circle-btn edit" @click="editMessage(key)">
+                                                                                                <i class="fas fa-pencil-alt"></i>
+                                                                                            </button>
+                                                                                            <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)">
+                                                                                                <i class="fas fa-trash"></i>
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <span class="send-date">{{ text.sendDate }}</span>
                                                                                 </div>
-                                                                                <div v-for="msg in text.message" :key="msg.seq" class="message-container">
                                                                                     <p v-if="!isEditing[key]" class="from-me">{{ msg.message }}</p>
                                                                                     <p v-else class="from-me">
                                                                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-me">
@@ -359,15 +359,12 @@ export default {
         gap: 8px;
     }
 
-    .chat-room {
-        flex-direction: column;
-        overflow: hidden;
-        display: inline-block; 
+    .message-container-me {
+        display: flex;
     }
-    
-    .chat-message {
-        display: flex
 
+    .chat-room {
+        overflow: hidden;
     }
 
     .chat-room p::before,
@@ -418,10 +415,6 @@ export default {
         line-height: 1.25;
         padding: 0.5rem 0.875rem;
         position: relative;
-    }
-
-    .chat-room {
-        flex-direction: column; /* 세로로 쌓이게 설정 */
     }
 
     /* 내 메시지 스타일링 */
