@@ -85,7 +85,7 @@
                                                                                             <button class="circle-btn up-arrow" @click="moveMessageUp(key, msg.seq)">
                                                                                                 <i class="fas fa-arrow-up"></i>
                                                                                             </button>
-                                                                                            <button class="circle-btn down-arrow">
+                                                                                            <button class="circle-btn down-arrow" @click="moveMessageDown(key, msg.seq)">
                                                                                                 <i class="fas fa-arrow-down"></i>
                                                                                             </button>
                                                                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)">
@@ -117,7 +117,7 @@
                                                                                         <div class="button-container">
                                                                                             <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)"><i class="fas fa-plus"></i></button>
                                                                                             <button class="circle-btn up-arrow" @click="moveMessageUp(key, msg.seq)"><i class="fas fa-arrow-up"></i></button>
-                                                                                            <button class="circle-btn down-arrow"><i class="fas fa-arrow-down"></i></button>
+                                                                                            <button class="circle-btn down-arrow" @click="moveMessageDown(key, msg.seq)"><i class="fas fa-arrow-down"></i></button>
                                                                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
                                                                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)"><i class="fas fa-trash"></i></button>
                                                                                         </div>
@@ -452,6 +452,40 @@ export default {
                 }
             }
 
+        },
+        moveMessageDown(key, seq) {
+            const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
+            const maxSeq = this.messageResponse[maxKey].message.reduce((max, msg) => {
+                        return msg.seq > max ? msg.seq : max;
+                    }, 0);
+
+            if(key==maxKey && seq ==maxSeq) {
+                return
+            }
+
+
+            const messageArray = this.messageResponse[key].message;
+            const editMapMaxSeq = messageArray.reduce((max, msg) => {
+                        return msg.seq > max ? msg.seq : max;
+                    }, 0);
+            console.log(key + "," + seq)
+
+            if (seq === editMapMaxSeq) {
+
+            } else {
+                console.log("배열 내 이동")
+                // seq가 최대값이 아닌 경우 배열 내에서 순서 변경
+                const index = messageArray.findIndex(msg => msg.seq === seq);
+                if (index < messageArray.length - 1) {
+                    // 현재 메시지를 한 단계 아래로 내림
+                    [messageArray[index], messageArray[index + 1]] = [messageArray[index + 1], messageArray[index]];
+
+                    // seq 값을 업데이트
+                    messageArray[index].seq -= 1;
+                    messageArray[index + 1].seq += 1;
+
+                }
+            }
         }
     },
     props: {
