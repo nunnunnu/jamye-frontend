@@ -347,77 +347,98 @@ export default {
                 return
             }
             const messageArray = this.messageResponse[key].message;
-            
+            console.log(key + "," + seq)
             // seq가 1인 경우 새로운 key로 객체 생성
             if (seq === 1) {
                 var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
-                console.log(messageText)
                 this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
-                console.log(this.messageResponse[key].message)
                 var orderSeq = 1
-                console.log("1")
                 if(this.messageResponse[key].message.length != 0) {
-                    console.log("aaa")
                     this.messageResponse[key].message.forEach(msg => {
-                        console.log(msg)
                         msg.seq = orderSeq++
                     })
-                } else {
-                    this.messageResponse[key] = {}
                 }
                 
-                console.log(this.messageResponse[key])
                 var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
                 
-                messageNewObject.message = messageText
-                messageNewObject.sendDate = null
-                console.log("new")
-                console.log(messageNewObject)
                 var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
-                // if(preMessageCut.sendUser = messageText.sendUser) {
-                //     const maxSeq = preMessageCut.reduce((max, msg) => {
-                //     return msg.seq > max ? msg.seq : max;
-                //     }, 0);
-                //     preMessageCut.message.push({
-                //         seq: maxSeq + 1,
-                //         message: messageText.message.pop()
-                //     })
-                // }
+                if(preMessageCut.sendUser == messageText.sendUser) {
+                    const maxSeq = preMessageCut.message.reduce((max, msg) => {
+                        return msg.seq > max ? msg.seq : max;
+                    }, 0);
 
-                preMessageCut.message = [preMessageCut.message.pop()]
-                console.log("cut")
-                console.log("1:" + preMessageCut)
-                var lastSeq = 0
-                preMessageCut.message.forEach(msg => {
-                    lastSeq = msg.seq
-                    msg.seq = 1
-
-                })
-                console.log("2:" + preMessageCut)
+                    var maxMsg = preMessageCut.message.pop()
+                    preMessageCut.message.push({
+                        seq: maxSeq,
+                        message: messageText.pop().message
+                    })
+                    preMessageCut.message.push({
+                        seq: maxSeq + 1,
+                        message: maxMsg.message
+                    })
+                    this.messageResponse[key - 1].message = []
+                } else {
+                    preMessageCut.message = [preMessageCut.message.pop()]
+                    messageNewObject.message = messageText
+                    messageNewObject.sendDate = null
+                }
+                const lastSeq = preMessageCut.message.reduce((max, msg) => {
+                    return msg.seq > max ? msg.seq : max;
+                    }, 0);
                 this.messageResponse[key - 1].message = this.messageResponse[key - 1].message.filter(msg => msg.seq != lastSeq)
 
                 var tempMap = new Map
-                var tempKey = key
+                var tempKey = 1
                 for(let [id, value] of Object.entries(this.messageResponse)) {
-                    // if(value.message == 0) {
-                    //     break
-                    // }
-                    console.log("test:"+value)
-                    if(id < key) {
-                        tempMap[id] = value
-                    } else if(id == key) {
-                        tempMap[tempKey++] = messageNewObject
-                        tempMap[tempKey++] = preMessageCut
-                        tempMap[tempKey++] = value
-                    } else {
+                    if(id == key) {
+                        if(messageNewObject.message.length != 0) {
+                            tempMap[tempKey++] = messageNewObject
+                        }
+                        
+                        if(preMessageCut.message.length != 0) {
+                            tempMap[tempKey++] = preMessageCut
+                        }
+                        
+                        if(value.message.length != 0) {
+                            tempMap[tempKey++] = value
+                        }
+
+                    } else if(value.message.length != 0){
                         tempMap[tempKey++] = value
                     }
-                    console.log(id)
-                    console.log(value)
                 }
-                console.log(tempMap)
-                this.messageResponse = tempMap
+                console.log("result1:" + JSON.stringify(tempMap))
                 
+                var tempMapUser = new Map
+                var preUser = null
+                tempKey = 1
+                for(let [id, value] of Object.entries(tempMap)) {
+                    console.log(value)
+                    if(id == 1) {
+                        preUser = value.sendUser
+                        tempMapUser[tempKey++] = value
+                        continue
+                    }
+                    if (value.sendUser == preUser) {
+                        console.log(preUser)
+                        console.log(value.sendUser)
+                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
+                            return msg.seq > max ? msg.seq : max;
+                        }, 0);
+                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
+                            seq: ++maxNum,
+                            message: msg.message
+                        }))
+                    } else {
+                        tempMapUser[tempKey++] = value
+                    }
+                    preUser = value.sendUser
+                    console.log("result2:" + JSON.stringify(tempMapUser))
+                }
+                console.log("result2-1:" + JSON.stringify(tempMapUser))
+                this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
+
+                console.log("result3:" + JSON.stringify(this.messageResponse))
             } else {
                 // seq가 1이 아닌 경우 배열 내에서 순서 변경
                 const index = messageArray.findIndex(msg => msg.seq === seq);
@@ -430,6 +451,7 @@ export default {
                 messageArray[index].seq += 1;
                 }
             }
+
         }
     },
     props: {
