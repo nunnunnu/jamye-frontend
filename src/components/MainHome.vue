@@ -471,7 +471,81 @@ export default {
             console.log(key + "," + seq)
 
             if (seq === editMapMaxSeq) {
+                var messageText = JSON.parse(JSON.stringify(this.messageResponse[key]))
+                messageText.message = []
+                messageText.message.push({
+                    seq: 1,
+                    message: this.messageResponse[key].message.pop().message
+                })
+                console.log("1:" + JSON.stringify(messageText))
+                console.log(this.messageResponse[key])
+                var nextKey = Number(key) + 1
+                var upMessage = JSON.parse(JSON.stringify(this.messageResponse[nextKey]))
+                upMessage.message = this.messageResponse[nextKey].message.filter(msg => msg.seq == 1)
+                console.log("2")
+                this.messageResponse[nextKey].message = this.messageResponse[nextKey].message.filter(msg => msg.seq != 1)
+                console.log("3")
+                var orderSeq = 1
+                if(this.messageResponse[nextKey].message.length != 0) {
+                    console.log("4")
+                    this.messageResponse[nextKey].message.forEach(msg => {
+                        msg.seq = orderSeq++
+                    })
+                }
+                console.log("thisCut:" + JSON.stringify(messageText))
+                console.log("nextCut:" + JSON.stringify(upMessage))
+                console.log("origin:" + JSON.stringify(this.messageResponse[nextKey]))
+                var tempMap = new Map
+                var tempKey = 1
+                for(let [id, value] of Object.entries(this.messageResponse)) {
+                    if(id == key) {
+                        if(value.message.length != 0) {
+                            console.log("origin")
+                            tempMap[tempKey++] = value
+                        }
+                        if(upMessage.message.length != 0) {
+                            console.log("up")
+                            tempMap[tempKey++] = upMessage
+                        }
+                        if(messageText.message.length != 0) {
+                            console.log("down")
+                            tempMap[tempKey++] = messageText
+                        }
+                    } else if(value.message.length != 0){
+                        tempMap[tempKey++] = value
+                    }
+                }
+                console.log("result1:" + JSON.stringify(tempMap))
+                var tempMapUser = new Map
+                var preUser = null
+                tempKey = 1
+                for(let [id, value] of Object.entries(tempMap)) {
+                    console.log(value)
+                    if(id == 1) {
+                        preUser = value.sendUser
+                        tempMapUser[tempKey++] = value
+                        continue
+                    }
+                    if (value.sendUser == preUser) {
+                        console.log(preUser)
+                        console.log(value.sendUser)
+                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
+                            return msg.seq > max ? msg.seq : max;
+                        }, 0);
+                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
+                            seq: ++maxNum,
+                            message: msg.message
+                        }))
+                    } else {
+                        tempMapUser[tempKey++] = value
+                    }
+                    preUser = value.sendUser
+                    console.log("result2:" + JSON.stringify(tempMapUser))
+                }
+                console.log("result2-1:" + JSON.stringify(tempMapUser))
+                this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
 
+                console.log("result3:" + JSON.stringify(this.messageResponse))
             } else {
                 console.log("배열 내 이동")
                 // seq가 최대값이 아닌 경우 배열 내에서 순서 변경
