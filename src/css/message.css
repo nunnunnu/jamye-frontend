@@ -1,0 +1,146 @@
+.message-container {
+    display: flex;
+    align-items: center; 
+    gap: 8px;
+}
+
+.message-container-me {
+    display: flex;
+}
+
+.chat-room {
+    overflow: hidden;
+}
+
+.chat-room p::before,
+.chat-room p::after {
+    bottom: -0.1rem;
+    content: "";
+    height: 1rem;
+    position: absolute;
+}
+
+/* 말풍선꼬리 */
+.chat-room p.from-them::before { 
+    border-bottom-right-radius: 0.8rem 0.7rem;
+    border-left: 1rem solid #e5e5ea;
+    left: -0.35rem;
+    transform: translate(0, -0.1rem);
+}
+.chat-room p.from-me::before {
+    border-bottom-left-radius: 0.8rem 0.7rem;
+    border-right: 1rem solid #248bf5;
+    right: -0.35rem;
+    transform: translate(0, -0.1rem);
+}
+
+.chat-room p.from-them::after {
+    background-color: #fff;
+    border-bottom-right-radius: 0.5rem;
+    left: 20px;
+    transform: translate(-30px, -2px);
+    width: 10px;
+}
+.chat-room p.from-me::after {
+    background-color: #fff;
+    border-bottom-left-radius: 0.5rem;
+    right: -40px;
+    transform: translate(-30px, -2px);
+    width: 10px ;
+}
+
+
+.chat-room .message-content {
+    display: flex;
+    align-items: flex-end;
+}
+
+.chat-room p {
+    border-radius: 1.15rem;
+    line-height: 1.25;
+    padding: 0.5rem 0.875rem;
+    position: relative;
+}
+
+/* 내 메시지 스타일링 */
+p.from-me {
+    background-color: #248bf5;
+    color: #fff;
+    text-align: right;
+    font-size: 17px;
+}
+
+input.from-me {
+    background-color: #248bf5;
+    color: #fff;
+    border: none;
+}
+
+/* 상대방 메시지 스타일링 */
+.chat-room p.from-them {
+    background-color: #e5e5ea;
+    color: #000;
+    font-size: 17px;
+    text-align: left;
+}
+
+input.from-them {
+    background-color: #e5e5ea;
+    color: #000;
+    border: none;
+}
+
+/* 날짜와 버튼 컨테이너 설정 */
+.info-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 5px;
+}
+
+.info-container-them {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+.send-date {
+    font-size: 0.75em;
+    color: gray;
+    white-space: nowrap; /* 줄 바꿈 방지 */
+}
+
+.button-container {
+    display: flex;
+    gap: 4px;
+}
+
+/* 작은 동그라미 버튼 스타일 */
+.circle-btn {
+width: 15px;
+height: 15px;
+border-radius: 50%;
+background-color: rgba(94, 94, 94, 0.2);
+border: none;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #ffffff;
+font-size: 10px;
+cursor: pointer;
+transition: background-color 0.3s;
+}
+
+.circle-btn:hover {
+background-color: rgba(128, 128, 128, 0.4);
+}
+
+.circle-btn:active {
+background-color: rgba(128, 128, 128, 0.6);
+}
+.send-user {
+    font-size: 17px;
+    margin-bottom: 5px;
+    text-align: left;
+}

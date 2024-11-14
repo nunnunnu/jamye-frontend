@@ -6,7 +6,7 @@ import MemberJoin from '@/components/MemberJoin.vue'
 import GroupInfos from '@/components/GroupInfos.vue'
 import GroupAdd from '@/components/GroupAdd.vue'
 import GroupInfo from '@/components/GroupInfo.vue'
-
+import MessageCreate from '@/components/MessageCreate.vue'
 const routes = [
     {
         path: "/",
@@ -43,7 +43,13 @@ const routes = [
         name: "groupInfo",
         component: GroupInfo,
         props: true
-    }
+    },
+    {
+        path: "/create/message:seq",
+        name: "messageCreate",
+        component: MessageCreate,
+        props: true
+    },
 ]
 
 const router = createRouter({
