@@ -3,19 +3,6 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
             <div class="container px-5">
                 <a class="navbar-brand fw-bold" href="#page-top" @click="home">잼얘 가챠</a>
-                <div v-if="isLogin" class="dropdown" @click="groupList">
-                    <a v-if="currentGroup==null" class="btn btn-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        그룹을 선택해주세요.
-                    </a>
-                    <a v-else class="btn btn-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ currentGroup.name }}
-                    </a>
-                    <ul class="dropdown-menu">
-                        <div v-for="group in groupInfos" :key="group.sequence">
-                            <li><a class="dropdown-item" href="#" @click="groupSelect(group)">{{ group.name }}</a></li>
-                        </div>
-                    </ul>
-                </div>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     Menu
                     <i class="bi-list"></i>
@@ -39,7 +26,6 @@
 <script>
 import { onMounted } from 'vue';
 import * as bootstrap from 'bootstrap';
-import axios from 'axios';
 
 export default {
   name: 'NavBar',
@@ -94,19 +80,6 @@ export default {
       },
       groups() {
         this.$router.push("/groups")
-      },
-      groupList() {
-        axios.get("/api/group/list", {
-                headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
-                }
-        }).then (r => {
-            this.groupInfos = r.data.data
-        })
-      }, 
-      groupSelect(group) {
-        this.$emit("groupSelect", group)
-        this.$cookies.set("group", group)
       }
   }
 };

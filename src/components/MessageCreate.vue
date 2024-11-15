@@ -1,7 +1,7 @@
 <template>
     <div class="b-container">
         <br><br><br>
-                <h1 class="modal-title fs-5" id="jamye-create1">잼얘 생성 - 메세지 타입</h1>
+                <h1 class="modal-title fs-5" id="jamye-create1">{{ groupName }}가챠 잼얘 넣기 - 메세지 타입</h1>
                                                     <!-- <div class="modal-body"> -->
                                                             <!-- 게시글 정보 입력 화면 -->
                 <div class="form-group">
@@ -19,17 +19,24 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click.stop></button>
                                     </div>
                                     <div class="modal-body">
-                                        <input type="text" class="form-control" placeholder="업로드할 메세지 이미지에 캡쳐된 상대의 이름을 모두 입력해주세요">
+                                        <input type="text" class="form-control" placeholder="업로드할 메세지 이미지에 캡쳐된 상대의 이름을 입력해주세요" v-model="nickname">
                                         <div v-if="userInGroup != 0">
                                             <br>
-                                            <button class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <button v-if="userInGroupInfo == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
-                                        </button>
-                                            <ul class="dropdown-menu" v-for="user in userInGroup" :key="user.groupUserSequence">
-                                                {{ user.nickname }}
-                                            </ul>
-                                        
+                                            </button>
+                                            <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                {{ userInGroupInfo.nickname }}
+                                            </button>
+                                            <div v-for="user in userInGroup" :key="user.groupUserSequence" @click="userInGroupSet(user)">
+                                                <ul class="dropdown-menu">
+                                                    {{ user.nickname }}
+                                                </ul>
+                                            </div>
                                         </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-dark" @click="nicknameAdd">추가</button>
                                     </div>
                                 </div>
                             </div>
@@ -51,6 +58,31 @@
                         </div>
                         <div class="col-auto">
                             <button type="submit" class="btn btn-dark mb-3" @click="messageListGet">메세지 변환</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-dark mb-3"  data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+                    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="imageModalLabel">이미지 임시보관함</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                <label for="imageUploadInput" class="form-label">이미지 업로드</label>
+                                <input class="form-control" type="file" id="imageUploadInput" @change="handleImageUpload" multiple>
+                                </div>
+                                <div class="row g-3" id="imagePreviewContainer">
+                                    <div class="card" style="width: 18rem;" v-for="(image, index) in images" :key="index">
+                                        <img :src="image" class="card-img-top" alt="Uploaded Image">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">닫기</button>
+                            </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -89,7 +121,10 @@
                             </div>
                             <!-- 상대 메세지 -->
                             <div v-else class="chat-message mt-3">
-                                <div class="send-user">{{ text.sendUser }}</div>
+                                <div v-if="userNameMap[text.sendUser] != null">
+                                    <div class="send-user">{{ userNameMap[text.sendUser].nickname }}</div>
+                                </div>
+                                <div v-else class="send-user">{{ text.sendUser }}</div>
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container">
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them">
                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
@@ -119,6 +154,8 @@ import axios from 'axios';
 export default {
     data() {
         return {
+            groupName: null,
+            nickname: null,
             nicknames: new Set,
             name: null,
             messageImage: null,
@@ -127,6 +164,9 @@ export default {
             postTitle: null,
             detail: null,
             userInGroup: [],
+            userInGroupInfo: null,
+            userNameMap: new Map,
+            images: [],
             messageResponse:  {
         "1": {
           "sendUser": "이송은",
@@ -190,11 +230,31 @@ export default {
         }
     },
     props: {
-        seq: Number
+        seq: Number,
+        isLogin: {
+            type: Boolean,
+            required: true
+        }
+    },
+    created() {
+        var group = this.$cookies.get("group")
+        if(!this.isLogin) {
+            alert("로그인 후 게시글 작성이 가능합니다.")
+            this.$router.push("/login")
+        } else if(group == null) {
+            alert("메세지를 작성할 그룹을 먼저 선택해주세요")
+            this.$router.push("/")
+        } else {
+            this.groupName = group.name
+        }
     },
     methods: {
-        nicknameAdd(name) {
-            this.nicknames.add(name)
+        nicknameAdd() {
+            this.nicknames.add(this.nickname)
+            this.userNameMap[this.nickname] = this.userInGroupInfo
+            console.log(this.userNameMap)
+            this.nickname = null
+            this.userInGroupInfo = null 
         },
         removeNickname(nickname) {
             this.nicknames.delete(nickname);
@@ -214,7 +274,15 @@ export default {
                 }
             })
             .then(r => {
-                this.messageResponse = r.data.data
+                if(this.messageResponse !=null) {
+                    const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
+                    for(let [id, value] of Object.entries(r.data.data)) {
+                        this.messageResponse[maxKey + id] = value
+                    }
+                } else {
+                    this.messageResponse = r.data.data
+                }
+                
             })
             .catch(e => {
                 alert(e.data.message)
@@ -254,6 +322,16 @@ export default {
                 }
                 this.isEditing[key][msgSeq] = false 
                 }
+                var tempKey = 1
+                var tempMap = new Map
+                for(let [index, value] of Object.entries(this.messageResponse)) {
+                    console.log(value)
+                    if(value.message.length != 0) {
+                        console.log(index)
+                        tempMap[tempKey++] = value
+                    }
+                }
+                this.messageResponse = tempMap
         },
         addEmptyMessage(key, msgSeq) {
             if (this.messageResponse[key] && Array.isArray(this.messageResponse[key].message)) {
@@ -530,6 +608,34 @@ export default {
             .then(r => {
                 this.userInGroup = r.data.data
             })
+        },
+        userInGroupSet(userInfo) {
+            console.log(userInfo)
+            this.userInGroupInfo = userInfo
+            console.log(this.userInGroupInfo)
+        },
+        //이미지
+        handleImageUpload(event) {
+        const files = Array.from(event.target.files);
+
+        files.forEach((file) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+              this.images.push(e.target.result); 
+            };
+
+            reader.readAsDataURL(file); 
+        });
+
+        event.target.value = ""; 
+        },
+
+        removeImage() {
+        },
+
+        selectImages() {
+            console.log("선택된 이미지:", this.images);
         }
     },
 }
@@ -539,5 +645,36 @@ export default {
 
 .nicknames-container {
     display: flex;
+}
+.image-preview {
+  position: relative;
+  text-align: center;
+}
+
+.image-preview img {
+  width: 100%;
+  border-radius: 8px;
+  height: 120px; /* 고정된 높이 */
+  object-fit: cover;
+}
+
+.image-preview .delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.image-preview .delete-btn:hover {
+  background: rgba(255, 0, 0, 1);
 }
 </style>

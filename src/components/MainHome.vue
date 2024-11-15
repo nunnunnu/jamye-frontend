@@ -2,6 +2,19 @@
     <b-container>
       <header class="masthead">
             <div class="container px-5">
+                <div v-if="isLogin" class="dropdown" @click="groupList">
+                    <a v-if="currentGroup==null" class="btn btn-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        그룹을 선택해주세요.
+                    </a>
+                    <a v-else class="btn btn-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ currentGroup.name }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <div v-for="group in groupInfos" :key="group.sequence">
+                            <li><a class="dropdown-item" href="#" @click="groupSelect(group)">{{ group.name }}</a></li>
+                        </div>
+                    </ul>
+                </div>
                 <div class="row gx-5 align-items-center">
                     <div class="col-lg-6">
                         <!-- Mashead text and app badges-->
@@ -25,7 +38,7 @@
                                                     <div class="modal-body">
                                                             <!-- 게시글 정보 입력 화면 -->
                                                             <div class="group-add">
-                                                                <router-link class="btn btn-dark btn-block btn-group" :to="{name:'messageCreate', params:{seq:this.currentGroup.groupSequence}}">메세지 형식</router-link>
+                                                                <button class="btn btn-dark btn-block btn-group" data-bs-dismiss="modal" aria-label="Close" @click="routerMessage()">메세지 형식</button>
                                                                 <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal2">
                                                                     게시글 형식
                                                                 </button>
@@ -79,19 +92,39 @@
   </template>
   
   <script>
-
+import { nextTick } from 'vue';
+import axios from 'axios';
 
 export default {
     name: 'MainHome',
     data() {
         return {
             currentGroup: null,
+            groupInfos: null
         }
     },
     methods: {
         login() {
             this.$router.push("/login")
-        }
+        },
+        routerMessage() {
+            nextTick(() => {
+               this.$router.push({ name: 'messageCreate', params: { seq: this.currentGroup.groupSequence } });
+            });
+        },
+        groupSelect(group) {
+            this.$emit("groupSelect", group)
+            this.$cookies.set("group", group)
+        },
+        groupList() {
+            axios.get("/api/group/list", {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then (r => {
+                this.groupInfos = r.data.data
+            })
+      }
     },
     props: {
         isLogin: {
