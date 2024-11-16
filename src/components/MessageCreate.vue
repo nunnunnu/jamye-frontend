@@ -111,11 +111,23 @@
                                             </button>
                                         </div>
                                         <span class="send-date">{{ text.sendDate }}</span>
-                                </div>
-                                    <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me">
-                                        <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-me">
+                                    </div>
+                                    <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key, msg)">
+                                        <template v-if="msg.isReply">
+                                            <input class="reply-header" v-model="msg.replyTo"><br />
+                                            <input class="reply-message" v-model="msg.replyMessage">
+                                            <hr />
+                                        </template>
+                                        <input  type="text" v-model="msg.message" class="from-me">
                                     </p>
-                                    <p v-else class="from-me">{{ msg.message }}</p>
+                                    <p v-else class="from-me">
+                                        <template v-if="msg.isReply">
+                                            <span class="reply-header">{{ msg.replyTo }}</span><br />
+                                            <span class="reply-message">{{ msg.replyMessage }}</span>
+                                            <hr />
+                                        </template>
+                                        {{ msg.message }}
+                                    </p>
                                     
                                 </div>
                             </div>
@@ -126,10 +138,21 @@
                                 </div>
                                 <div v-else class="send-user">{{ text.sendUser }}</div>
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container">
-                                    <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them">
+                                    <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
+                                        <template v-if="msg.isReply">
+                                            <input class="reply-header-them" v-model="msg.replyTo"><br />
+                                            <input class="reply-message-them" v-model="msg.replyMessage">
+                                            <hr />
+                                        </template>
                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
                                     </p>
-                                    <p v-else class="from-them">{{ msg.message }}</p>
+                                    <p v-else class="from-them">
+                                        <template v-if="msg.isReply">
+                                            <span class="reply-header-them">{{ msg.replyTo }}</span><br />
+                                            <span class="reply-message-them">{{ msg.replyMessage }}</span>
+                                            <hr />
+                                        </template>
+                                        {{ msg.message }}</p>
                                     <div class="info-container-them">
                                         <span class="send-date">{{ text.sendDate }}</span>
                                         <div class="button-container">
@@ -167,66 +190,7 @@ export default {
             userInGroupInfo: null,
             userNameMap: new Map,
             images: [],
-            messageResponse:  {
-        "1": {
-          "sendUser": "이송은",
-          "sendUserInGroupSeq": null,
-          "message": [
-            { "seq": 1, "message": "호떡믹스 토스에 8개 이만원인데 공구할" },
-            { "seq": 2, "message": "사람 없나" },
-            { "seq": 3, "message": "한개 이천오백원" }
-          ],
-          "sendDate": "오후 5:23",
-          "myMessage": false,
-          "isReply": false,
-          "replyMessage": null
-        },
-        "2": {
-          "sendUser": null,
-          "sendUserInGroupSeq": null,
-          "message": [
-            { "seq": 1, "message": "슬퍼" }, {"seq":2, "message":"test"}, {"seq":3, "message":"sss"}
-          ],
-          "sendDate": "오후 5:50",
-          "myMessage": true,
-          "isReply": false,
-          "replyMessage": null
-        },
-        "3": {
-          "sendUser": null,
-          "sendUserInGroupSeq": null,
-          "message": [
-            { "seq": 1, "message": "근데사도안먹을듯" }
-          ],
-          "sendDate": "오후 5:51",
-          "myMessage": true,
-          "isReply": false,
-          "replyMessage": null
-        },
-        "4": {
-          "sendUser": "이송은",
-          "sendUserInGroupSeq": null,
-          "message": [
-            { "seq": 1, "message": "난 호떡 좋아하니까 해먹을거같긴한데" },
-            { "seq": 2, "message": "8개는 넘 많아" }
-          ],
-          "sendDate": "오후 5:52",
-          "myMessage": false,
-          "isReply": false,
-          "replyMessage": null
-        },
-        "5": {
-          "sendUser": null,
-          "sendUserInGroupSeq": null,
-          "message": [
-            { "seq": 1, "message": "많긴 혀"}
-          ],
-          "sendDate": "오후 5:54",
-          "myMessage": true,
-          "isReply": false,
-          "replyMessage": null
-        }
-      }
+            messageResponse:  {"1":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"호떡믹스 토스에 8개 이만원인데 공구할"},{"seq":2,"message":"사람 없나"},{"seq":3,"message":"한개 이천오백원"}],"sendDate":"오후 5:23","myMessage":false,"isReply":false,"replyMessage":null},"2":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"슬퍼"},{"seq":2,"message":"test"},{"seq":3,"message":"sss"}],"sendDate":"오후 5:50","myMessage":true,"isReply":false,"replyMessage":null},"3":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"근데사도안먹을듯"}],"sendDate":"오후 5:51","myMessage":true,"isReply":false,"replyMessage":null},"4":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"난 호떡 좋아하니까 해먹을거같긴한데"},{"seq":2,"message":"8개는 넘 많아"}],"sendDate":"오후 5:52","myMessage":false,"isReply":false,"replyMessage":null},"5":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"많긴 혀"}],"sendDate":"오후 5:54","myMessage":true,"isReply":false,"replyMessage":null},"51":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"https://x.com/samnonnna/status/","isReply":false,"replyMessage":null,"replyTo":null},{"seq":2,"message":"1852559442287771995?","isReply":false,"replyMessage":null,"replyTo":null},{"seq":3,"message":"t=stWEBNSIS42UHri6SpAfwQ&s=32","isReply":false,"replyMessage":null,"replyTo":null},{"seq":4,"message":"1 아 개 웃김","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true},"52":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"오운완","isReply":true,"replyMessage":"ㅇㅇㅇㅇ아니ㅏㅇ","replyTo":"~~에게 답장"}],"sendDate":"오후 4:08","myMessage":false},"53":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"짱 이다","isReply":true,"replyMessage":"안됨 집주인 한테 영상 보내","replyTo":"이송 은 에게 답장"}],"sendDate":null,"myMessage":true},"54":{"sendUser":null,"sendUserInGroupSeq":null,"message":[],"sendDate":null,"myMessage":true},"55":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"뭐라고 불러","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":null,"myMessage":true},"56":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"삼빠 ?","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true}}
         }
     },
     props: {
@@ -301,7 +265,12 @@ export default {
             if (!this.isEditing[key]) {
                 this.isEditing[key] = {}; 
             }
-            this.isEditing[key][seq] = true; 
+            if(this.isEditing[key][seq]) {
+                this.isEditing[key][seq] = false; 
+            } else {
+                this.isEditing[key][seq] = true; 
+            }
+            
         },
         saveMessage(key, msg) {
             console.log(msg)

@@ -144,3 +144,50 @@ background-color: rgba(128, 128, 128, 0.6);
     margin-bottom: 5px;
     text-align: left;
 }
+.reply-header {
+    font-weight: bold;
+    color: #e3f3ff;
+    font-size: 0.9em;
+  }
+  
+  .reply-message {
+    font-style: italic;
+    color: #aad4ff;
+    font-size: 1em;
+  }
+  .reply-header-them {
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9em;
+  }
+  
+  .reply-message-them {
+    font-style: italic;
+    color: #888;
+    font-size: 1em;
+  }
+  input.reply-header {
+    background-color: #248bf5;
+    color: #e3f3ff;
+    border: none;
+}
+  input.reply-message {
+    background-color: #248bf5;
+    color: #aad4ff;
+    border: none;
+}
+input.reply-header-them {
+        background-color: #e5e5ea;
+        font-weight: bold;
+        color: #555;
+        font-size: 0.9em;
+        border: none;
+  }
+  
+  input.reply-message-them {
+    background-color: #e5e5ea;
+    font-style: italic;
+    color: #888;
+    font-size: 1em;
+    border: none;
+  }
