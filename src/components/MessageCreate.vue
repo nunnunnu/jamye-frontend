@@ -86,12 +86,18 @@
                         </div>
                     </div>
                 </div>
+                <button 
+                    v-if="replyMode" 
+                    class="btn btn-dark mt-3" 
+                    @click="saveReplyTarget">
+                    저장
+                </button>
                 <div class="card card-body">
                     <div class="chat-room">
                         <div v-for="[key, text] in Object.entries(messageResponse)" :key="key">                                                                        
                             <!-- 내 매세지 -->
                             <div v-if="text.myMessage" class="chat-message mt-3">
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me">
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(msg)"   :id="'message-' + key + '_' + msg.seq" >
                                     <div class="info-container">
                                         <div class="button-container">
                                             <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)">
@@ -109,6 +115,9 @@
                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)">
                                                 <i class="fas fa-trash"></i>
                                             </button>
+                                            <button class="circle-btn camera" @click="openCamera(key, msg.seq)">
+                                                <i class="fas fa-camera"></i>
+                                            </button>
                                         </div>
                                         <span class="send-date">{{ text.sendDate }}</span>
                                     </div>
@@ -121,14 +130,28 @@
                                         <input  type="text" v-model="msg.message" class="from-me">
                                     </p>
                                     <p v-else class="from-me">
+                                        <input 
+                                            v-if="replyMode" 
+                                            type="radio" 
+                                            name="replySelect" 
+                                            :value="key || ',' || msg.seq" 
+                                            @input="updateReplySeq(key, msg.seq)"
+                                            class="form-check-input mt-1"
+                                        />
                                         <template v-if="msg.isReply">
+                                            <button 
+                                            class="btn btn-sm btn-link me-2" 
+                                            @click="toggleReplyMode(msg)"
+                                            title="답장 연결"
+                                            >
+                                            🔗
+                                            </button>
                                             <span class="reply-header">{{ msg.replyTo }}</span><br />
                                             <span class="reply-message">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
                                         {{ msg.message }}
                                     </p>
-                                    
                                 </div>
                             </div>
                             <!-- 상대 메세지 -->
@@ -137,7 +160,7 @@
                                     <div class="send-user">{{ userNameMap[text.sendUser].nickname }}</div>
                                 </div>
                                 <div v-else class="send-user">{{ text.sendUser }}</div>
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container">
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" >
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
                                             <input class="reply-header-them" v-model="msg.replyTo"><br />
@@ -152,6 +175,14 @@
                                             <span class="reply-message-them">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
+                                        <input 
+                                            v-if="replyMode" 
+                                            type="radio" 
+                                            name="replySelect" 
+                                            :value="key || ',' || msg.seq" 
+                                            @input="updateReplySeq(key, msg.seq)"
+                                            class="form-check-input mt-1"
+                                        />
                                         {{ msg.message }}</p>
                                     <div class="info-container-them">
                                         <span class="send-date">{{ text.sendDate }}</span>
@@ -161,6 +192,7 @@
                                             <button class="circle-btn down-arrow" @click="moveMessageDown(key, msg.seq)"><i class="fas fa-arrow-down"></i></button>
                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)"><i class="fas fa-trash"></i></button>
+                                            <button class="circle-btn camera" @click="openCamera(key, msg.seq)"><i class="fas fa-camera"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -189,7 +221,11 @@ export default {
             userInGroup: [],
             userInGroupInfo: null,
             userNameMap: new Map,
+            replyMode: false, 
+            selectedReplyKey: null, 
+            selectedReplySeq: null, 
             images: [],
+            replyOriginMessage: null,
             messageResponse:  {"1":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"호떡믹스 토스에 8개 이만원인데 공구할"},{"seq":2,"message":"사람 없나"},{"seq":3,"message":"한개 이천오백원"}],"sendDate":"오후 5:23","myMessage":false,"isReply":false,"replyMessage":null},"2":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"슬퍼"},{"seq":2,"message":"test"},{"seq":3,"message":"sss"}],"sendDate":"오후 5:50","myMessage":true,"isReply":false,"replyMessage":null},"3":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"근데사도안먹을듯"}],"sendDate":"오후 5:51","myMessage":true,"isReply":false,"replyMessage":null},"4":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"난 호떡 좋아하니까 해먹을거같긴한데"},{"seq":2,"message":"8개는 넘 많아"}],"sendDate":"오후 5:52","myMessage":false,"isReply":false,"replyMessage":null},"5":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"많긴 혀"}],"sendDate":"오후 5:54","myMessage":true,"isReply":false,"replyMessage":null},"51":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"https://x.com/samnonnna/status/","isReply":false,"replyMessage":null,"replyTo":null},{"seq":2,"message":"1852559442287771995?","isReply":false,"replyMessage":null,"replyTo":null},{"seq":3,"message":"t=stWEBNSIS42UHri6SpAfwQ&s=32","isReply":false,"replyMessage":null,"replyTo":null},{"seq":4,"message":"1 아 개 웃김","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true},"52":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"오운완","isReply":true,"replyMessage":"ㅇㅇㅇㅇ아니ㅏㅇ","replyTo":"~~에게 답장"}],"sendDate":"오후 4:08","myMessage":false},"53":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"짱 이다","isReply":true,"replyMessage":"안됨 집주인 한테 영상 보내","replyTo":"이송 은 에게 답장"}],"sendDate":null,"myMessage":true},"54":{"sendUser":null,"sendUserInGroupSeq":null,"message":[],"sendDate":null,"myMessage":true},"55":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"뭐라고 불러","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":null,"myMessage":true},"56":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"삼빠 ?","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true}}
         }
     },
@@ -241,7 +277,7 @@ export default {
                 if(this.messageResponse !=null) {
                     const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
                     for(let [id, value] of Object.entries(r.data.data)) {
-                        this.messageResponse[maxKey + id] = value
+                        this.messageResponse[Number(maxKey) + Number(id)] = value
                     }
                 } else {
                     this.messageResponse = r.data.data
@@ -605,6 +641,53 @@ export default {
 
         selectImages() {
             console.log("선택된 이미지:", this.images);
+        },
+        toggleReplyMode(msg) {
+            this.replyMode = !this.replyMode;
+                if (!this.replyMode) {
+                    this.selectedReplyKey = null
+                    this.selectedReplySeq = null; // 모드 비활성화 시 선택 초기화
+                    this.replyOriginMessage = null
+                } else this.replyOriginMessage = msg
+            },
+        // 답장 대상 저장
+        saveReplyTarget() {
+            if(this.selectedReplyKey == null || this.selectedReplySeq == null) {
+                alert("연결할 메세지를 선택해주세요")
+                return
+            }
+
+            this.replyOriginMessage.replyToKey = this.selectedReplyKey
+            this.replyOriginMessage.replyToSeq = this.selectedReplySeq
+            
+            console.log(this.replyOriginMessage)
+
+
+            this.replyMode = false; // 체크박스 비활성화
+            this.selectedReplySeq = null; // 선택 초기화
+            this.selectedReplyKey = null; // 선택 초기화
+        },
+        // 답장 원본 메시지로 이동
+        scrollToMessage(msg) {
+            console.log(msg)
+            if(msg.replyToKey == undefined || msg.replyToKey == null || msg.replyToSeq == undefined || msg.replyToSeq == null) {
+                return
+            }
+            const targetMessageId = `message-${msg.replyToKey}_${msg.replyToSeq}`
+            console.log(targetMessageId)
+            const targetMessage = document.getElementById(targetMessageId)            
+            targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
+            targetMessage.classList.add('shake');
+
+            // 애니메이션 종료 후 클래스 제거
+            setTimeout(() => {
+            targetMessage.classList.remove('shake');
+            }, 500);  // 애니메이션 시간과 동일하게 설정
+            
+        },
+        updateReplySeq(key, seq) {
+            this.selectedReplyKey = key
+            this.selectedReplySeq = seq
         }
     },
 }
@@ -645,5 +728,31 @@ export default {
 
 .image-preview .delete-btn:hover {
   background: rgba(255, 0, 0, 1);
+}
+/* 라디오 버튼 커스텀 스타일 */
+.form-check-input {
+  accent-color: #fff; /* 기본 강조색 (배경과 동일하지 않게 설정) */
+  border: 2px solid #000000 !important; /* 파란색 테두리 */
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* 라디오 버튼 활성화 상태 */
+.form-check-input:checked {
+  background-color: #000000 !important; /* 선택 시 버튼 내부 배경색 */
+  border-color: #000000 !important;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out; /* 애니메이션 지속 시간과 타이밍 함수 */
 }
 </style>
