@@ -210,7 +210,7 @@
                                     <div class="send-user">{{ userNameMap[text.sendUser].nickname }}</div>
                                 </div>
                                 <div v-else class="send-user">{{ text.sendUser }}</div>
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" >
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(msg)">
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
                                             <input class="reply-header-them" v-model="msg.replyTo"><br />
@@ -218,10 +218,28 @@
                                             <hr />
                                         </template>
                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
+                                        <span class="image-gallery">
+                                            <img
+                                                v-for="(image, index) in msg.image"
+                                                :key="index"
+                                                :src="image"
+                                                class="small-image"
+                                                @click="openPreview(image)"
+                                                alt="Uploaded Image"
+                                            />
+                                        </span>
                                     </p>
                                     <p v-else class="from-them">
                                         <template v-if="msg.isReply">
-                                            <span class="reply-header-them">{{ msg.replyTo }}</span><br />
+                                            <span class="reply-header-them">{{ msg.replyTo }}</span>
+                                            <button 
+                                            class="btn btn-sm btn-link me-2" 
+                                            @click="toggleReplyMode(msg)"
+                                            title="답장 연결"
+                                            >
+                                            🔗
+                                            </button>
+                                            <br />
                                             <span class="reply-message-them">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
@@ -233,7 +251,18 @@
                                             @input="updateReplySeq(key, msg.seq)"
                                             class="form-check-input mt-1"
                                         />
-                                        {{ msg.message }}</p>
+                                        {{ msg.message }}
+                                        <span class="image-gallery">
+                                            <img
+                                                v-for="(image, index) in msg.image"
+                                                :key="index"
+                                                :src="image"
+                                                class="small-image"
+                                                @click="openPreview(image)"
+                                                alt="Uploaded Image"
+                                            />
+                                        </span>
+                                    </p>
                                     <div class="info-container-them">
                                         <span class="send-date">{{ text.sendDate }}</span>
                                         <div class="button-container">
@@ -242,7 +271,7 @@
                                             <button class="circle-btn down-arrow" @click="moveMessageDown(key, msg.seq)"><i class="fas fa-arrow-down"></i></button>
                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)"><i class="fas fa-trash"></i></button>
-                                            <button class="circle-btn camera" @click="openCamera(key, msg.seq)"><i class="fas fa-camera"></i></button>
+                                            <button class="circle-btn camera"  data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)"><i class="fas fa-camera"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -723,11 +752,10 @@ export default {
             console.log(this.replyOriginMessage)
 
 
-            this.replyMode = false; // 체크박스 비활성화
-            this.selectedReplySeq = null; // 선택 초기화
-            this.selectedReplyKey = null; // 선택 초기화
+            this.replyMode = false;
+            this.selectedReplySeq = null;
+            this.selectedReplyKey = null;
         },
-        // 답장 원본 메시지로 이동
         scrollToMessage(msg) {
             console.log(msg)
             if(msg.replyToKey == undefined || msg.replyToKey == null || msg.replyToSeq == undefined || msg.replyToSeq == null) {
@@ -735,14 +763,16 @@ export default {
             }
             const targetMessageId = `message-${msg.replyToKey}_${msg.replyToSeq}`
             console.log(targetMessageId)
-            const targetMessage = document.getElementById(targetMessageId)            
-            targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
-            targetMessage.classList.add('shake');
+            const targetMessage = document.getElementById(targetMessageId)          
+            if(targetMessage) {
+                targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
+                targetMessage.classList.add('shake');
 
-            // 애니메이션 종료 후 클래스 제거
-            setTimeout(() => {
-            targetMessage.classList.remove('shake');
-            }, 500);  // 애니메이션 시간과 동일하게 설정
+                // 애니메이션 종료 후 클래스 제거
+                setTimeout(() => {
+                targetMessage.classList.remove('shake');
+                }, 500);
+            }  
             
         },
         updateReplySeq(key, seq) {
@@ -779,7 +809,7 @@ export default {
                     }
                     this.editMessage(this.imageAddKey, this.imageAddSeq + 1)
                 }    
-                
+                this.selectedImages = []
 
             },
             deleteSelectedImages() {
@@ -895,13 +925,22 @@ export default {
   cursor: pointer;
 }
 
-/* 큰 이미지 스타일 */
+/* 미리보기 컨테이너 */
 .image-preview-container {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
 }
+
+/* 큰 이미지 스타일 */
 .large-image {
-  max-width: 60%;
-  max-height:60%;
-  align-items: right;
+  max-width: 70%; /* 컨테이너 너비에 맞추기 */
+  max-height: 70%; /* 컨테이너 높이에 맞추기 */
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 </style>
