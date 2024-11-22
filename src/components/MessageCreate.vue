@@ -339,6 +339,10 @@ export default {
     },
     methods: {
         nicknameAdd() {
+            if(this.nickname == null) {
+                alert("프로필 이름을 먼저 입력해주세요")
+                return
+            }
             this.nicknames.add(this.nickname)
             this.userNameMap[this.nickname] = this.userInGroupInfo
             console.log(this.userNameMap)
@@ -667,6 +671,10 @@ export default {
             }
         },
         createPost() {
+            if(this.postTitle == null) {
+                alert("게시글 제목을 입력해주세요")
+                return
+            }
             var groupSeq = this.$cookies.get("group").groupSequence
                 axios.post("/api/post/message", {
                     title: this.postTitle,
