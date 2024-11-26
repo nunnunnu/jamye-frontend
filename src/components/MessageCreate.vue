@@ -61,60 +61,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-dark mb-3" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
-                    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="imageModalLabel">이미지 임시보관함</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                <label for="imageUploadInput" class="form-label">이미지 업로드</label>
-                                <input class="form-control" type="file" id="imageUploadInput" @change="handleImageUpload" multiple>
-                                </div>
-                                <div class="row g-3" id="imagePreviewContainer">
-                                    <div
-                                        class="card position-relative"
-                                        style="width: 18rem; cursor: pointer;"
-                                        v-for="(image, index) in images"
-                                        :key="index"
-                                        @click="toggleSelection(index)" 
-                                    >
-                                        <!-- 체크박스 -->
-                                        <input
-                                        type="checkbox"
-                                        class="form-check-input position-absolute"
-                                        style="top: 10px; left: 10px; z-index: 1;"
-                                        :checked="selectedImages.includes(index)"
-                                        readonly
-                                        />
-                                        <!-- 이미지 -->
-                                        <img :src="image" class="card-img-top" alt="Uploaded Image" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    v-if="this.imageAddKey != null && this.imageAddSeq != null"
-                                    class="btn btn-primary me-2"
-                                    :disabled="selectedImages.length === 0"
-                                    @click="insertSelectedImages"
-                                >
-                                    삽입
-                                </button>
-                                <button
-                                    class="btn btn-danger"
-                                    :disabled="selectedImages.length === 0"
-                                    @click="deleteSelectedImages"
-                                >
-                                    삭제
-                                </button>
-                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">닫기</button>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
+                    <image-box :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse"></image-box>
                 </div>
                 <button 
                     v-if="replyMode" 
@@ -289,8 +236,12 @@
 </template>
 <script>
 import axios from 'axios';
+import ImageBox from './ImageBox.vue';
 
 export default {
+    components: {
+        ImageBox
+    },
     data() {
         return {
             groupName: null,
@@ -308,14 +259,13 @@ export default {
             replyMode: false, 
             selectedReplyKey: null, 
             selectedReplySeq: null, 
-            images: [],
             replyOriginMessage: null,
             selectedImages: [],
             imageAddKey: null,
             imageAddSeq: null,
             isPreviewOpen: false, // 미리보기 상태
             previewImage: null,   // 현재 미리보기 이미지
-            messageResponse:  {"1":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"호떡믹스 토스에 8개 이만원인데 공구할"},{"seq":2,"message":"사람 없나"},{"seq":3,"message":"한개 이천오백원"}],"sendDate":"오후 5:23","myMessage":false,"isReply":false,"replyMessage":null},"2":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"슬퍼"},{"seq":2,"message":"test"},{"seq":3,"message":"sss"}],"sendDate":"오후 5:50","myMessage":true,"isReply":false,"replyMessage":null},"3":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"근데사도안먹을듯"}],"sendDate":"오후 5:51","myMessage":true,"isReply":false,"replyMessage":null},"4":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"난 호떡 좋아하니까 해먹을거같긴한데"},{"seq":2,"message":"8개는 넘 많아"}],"sendDate":"오후 5:52","myMessage":false,"isReply":false,"replyMessage":null},"5":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"많긴 혀"}],"sendDate":"오후 5:54","myMessage":true,"isReply":false,"replyMessage":null},"51":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"https://x.com/samnonnna/status/","isReply":false,"replyMessage":null,"replyTo":null},{"seq":2,"message":"1852559442287771995?","isReply":false,"replyMessage":null,"replyTo":null},{"seq":3,"message":"t=stWEBNSIS42UHri6SpAfwQ&s=32","isReply":false,"replyMessage":null,"replyTo":null},{"seq":4,"message":"1 아 개 웃김","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true},"52":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"오운완","isReply":true,"replyMessage":"ㅇㅇㅇㅇ아니ㅏㅇ","replyTo":"~~에게 답장"}],"sendDate":"오후 4:08","myMessage":false},"53":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"짱 이다","isReply":true,"replyMessage":"안됨 집주인 한테 영상 보내","replyTo":"이송 은 에게 답장"}],"sendDate":null,"myMessage":true},"54":{"sendUser":null,"sendUserInGroupSeq":null,"message":[],"sendDate":null,"myMessage":true},"55":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"뭐라고 불러","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":null,"myMessage":true},"56":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"삼빠 ?","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true}}
+            messageResponse: {"1":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"호떡믹스 토스에 8개 이만원인데 공구할"},{"seq":2,"message":"사람 없나"},{"seq":3,"message":"한개 이천오백원"}],"sendDate":"오후 5:23","myMessage":false,"isReply":false,"replyMessage":null},"2":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"슬퍼"},{"seq":2,"message":"test"},{"seq":3,"message":"sss"}],"sendDate":"오후 5:50","myMessage":true,"isReply":false,"replyMessage":null},"3":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"근데사도안먹을듯"}],"sendDate":"오후 5:51","myMessage":true,"isReply":false,"replyMessage":null},"4":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"난 호떡 좋아하니까 해먹을거같긴한데"},{"seq":2,"message":"8개는 넘 많아"}],"sendDate":"오후 5:52","myMessage":false,"isReply":false,"replyMessage":null},"5":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"많긴 혀"}],"sendDate":"오후 5:54","myMessage":true,"isReply":false,"replyMessage":null},"51":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"https://x.com/samnonnna/status/","isReply":false,"replyMessage":null,"replyTo":null},{"seq":2,"message":"1852559442287771995?","isReply":false,"replyMessage":null,"replyTo":null},{"seq":3,"message":"t=stWEBNSIS42UHri6SpAfwQ&s=32","isReply":false,"replyMessage":null,"replyTo":null},{"seq":4,"message":"1 아 개 웃김","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true},"52":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"오운완","isReply":true,"replyMessage":"ㅇㅇㅇㅇ아니ㅏㅇ","replyTo":"~~에게 답장"}],"sendDate":"오후 4:08","myMessage":false},"53":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"짱 이다","isReply":true,"replyMessage":"안됨 집주인 한테 영상 보내","replyTo":"이송 은 에게 답장"}],"sendDate":null,"myMessage":true},"54":{"sendUser":null,"sendUserInGroupSeq":null,"message":[],"sendDate":null,"myMessage":true},"55":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"뭐라고 불러","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":null,"myMessage":true},"56":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"삼빠 ?","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true}}
         }
     },
     props: {
@@ -698,9 +648,6 @@ export default {
             //             }
             //         })
         },
-        postTypeChange(type) {
-            this.postType = type
-        },
         groupUserList() {
             axios.get("/api/group/users/" + this.$cookies.get("group").groupSequence, {
                 headers: {
@@ -716,28 +663,7 @@ export default {
             this.userInGroupInfo = userInfo
             console.log(this.userInGroupInfo)
         },
-        //이미지
-        handleImageUpload(event) {
-        const files = Array.from(event.target.files);
-
-        files.forEach((file) => {
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-              this.images.push(e.target.result); 
-            };
-
-            reader.readAsDataURL(file); 
-        });
-
-        event.target.value = ""; 
-        },
-
         removeImage() {
-        },
-
-        selectImages() {
-            console.log("선택된 이미지:", this.images);
         },
         toggleReplyMode(msg) {
             this.replyMode = !this.replyMode;
@@ -787,57 +713,18 @@ export default {
             this.selectedReplyKey = key
             this.selectedReplySeq = seq
         },
-        toggleSelection(index) {
-            const selectedIndex = this.selectedImages.indexOf(index);
-            if (selectedIndex === -1) {
-                this.selectedImages.push(index);
-            } else {
-                this.selectedImages.splice(selectedIndex, 1);
-            }
-            },
-            insertSelectedImages() {
-                const selectedImages = this.selectedImages.map(
-                    (index) => this.images[index]
-                );
-                if (this.messageResponse[this.imageAddKey] && Array.isArray(this.messageResponse[this.imageAddKey].message)) {
-                    this.messageResponse[this.imageAddKey].message.forEach(it => {
-                        if(it.seq > this.imageAddSeq) {
-                            it.seq = it.seq + 1
-                        }
-                    });
-                    this.messageResponse[this.imageAddKey].message.push({
-                        seq: this.imageAddSeq + 1,
-                        image: selectedImages
-                    });    
-                    this.messageResponse[this.imageAddKey].message.sort((a, b) => a.seq - b.seq);
-                    
-                    if(this.isEditing[this.imageAddKey, this.imageAddSeq + 1]) {
-                        console.log(true)
-                        this.editMessage(this.imageAddKey, this.imageAddSeq + 1 + 1)
-                    }
-                    this.editMessage(this.imageAddKey, this.imageAddSeq + 1)
-                }    
-                this.selectedImages = []
-
-            },
-            deleteSelectedImages() {
-                this.images = this.images.filter(
-                    (_, index) => !this.selectedImages.includes(index)
-                );
-                this.selectedImages = [];
-            },
-            selectImageKey(key, seq) {
-                this.imageAddKey = key
-                this.imageAddSeq = seq
-            },
-            openPreview(image) {
-                this.previewImage = image;
-                this.isPreviewOpen = true;
-            },
-            closePreview() {
-                this.isPreviewOpen = false;
-                this.previewImage = null;
-            },
+        selectImageKey(key, seq) {
+            this.imageAddKey = key
+            this.imageAddSeq = seq
+        },
+        openPreview(image) {
+            this.previewImage = image;
+            this.isPreviewOpen = true;
+        },
+        closePreview() {
+            this.isPreviewOpen = false;
+            this.previewImage = null;
+        },
     },
 }
 </script>

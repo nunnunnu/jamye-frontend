@@ -7,6 +7,7 @@ import GroupInfos from '@/components/GroupInfos.vue'
 import GroupAdd from '@/components/GroupAdd.vue'
 import GroupInfo from '@/components/GroupInfo.vue'
 import MessageCreate from '@/components/MessageCreate.vue'
+import ImageBox from '@/components/ImageBox.vue'
 const routes = [
     {
         path: "/",
@@ -50,6 +51,12 @@ const routes = [
         component: MessageCreate,
         props: true
     },
+    {
+        path: "/image-box:imageAddKey&imageAddSeq",
+        name: "imageBox",
+        component: ImageBox,
+        props: true
+    }
 ]
 
 const router = createRouter({
