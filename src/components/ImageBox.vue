@@ -15,20 +15,20 @@
                                     <div
                                         class="card position-relative"
                                         style="width: 18rem; cursor: pointer;"
-                                        v-for="(image, index) in images"
-                                        :key="index"
-                                        @click="toggleSelection(index)" 
-                                    >
+                                        v-for="[key, value] in Object.entries(this.imageUidMap)"
+                                        :key="key"
+                                        @click="toggleSelection(key)" 
+                                    ><span>sss</span>
                                         <!-- 체크박스 -->
                                         <input
                                         type="checkbox"
                                         class="form-check-input position-absolute"
                                         style="top: 10px; left: 10px; z-index: 1;"
-                                        :checked="selectedImages.includes(index)"
+                                        :checked="selectedImages.includes(key)"
                                         readonly
                                         />
                                         <!-- 이미지 -->
-                                        <img :src="image" class="card-img-top" alt="Uploaded Image" />
+                                        <img :src="value" class="card-img-top" alt="Uploaded Image" />
                                     </div>
                                 </div>
                             </div>
@@ -55,18 +55,22 @@
                     </div>
 </template>
 <script>
-
+import { v4 as uuidv4 } from "uuid";
 export default {
     data() {
         return {
             images: [],
-            selectedImages: [],
+            selectedImages: []
         }
     },
     props: {
         imageKey: Number,
         imageSeq: Number,
-        message: Map
+        message: Map,
+        imageUidMap: Map
+    },
+    created() {
+        console.log(this.imageUidMap)
     },
     setup() {
         
@@ -123,13 +127,22 @@ export default {
                 const reader = new FileReader();
                 
                 reader.onload = (e) => {
-                this.images.push(e.target.result); 
+                    console.log(e.target.result)
+                    this.images.push(e.target.result); 
+                    const id = uuidv4();
+                    console.log(id)
+                    this.imageUidMap[id] = e.target.result
                 };
 
                 reader.readAsDataURL(file); 
             });
 
             event.target.value = ""; 
+            console.log(this.imageUidMap)
+            this.$emit("imageMap", this.imageUidMap)
+            console.log(this.images)
+            console.log(">..")
+            
         },
     }
 }
