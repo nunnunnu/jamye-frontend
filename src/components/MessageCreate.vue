@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-dark mb-3" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
-                    <image-box :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap"></image-box>
+                    <image-box :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
                 </div>
                 <button 
                     v-if="replyMode" 
@@ -107,9 +107,9 @@
                                         <input  type="text" v-model="msg.message" class="from-me">
                                         <span class="image-gallery">
                                             <img
-                                                v-for="(image, index) in msg.image"
+                                                v-for="(image, index) in msg.imageKey"
                                                 :key="index"
-                                                :src="image"
+                                                :src="this.imageMap[image]"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -140,9 +140,9 @@
                                         {{ msg.message }}
                                         <span class="image-gallery">
                                             <img
-                                                v-for="(image, index) in msg.image"
+                                                v-for="(image, index) in msg.imageKey"
                                                 :key="index"
-                                                :src="image"
+                                                :src="this.imageMap[image]"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -167,9 +167,9 @@
                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
                                         <span class="image-gallery">
                                             <img
-                                                v-for="(image, index) in msg.image"
+                                                v-for="(image, index) in msg.imageKey"
                                                 :key="index"
-                                                :src="image"
+                                                :src="this.imageMap[image]"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -201,9 +201,9 @@
                                         {{ msg.message }}
                                         <span class="image-gallery">
                                             <img
-                                                v-for="(image, index) in msg.image"
+                                                v-for="(image, index) in msg.imageKey"
                                                 :key="index"
-                                                :src="image"
+                                                :src="this.imageMap[image]"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -228,14 +228,10 @@
                 </div>
                 <div v-if="isPreviewOpen" class="image-preview-overlay" @click="closePreview">
                     <div class="image-preview-container">
-                        <img :src="previewImage" alt="Preview Image" class="large-image" />
+                        <img :src="this.imageMap[previewImage]" alt="Preview Image" class="large-image" />
                     </div>
                 </div>
                 <button class="btn btn-dark btn-block" @click="createPost()">생성</button>
-            </div>
-            <div v-for="[key, value] in Object.entries(this.imageMap)" :key=" key">
-                ddd
-                <img :src="value" class="card-img-top" alt="Uploaded Image" />
             </div>
 </template>
 <script>
@@ -269,7 +265,7 @@ export default {
             imageAddSeq: null,
             isPreviewOpen: false, // 미리보기 상태
             previewImage: null,   // 현재 미리보기 이미지.
-            imageMap: new Map,
+            imageMap: {},
             messageResponse: {"1":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"호떡믹스 토스에 8개 이만원인데 공구할"},{"seq":2,"message":"사람 없나"},{"seq":3,"message":"한개 이천오백원"}],"sendDate":"오후 5:23","myMessage":false,"isReply":false,"replyMessage":null},"2":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"슬퍼"},{"seq":2,"message":"test"},{"seq":3,"message":"sss"}],"sendDate":"오후 5:50","myMessage":true,"isReply":false,"replyMessage":null},"3":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"근데사도안먹을듯"}],"sendDate":"오후 5:51","myMessage":true,"isReply":false,"replyMessage":null},"4":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"난 호떡 좋아하니까 해먹을거같긴한데"},{"seq":2,"message":"8개는 넘 많아"}],"sendDate":"오후 5:52","myMessage":false,"isReply":false,"replyMessage":null},"5":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"많긴 혀"}],"sendDate":"오후 5:54","myMessage":true,"isReply":false,"replyMessage":null},"51":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"https://x.com/samnonnna/status/","isReply":false,"replyMessage":null,"replyTo":null},{"seq":2,"message":"1852559442287771995?","isReply":false,"replyMessage":null,"replyTo":null},{"seq":3,"message":"t=stWEBNSIS42UHri6SpAfwQ&s=32","isReply":false,"replyMessage":null,"replyTo":null},{"seq":4,"message":"1 아 개 웃김","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true},"52":{"sendUser":"이송은","sendUserInGroupSeq":null,"message":[{"seq":1,"message":"오운완","isReply":true,"replyMessage":"ㅇㅇㅇㅇ아니ㅏㅇ","replyTo":"~~에게 답장"}],"sendDate":"오후 4:08","myMessage":false},"53":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"짱 이다","isReply":true,"replyMessage":"안됨 집주인 한테 영상 보내","replyTo":"이송 은 에게 답장"}],"sendDate":null,"myMessage":true},"54":{"sendUser":null,"sendUserInGroupSeq":null,"message":[],"sendDate":null,"myMessage":true},"55":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"뭐라고 불러","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":null,"myMessage":true},"56":{"sendUser":null,"sendUserInGroupSeq":null,"message":[{"seq":1,"message":"삼빠 ?","isReply":false,"replyMessage":null,"replyTo":null}],"sendDate":"오후 4:08","myMessage":true}}
         }
     },
@@ -322,12 +318,15 @@ export default {
                 }
             })
             .then(r => {
-                if(this.messageResponse !=null) {
+                console.log(this.messageResponse)
+                if(this.messageResponse !=null && Object.keys(this.messageResponse).length != 0) {
                     const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
                     for(let [id, value] of Object.entries(r.data.data)) {
+                        console.log(id)
                         this.messageResponse[Number(maxKey) + Number(id)] = value
                     }
                 } else {
+                    console.log(r.data.data)
                     this.messageResponse = r.data.data
                 }
                 
@@ -631,14 +630,24 @@ export default {
                 alert("게시글 제목을 입력해주세요")
                 return
             }
-            var groupSeq = this.$cookies.get("group").groupSequence
-                axios.post("/api/post/message", {
-                    title: this.postTitle,
-                    groupSeq: groupSeq,
-                    content: this.messageResponse
-                }, {
+            const formdata = new FormData()
+            Object.entries(this.imageMap).forEach(([key, value]) => {
+                formdata.append('imageMap[' + key + ']', value);
+            });
+
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            const data = {
+                title: this.postTitle,
+                groupSeq: groupSeq,
+                content: this.messageResponse
+            };
+
+            formdata.append('data', JSON.stringify(data));
+            
+                axios.post("/api/post/message", formdata, {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                        "Content-Type": "multipart/form-data"
                     }
                 })
             // else 
@@ -732,6 +741,13 @@ export default {
             this.isPreviewOpen = false;
             this.previewImage = null;
         },
+        handleImageMapUpdate(imageUidMap) {
+            console.log("제발")
+            this.imageMap = imageUidMap
+        },
+        messageUpdate(message) {
+            this.messageResponse = message
+        }
     },
 }
 </script>

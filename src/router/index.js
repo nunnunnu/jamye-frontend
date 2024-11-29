@@ -52,7 +52,7 @@ const routes = [
         props: true
     },
     {
-        path: "/image-box:imageAddKey&imageAddSeq",
+        path: "/image-box:imageKey&imageSeq",
         name: "imageBox",
         component: ImageBox,
         props: true

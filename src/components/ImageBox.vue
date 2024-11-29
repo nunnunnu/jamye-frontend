@@ -18,7 +18,7 @@
                                         v-for="[key, value] in Object.entries(this.imageUidMap)"
                                         :key="key"
                                         @click="toggleSelection(key)" 
-                                    ><span>sss</span>
+                                    >
                                         <!-- 체크박스 -->
                                         <input
                                         type="checkbox"
@@ -67,7 +67,10 @@ export default {
         imageKey: Number,
         imageSeq: Number,
         message: Map,
-        imageUidMap: Map
+        imageUidMap: {
+            type: Object,
+            required: true
+        }
     },
     created() {
         console.log(this.imageUidMap)
@@ -85,9 +88,6 @@ export default {
             }
         },
         insertSelectedImages() {
-            const selectedImages = this.selectedImages.map(
-                (index) => this.images[index]
-            );
             console.log(this.message)
             
             if (this.message[this.imageKey] && Array.isArray(this.message[this.imageKey].message)) {
@@ -96,20 +96,21 @@ export default {
                         it.seq = it.seq + 1
                     }
                 });
+                console.log(this.selectedImages)
                 this.message[this.imageKey].message.push({
                     seq: this.imageSeq + 1,
-                    image: selectedImages
+                    imageKey: this.selectedImages
                 })    
                 
                 this.message[this.imageKey].message.sort((a, b) => a.seq - b.seq);
-
-                this.$emit('messageResponse', this.message)
                 
-                if(this.isEditing[this.imageKey, this.imageSeq + 1]) {
-                    console.log(true)
-                    this.$emit.editMessage(this.imageKey, this.imageSeq + 1 + 1)
-                }
-                this.$emit.editMessage(this.imageKey, this.imageSeq + 1)
+                this.$emit('messageUpdate', this.message)
+                console.log("!!!")
+                // if(this.isEditing[this.imageKey, this.imageSeq + 1]) {
+                    // console.log(true)
+                    // this.$emit.editMessage(this.imageKey, this.imageSeq + 1 + 1)
+                // }
+                // this.$emit.editMessage(this.imageKey, this.imageSeq + 1)
             }    
             this.selectedImages = []
 
