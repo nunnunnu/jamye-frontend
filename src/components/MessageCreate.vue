@@ -591,6 +591,10 @@ export default {
         createPost() {
             if(this.postTitle == null) {
                 alert("게시글 제목을 입력해주세요")
+                const title = document.getElementById("post-title")          
+                if(title) {
+                    title.scrollIntoView({ behavior: "smooth", block: "start" })
+                }  
                 return
             }
             const formdata = new FormData()
