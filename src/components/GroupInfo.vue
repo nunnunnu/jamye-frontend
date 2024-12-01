@@ -72,9 +72,7 @@ export default {
                 }
             })
             .then(r => {
-                console.log(r.data.data)
                 this.groupInfo = r.data.data
-                console.log(this.groupInfo)
             })
     },
     methods: {
@@ -85,7 +83,6 @@ export default {
                 }
             })
             .then(r => {
-                console.log(r)
                 alert("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")
             })
             .catch(e=> {

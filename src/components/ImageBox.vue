@@ -73,7 +73,7 @@ export default {
         }
     },
     created() {
-        console.log(this.imageUidMap)
+
     },
     setup() {
         
@@ -88,15 +88,12 @@ export default {
             }
         },
         insertSelectedImages() {
-            console.log(this.message)
-            
             if (this.message[this.imageKey] && Array.isArray(this.message[this.imageKey].message)) {
                 this.message[this.imageKey].message.forEach(it => {
                     if(it.seq > this.imageSeq) {
                         it.seq = it.seq + 1
                     }
                 });
-                console.log(this.selectedImages)
                 this.message[this.imageKey].message.push({
                     seq: this.imageSeq + 1,
                     imageKey: this.selectedImages
@@ -105,7 +102,6 @@ export default {
                 this.message[this.imageKey].message.sort((a, b) => a.seq - b.seq);
                 
                 this.$emit('messageUpdate', this.message)
-                console.log("!!!")
                 // if(this.isEditing[this.imageKey, this.imageSeq + 1]) {
                     // console.log(true)
                     // this.$emit.editMessage(this.imageKey, this.imageSeq + 1 + 1)
@@ -128,10 +124,8 @@ export default {
                 const reader = new FileReader();
                 
                 reader.onload = (e) => {
-                    console.log(e.target.result)
                     this.images.push(e.target.result); 
                     const id = uuidv4();
-                    console.log(id)
                     this.imageUidMap[id] = e.target.result
                 };
 
@@ -139,11 +133,7 @@ export default {
             });
 
             event.target.value = ""; 
-            console.log(this.imageUidMap)
             this.$emit("imageMap", this.imageUidMap)
-            console.log(this.images)
-            console.log(">..")
-            
         },
     }
 }

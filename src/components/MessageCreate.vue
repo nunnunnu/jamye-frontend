@@ -237,6 +237,7 @@
 <script>
 import axios from 'axios';
 import ImageBox from './ImageBox.vue';
+import { base64ToFile } from '@/js/fileScripts'
 
 export default {
     components: {
@@ -296,7 +297,6 @@ export default {
             }
             this.nicknames.add(this.nickname)
             this.userNameMap[this.nickname] = this.userInGroupInfo
-            console.log(this.userNameMap)
             this.nickname = null
             this.userInGroupInfo = null 
         },
@@ -318,15 +318,12 @@ export default {
                 }
             })
             .then(r => {
-                console.log(this.messageResponse)
                 if(this.messageResponse !=null && Object.keys(this.messageResponse).length != 0) {
                     const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
                     for(let [id, value] of Object.entries(r.data.data)) {
-                        console.log(id)
                         this.messageResponse[Number(maxKey) + Number(id)] = value
                     }
                 } else {
-                    console.log(r.data.data)
                     this.messageResponse = r.data.data
                 }
                 
@@ -353,11 +350,9 @@ export default {
             } else {
                 this.isEditing[key][seq] = true; 
             }
-            console.log(this.imageMap)
             
         },
         saveMessage(key, msg) {
-            console.log(msg)
             this.isEditing[key] = false;
         },
         removeMessageSeq(key, msgSeq) {
@@ -378,9 +373,7 @@ export default {
                 var tempKey = 1
                 var tempMap = new Map
                 for(let [index, value] of Object.entries(this.messageResponse)) {
-                    console.log(value)
                     if(value.message.length != 0) {
-                        console.log(index)
                         tempMap[tempKey++] = value
                     }
                 }
@@ -400,7 +393,6 @@ export default {
                 this.messageResponse[key].message.sort((a, b) => a.seq - b.seq);
                 
                 if(this.isEditing[key, msgSeq + 1]) {
-                    console.log(true)
                     this.editMessage(key, msgSeq + 1 + 1)
                 }
                 this.editMessage(key, msgSeq + 1)
@@ -411,8 +403,7 @@ export default {
                 return
             }
             const messageArray = this.messageResponse[key].message;
-            console.log(key + "," + seq)
-            // seq가 1인 경우 새로운 key로 객체 생성
+
             if (seq === 1) {
                 var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
                 this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
@@ -471,21 +462,17 @@ export default {
                         tempMap[tempKey++] = value
                     }
                 }
-                console.log("result1:" + JSON.stringify(tempMap))
                 
                 var tempMapUser = new Map
                 var preUser = null
                 tempKey = 1
                 for(let [id, value] of Object.entries(tempMap)) {
-                    console.log(value)
                     if(id == 1) {
                         preUser = value.sendUser
                         tempMapUser[tempKey++] = value
                         continue
                     }
                     if (value.sendUser == preUser) {
-                        console.log(preUser)
-                        console.log(value.sendUser)
                         var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
                             return msg.seq > max ? msg.seq : max;
                         }, 0);
@@ -497,12 +484,8 @@ export default {
                         tempMapUser[tempKey++] = value
                     }
                     preUser = value.sendUser
-                    console.log("result2:" + JSON.stringify(tempMapUser))
                 }
-                console.log("result2-1:" + JSON.stringify(tempMapUser))
                 this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
-
-                console.log("result3:" + JSON.stringify(this.messageResponse))
             } else {
                 // seq가 1이 아닌 경우 배열 내에서 순서 변경
                 const index = messageArray.findIndex(msg => msg.seq === seq);
@@ -532,7 +515,6 @@ export default {
             const editMapMaxSeq = messageArray.reduce((max, msg) => {
                         return msg.seq > max ? msg.seq : max;
                     }, 0);
-            console.log(key + "," + seq)
 
             if (seq === editMapMaxSeq) {
                 var messageText = JSON.parse(JSON.stringify(this.messageResponse[key]))
@@ -541,58 +523,43 @@ export default {
                     seq: 1,
                     message: this.messageResponse[key].message.pop().message
                 })
-                console.log("1:" + JSON.stringify(messageText))
-                console.log(this.messageResponse[key])
                 var nextKey = Number(key) + 1
                 var upMessage = JSON.parse(JSON.stringify(this.messageResponse[nextKey]))
                 upMessage.message = this.messageResponse[nextKey].message.filter(msg => msg.seq == 1)
-                console.log("2")
                 this.messageResponse[nextKey].message = this.messageResponse[nextKey].message.filter(msg => msg.seq != 1)
-                console.log("3")
                 var orderSeq = 1
                 if(this.messageResponse[nextKey].message.length != 0) {
-                    console.log("4")
                     this.messageResponse[nextKey].message.forEach(msg => {
                         msg.seq = orderSeq++
                     })
                 }
-                console.log("thisCut:" + JSON.stringify(messageText))
-                console.log("nextCut:" + JSON.stringify(upMessage))
-                console.log("origin:" + JSON.stringify(this.messageResponse[nextKey]))
                 var tempMap = new Map
                 var tempKey = 1
                 for(let [id, value] of Object.entries(this.messageResponse)) {
                     if(id == key) {
                         if(value.message.length != 0) {
-                            console.log("origin")
                             tempMap[tempKey++] = value
                         }
                         if(upMessage.message.length != 0) {
-                            console.log("up")
                             tempMap[tempKey++] = upMessage
                         }
                         if(messageText.message.length != 0) {
-                            console.log("down")
                             tempMap[tempKey++] = messageText
                         }
                     } else if(value.message.length != 0){
                         tempMap[tempKey++] = value
                     }
                 }
-                console.log("result1:" + JSON.stringify(tempMap))
                 var tempMapUser = new Map
                 var preUser = null
                 tempKey = 1
                 for(let [id, value] of Object.entries(tempMap)) {
-                    console.log(value)
                     if(id == 1) {
                         preUser = value.sendUser
                         tempMapUser[tempKey++] = value
                         continue
                     }
                     if (value.sendUser == preUser) {
-                        console.log(preUser)
-                        console.log(value.sendUser)
                         var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
                             return msg.seq > max ? msg.seq : max;
                         }, 0);
@@ -604,14 +571,10 @@ export default {
                         tempMapUser[tempKey++] = value
                     }
                     preUser = value.sendUser
-                    console.log("result2:" + JSON.stringify(tempMapUser))
                 }
-                console.log("result2-1:" + JSON.stringify(tempMapUser))
                 this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
 
-                console.log("result3:" + JSON.stringify(this.messageResponse))
             } else {
-                console.log("배열 내 이동")
                 // seq가 최대값이 아닌 경우 배열 내에서 순서 변경
                 const index = messageArray.findIndex(msg => msg.seq === seq);
                 if (index < messageArray.length - 1) {
@@ -632,9 +595,12 @@ export default {
             }
             const formdata = new FormData()
             Object.entries(this.imageMap).forEach(([key, value]) => {
-                formdata.append('imageMap[' + key + ']', value);
+                if (value instanceof File) {
+                    formdata.append(key, value);
+                } else {
+                    formdata.append(key, base64ToFile(value));
+                }
             });
-
             const groupSeq = this.$cookies.get("group").groupSequence;
             const data = {
                 title: this.postTitle,
@@ -646,8 +612,7 @@ export default {
             
                 axios.post("/api/post/message", formdata, {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken'),
-                        "Content-Type": "multipart/form-data"
+                        Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
                 })
             // else 
@@ -674,9 +639,7 @@ export default {
             })
         },
         userInGroupSet(userInfo) {
-            console.log(userInfo)
             this.userInGroupInfo = userInfo
-            console.log(this.userInGroupInfo)
         },
         removeImage() {
         },
@@ -697,21 +660,16 @@ export default {
 
             this.replyOriginMessage.replyToKey = this.selectedReplyKey
             this.replyOriginMessage.replyToSeq = this.selectedReplySeq
-            
-            console.log(this.replyOriginMessage)
-
 
             this.replyMode = false;
             this.selectedReplySeq = null;
             this.selectedReplyKey = null;
         },
         scrollToMessage(msg) {
-            console.log(msg)
             if(msg.replyToKey == undefined || msg.replyToKey == null || msg.replyToSeq == undefined || msg.replyToSeq == null) {
                 return
             }
             const targetMessageId = `message-${msg.replyToKey}_${msg.replyToSeq}`
-            console.log(targetMessageId)
             const targetMessage = document.getElementById(targetMessageId)          
             if(targetMessage) {
                 targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -731,7 +689,6 @@ export default {
         selectImageKey(key, seq) {
             this.imageAddKey = key
             this.imageAddSeq = seq
-            console.log(this.imageMap)
         },
         openPreview(image) {
             this.previewImage = image;
@@ -742,7 +699,6 @@ export default {
             this.previewImage = null;
         },
         handleImageMapUpdate(imageUidMap) {
-            console.log("제발")
             this.imageMap = imageUidMap
         },
         messageUpdate(message) {

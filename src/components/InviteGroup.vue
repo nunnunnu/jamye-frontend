@@ -91,9 +91,6 @@ export default {
                 this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
             })
             .catch(e => {
-                console.log(e)
-                console.log(e.message)
-                console.log(e.response)
                 alert(e.response.data.message)
             })
             
@@ -135,7 +132,6 @@ export default {
             this.imageSrc = null;
         },
         modalClose() {
-            console.log("test")
             this.$emit("inviteModalClose", false)
         },
         create() {
@@ -143,7 +139,6 @@ export default {
                 alert("가입할 그룹에서 사용할 프로필을 작성해주세요")
                 return
             }
-            console.log(this.groupInfo)
             axios.post("/api/group/invite", {
                 "groupSequence": this.groupInfo.groupSequence,
                 "inviteCode": this.inviteCode,
@@ -155,7 +150,6 @@ export default {
                 }
             }).then(r => {
                 alert("성공")
-                console.log(r)
                 this.modalClose()  
             })
         }
