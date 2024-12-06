@@ -28,11 +28,19 @@
                                             <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                 {{ userInGroupInfo.nickname }}
                                             </button>
-                                            <div v-for="user in userInGroup" :key="user.groupUserSequence" @click="userInGroupSet(user)">
-                                                <ul class="dropdown-menu">
+                                            <ul 
+                                                class="dropdown-menu" 
+                                                style="max-height: 200px; overflow-y: auto;"
+                                            >
+                                                <li 
+                                                    v-for="user in userInGroup" 
+                                                    :key="user.groupUserSequence"
+                                                    @click="userInGroupSet(user)"
+                                                    style="padding: 8px; cursor: pointer;"
+                                                >
                                                     {{ user.nickname }}
-                                                </ul>
-                                            </div>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -98,7 +106,7 @@
                                         </div>
                                         <span class="send-date">{{ text.sendDate }}</span>
                                     </div>
-                                    <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key, msg)">
+                                    <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key)">
                                         <template v-if="msg.isReply">
                                             <input class="reply-header" v-model="msg.replyTo"><br />
                                             <input class="reply-message" v-model="msg.replyMessage">
@@ -352,7 +360,7 @@ export default {
             }
             
         },
-        saveMessage(key, msg) {
+        saveMessage(key) {
             this.isEditing[key] = false;
         },
         removeMessageSeq(key, msgSeq) {
@@ -374,6 +382,7 @@ export default {
                 var tempMap = new Map
                 for(let [index, value] of Object.entries(this.messageResponse)) {
                     if(value.message.length != 0) {
+                        console.log(index)
                         tempMap[tempKey++] = value
                     }
                 }
@@ -716,7 +725,42 @@ export default {
 
 .nicknames-container {
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* 닉네임 간격 */
+    margin-bottom: 5px;
 }
+
+.nickname {
+    background-color: black;
+    color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.nickname:hover {
+    background-color: black;
+}
+
+.remove-button {
+    margin-left: 8px;
+    color: white; 
+    font-size: 12px; 
+    cursor: pointer;
+    opacity: 0; 
+    transition: opacity 0.2s ease-in-out; /* 부드러운 등장 */
+}
+
+.nickname:hover .remove-button {
+    opacity: 1; /* 마우스 올렸을 때만 보이게 */
+}
+
 .image-preview {
   position: relative;
   text-align: center;

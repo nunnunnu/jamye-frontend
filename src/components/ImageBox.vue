@@ -15,20 +15,22 @@
                                     <div
                                         class="card position-relative"
                                         style="width: 18rem; cursor: pointer;"
-                                        v-for="[key, value] in Object.entries(this.imageUidMap)"
+                                        v-for="[key, value] in Object.entries(this.localImageUidMap)"
                                         :key="key"
                                         @click="toggleSelection(key)" 
                                     >
-                                        <!-- 체크박스 -->
-                                        <input
-                                        type="checkbox"
-                                        class="form-check-input position-absolute"
-                                        style="top: 10px; left: 10px; z-index: 1;"
-                                        :checked="selectedImages.includes(key)"
-                                        readonly
-                                        />
-                                        <!-- 이미지 -->
-                                        <img :src="value" class="card-img-top" alt="Uploaded Image" />
+                                        <div v-if="value != null">
+                                            <!-- 체크박스 -->
+                                            <input
+                                            type="checkbox"
+                                            class="form-check-input position-absolute"
+                                            style="top: 10px; left: 10px; z-index: 1;"
+                                            :checked="selectedImages.includes(key)"
+                                            readonly
+                                            />
+                                            <!-- 이미지 -->
+                                            <img :src="value" class="card-img-top" alt="Uploaded Image" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -60,7 +62,9 @@ export default {
     data() {
         return {
             images: [],
-            selectedImages: []
+            selectedImages: [],
+            localMessage: this.message, 
+            localImageUidMap: this.imageUidMap
         }
     },
     props: {
@@ -88,20 +92,20 @@ export default {
             }
         },
         insertSelectedImages() {
-            if (this.message[this.imageKey] && Array.isArray(this.message[this.imageKey].message)) {
-                this.message[this.imageKey].message.forEach(it => {
+            if (this.localMessage[this.imageKey] && Array.isArray(this.localMessage[this.imageKey].message)) {
+                this.localMessage[this.imageKey].message.forEach(it => {
                     if(it.seq > this.imageSeq) {
                         it.seq = it.seq + 1
                     }
                 });
-                this.message[this.imageKey].message.push({
+                this.localMessage[this.imageKey].message.push({
                     seq: this.imageSeq + 1,
                     imageKey: this.selectedImages
                 })    
                 
-                this.message[this.imageKey].message.sort((a, b) => a.seq - b.seq);
+                this.localMessage[this.imageKey].message.sort((a, b) => a.seq - b.seq);
                 
-                this.$emit('messageUpdate', this.message)
+                this.$emit('messageUpdate', this.localMessage)
                 // if(this.isEditing[this.imageKey, this.imageSeq + 1]) {
                     // console.log(true)
                     // this.$emit.editMessage(this.imageKey, this.imageSeq + 1 + 1)
@@ -112,9 +116,23 @@ export default {
 
         },
         deleteSelectedImages() {
-            this.images = this.images.filter(
-                (_, index) => !this.selectedImages.includes(index)
-            );
+            const usedImages = this.selectedImages.filter((key) => {
+                
+                return Object.values(this.localMessage).some((message) =>
+                    message.message.some((msg) =>
+                        msg.imageKey?.includes(key)
+                    )
+                );
+            });
+
+            if (usedImages.length > 0) {
+                alert("선택한 이미지 중 사용 중인 이미지가 있어 삭제할 수 없습니다.");
+                return;
+            }
+            this.selectedImages.forEach((key) => {
+                this.localImageUidMap[key] = null
+            }); 
+            console.log(this.localImageUidMap)
             this.selectedImages = [];
         },
         handleImageUpload(event) {
@@ -126,14 +144,14 @@ export default {
                 reader.onload = (e) => {
                     this.images.push(e.target.result); 
                     const id = uuidv4();
-                    this.imageUidMap[id] = e.target.result
+                    this.localImageUidMap[id] = e.target.result
                 };
 
                 reader.readAsDataURL(file); 
             });
 
             event.target.value = ""; 
-            this.$emit("imageMap", this.imageUidMap)
+            this.$emit("imageMap", this.localImageUidMap)
         },
     }
 }

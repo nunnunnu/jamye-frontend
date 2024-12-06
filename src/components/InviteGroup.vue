@@ -149,6 +149,7 @@ export default {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
             }).then(r => {
+                console.log(r)
                 alert("성공")
                 this.modalClose()  
             })
