@@ -71,9 +71,18 @@ export default {
         imageKey: Number,
         imageSeq: Number,
         message: Map,
+        type: String,
         imageUidMap: {
             type: Object,
             required: true
+        }
+    },
+    watch: {
+        message: {
+        deep: true,
+        handler(newVal) {
+            this.localMessage = newVal
+        }
         }
     },
     created() {
@@ -92,27 +101,33 @@ export default {
             }
         },
         insertSelectedImages() {
-            if (this.localMessage[this.imageKey] && Array.isArray(this.localMessage[this.imageKey].message)) {
-                this.localMessage[this.imageKey].message.forEach(it => {
-                    if(it.seq > this.imageSeq) {
-                        it.seq = it.seq + 1
-                    }
-                });
-                this.localMessage[this.imageKey].message.push({
-                    seq: this.imageSeq + 1,
-                    imageKey: this.selectedImages
-                })    
-                
-                this.localMessage[this.imageKey].message.sort((a, b) => a.seq - b.seq);
-                
-                this.$emit('messageUpdate', this.localMessage)
-                // if(this.isEditing[this.imageKey, this.imageSeq + 1]) {
-                    // console.log(true)
-                    // this.$emit.editMessage(this.imageKey, this.imageSeq + 1 + 1)
-                // }
-                // this.$emit.editMessage(this.imageKey, this.imageSeq + 1)
-            }    
-            this.selectedImages = []
+            if(this.type == 'MSG') {
+                console.log("MSG")
+                console.log(this.localMessage)
+                if (this.localMessage[this.imageKey] && Array.isArray(this.localMessage[this.imageKey].message)) {
+                    this.localMessage[this.imageKey].message.forEach(it => {
+                        if(it.seq > this.imageSeq) {
+                            it.seq = it.seq + 1
+                        }
+                    });
+                    this.localMessage[this.imageKey].message.push({
+                        seq: this.imageSeq + 1,
+                        imageKey: this.selectedImages
+                    })    
+                    
+                    this.localMessage[this.imageKey].message.sort((a, b) => a.seq - b.seq);
+                    
+                    this.$emit('messageUpdate', this.localMessage)
+                    // if(this.isEditing[this.imageKey, this.imageSeq + 1]) {
+                        // console.log(true)
+                        // this.$emit.editMessage(this.imageKey, this.imageSeq + 1 + 1)
+                    // }
+                    // this.$emit.editMessage(this.imageKey, this.imageSeq + 1)
+                }    
+                this.selectedImages = []
+            } else if(this.type == 'POST') {
+                console.log("?")
+            }
 
         },
         deleteSelectedImages() {

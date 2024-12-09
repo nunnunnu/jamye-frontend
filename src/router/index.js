@@ -8,6 +8,7 @@ import GroupAdd from '@/components/GroupAdd.vue'
 import GroupInfo from '@/components/GroupInfo.vue'
 import MessageCreate from '@/components/MessageCreate.vue'
 import ImageBox from '@/components/ImageBox.vue'
+import PostCreate from '@/components/PostCreate.vue'
 const routes = [
     {
         path: "/",
@@ -49,6 +50,12 @@ const routes = [
         path: "/create/message:seq",
         name: "messageCreate",
         component: MessageCreate,
+        props: true
+    },
+    {
+        path: "/create/post:seq",
+        name: "postCreate",
+        component: PostCreate,
         props: true
     },
     {

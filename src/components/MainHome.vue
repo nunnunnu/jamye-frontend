@@ -39,7 +39,7 @@
                                                             <!-- 게시글 정보 입력 화면 -->
                                                             <div class="group-add">
                                                                 <button class="btn btn-dark btn-block btn-group" data-bs-dismiss="modal" aria-label="Close" @click="routerMessage()">메세지 형식</button>
-                                                                <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                                                                <button class="btn btn-dark btn-block btn-group" data-bs-dismiss="modal" aria-label="Close" @click="routerPost()">
                                                                     게시글 형식
                                                                 </button>
                                                                     <inviteGroup @inviteModalClose="inviteModalClose"></inviteGroup>
@@ -110,6 +110,11 @@ export default {
         routerMessage() {
             nextTick(() => {
                this.$router.push({ name: 'messageCreate', params: { seq: this.currentGroup.groupSequence } });
+            });
+        },
+        routerPost() {
+            nextTick(() => {
+               this.$router.push({ name: 'postCreate', params: { seq: this.currentGroup.groupSequence } });
             });
         },
         groupSelect(group) {
