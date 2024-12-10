@@ -6,20 +6,23 @@
             <input type="text" class="form-control" name="post-title" id="post-title" v-model="postTitle" placeholder="게시글 제목">
         </div>
         <button type="button" class="btn btn-dark mb-3 btn-imgbox" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
-        <image-box :type="'POST'" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
+        <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
         <div class="post-continer">
-            <textarea
-            v-model="postContent"
-            ref="postArea"
+            <div
             class="post-input"
+            contenteditable="true"
+            ref="postArea"
+            @input="syncPostContent"
             placeholder="게시글 내용을 입력하세요..."
-            @input="rememberCursorPosition"
-        ></textarea>
+            ></div>
         </div>
+        <button class="btn btn-dark btn-block" @click="createPost()">생성</button>
     </div>
 </template>
 <script>
 import ImageBox from './ImageBox.vue';
+import axios from 'axios';
+import { base64ToFile } from '@/js/fileScripts'
 
 export default {
     components: {
@@ -31,6 +34,8 @@ export default {
             isPreviewOpen: false, // 미리보기 상태
             previewImage: null,   // 현재 미리보기 이미지.
             imageMap: {},
+            cursorPosition: null,
+            postContent: null
         }
     },
     props: {
@@ -54,28 +59,92 @@ export default {
     },
     methods: {
     // 현재 커서 위치 저장
-    rememberCursorPosition() {
-      const textarea = this.$refs.postArea;
-      this.cursorPosition = textarea.selectionStart;
+    syncPostContent() {
+        // contenteditable 내용 동기화
+        this.postContent = this.$refs.postArea.innerHTML
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+        // 현재 커서 위치 저장
+        this.cursorPosition = selection.getRangeAt(0);
+        }
     },
     // 이미지 태그를 커서 위치에 삽입
-    addImageAtCursor() {
-      const textarea = this.$refs.postArea;
-      const beforeCursor = this.postContent.slice(0, this.cursorPosition);
-      const afterCursor = this.postContent.slice(this.cursorPosition);
+    addImageAtCursor(selectedImages) {
+        selectedImages.forEach(img => {
+            // 이미지 URL을 확인하여 삽입
+            const imgUrl = this.imageMap[img];
+            console.log(imgUrl); // 이미지 URL이 정상적으로 출력되는지 확인
 
-      // 이미지 태그 삽입
-      this.postContent = `${beforeCursor}<img src="example.jpg" alt="image" />${afterCursor}`;
+            const imgTag = `<br><img src="${imgUrl}" alt="image" width="200" height="auto"/>`;
+            
+            // 현재 커서 위치에 이미지 삽입
+            document.execCommand("insertHTML", false, imgTag);
+        });
 
-      // 커서 위치를 업데이트 (이미지 태그 이후로 이동)
-      this.cursorPosition += `<img src="example.jpg" alt="image" />`.length;
-
-      // 커서 위치 갱신
-      this.$nextTick(() => {
-        textarea.setSelectionRange(this.cursorPosition, this.cursorPosition);
-        textarea.focus();
-      });
+        // 포스트 내용 업데이트
+        this.postContent = this.$refs.postArea.innerHTML;
+        this.moveCursorToEnd()
     },
+    moveCursorToEnd() {
+        const textarea = this.$refs.postArea;
+
+        // 선택 객체를 가져옵니다.
+        const selection = window.getSelection();
+        const range = document.createRange();
+
+        // 커서를 맨 뒤로 이동
+        range.selectNodeContents(textarea);
+        range.collapse(false); // false는 끝으로, true는 시작으로
+
+        // 선택 범위 삭제 후 새 범위를 추가합니다.
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // 텍스트가 있는 곳으로 커서를 보내고자 할 때
+        textarea.focus();
+    },
+    createPost() {
+            if(this.postTitle == null) {
+                alert("게시글 제목을 입력해주세요")
+                const title = document.getElementById("post-title")          
+                if(title) {
+                    title.scrollIntoView({ behavior: "smooth", block: "start" })
+                }  
+                return
+            }
+            const formdata = new FormData()
+            Object.entries(this.imageMap).forEach(([key, value]) => {
+                if (value instanceof File) {
+                    formdata.append(key, value);
+                } else {
+                    formdata.append(key, base64ToFile(value));
+                }
+            });
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            const data = {
+                title: this.postTitle,
+                groupSeq: groupSeq,
+                content: this.messageResponse
+            };
+
+            formdata.append('data', JSON.stringify(data));
+            
+
+            axios.post("/api/post/board", {
+                    title: this.postTitle,
+                    groupSeq: groupSeq,
+                    content: {
+                        content: this.detail
+                    }
+                }, {
+                    headers: {
+                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    }
+                })
+        },
+        handleImageMapUpdate(imageUidMap) {
+            this.imageMap = imageUidMap
+        },
   }
 }
 </script>

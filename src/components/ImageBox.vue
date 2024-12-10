@@ -36,7 +36,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button
-                                    v-if="this.imageKey != null && this.imageSeq != null"
+                                    v-if="(this.imageKey != null && this.imageSeq != null) || this.cursorPosition != null"
                                     class="btn btn-primary me-2"
                                     :disabled="selectedImages.length === 0"
                                     @click="insertSelectedImages"
@@ -75,7 +75,8 @@ export default {
         imageUidMap: {
             type: Object,
             required: true
-        }
+        },
+        cursorPosition: Number
     },
     watch: {
         message: {
@@ -126,7 +127,7 @@ export default {
                 }    
                 this.selectedImages = []
             } else if(this.type == 'POST') {
-                console.log("?")
+                this.$emit('addImageAtCursor', this.selectedImages)
             }
 
         },
