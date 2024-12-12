@@ -27,7 +27,7 @@
                             <div v-if="this.isLogin">
                                 <div v-if="currentGroup != null" class="mt-3 d-flex justify-content-between">
                                     <button type="button" class="btn btn-dark custom-btn">뽑기</button>
-                                    <button type="button" class="btn btn-dark custom-btn"  data-bs-toggle="modal" data-bs-target="#jamye-create">잼얘 넣기</button>
+                                    <button type="button" class="btn btn-dark custom-btn" data-bs-toggle="modal" data-bs-target="#jamye-create">잼얘 넣기</button>
                                         <div class="modal fade" id="jamye-create" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content">
@@ -48,6 +48,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <button type="button" class="btn btn-dark custom-btn" >잼얘 목록</button>
                                 </div>
                                 <div v-if="currentGroup == null">
                                     <button type="button" class="btn btn-dark" disabled>뽑기</button>

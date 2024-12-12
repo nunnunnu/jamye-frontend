@@ -9,6 +9,7 @@ import GroupInfo from '@/components/GroupInfo.vue'
 import MessageCreate from '@/components/MessageCreate.vue'
 import ImageBox from '@/components/ImageBox.vue'
 import PostCreate from '@/components/PostCreate.vue'
+import JamyeList from '@/components/JamyeList.vue'
 const routes = [
     {
         path: "/",
@@ -63,6 +64,11 @@ const routes = [
         name: "imageBox",
         component: ImageBox,
         props: true
+    },
+    {
+        path: "/jamye-list",
+        name: "jamyeList",
+        component: JamyeList
     }
 ]
 
