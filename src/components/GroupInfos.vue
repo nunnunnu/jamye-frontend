@@ -1,5 +1,4 @@
 <template>
-    <br><br><br>
     <div class="b-container">
         <h2 class="title">그룹 정보</h2>
         <div>

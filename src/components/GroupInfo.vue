@@ -1,6 +1,5 @@
 <template>
     <div class="b-container">
-        <br><br><br>
         <h2 class="title">그룹 상세 정보</h2>
         <div v-if="groupInfo!=null" class="group-container">
             <div class="group-header">
@@ -66,7 +65,7 @@ export default {
     },
     created() {
         this.userSequence = this.$cookies.get("sequence")
-        axios.get("/api/group/"+this.seq,{
+        axios.get("/api/group/"+this.seq, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }

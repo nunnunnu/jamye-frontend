@@ -10,6 +10,8 @@ import MessageCreate from '@/components/MessageCreate.vue'
 import ImageBox from '@/components/ImageBox.vue'
 import PostCreate from '@/components/PostCreate.vue'
 import JamyeList from '@/components/JamyeList.vue'
+import BoardJamye from '@/components/BoardJamye.vue'
+import MessageJamye from '@/components/MessageJamye.vue'
 const routes = [
     {
         path: "/",
@@ -69,6 +71,18 @@ const routes = [
         path: "/jamye-list",
         name: "jamyeList",
         component: JamyeList
+    },
+    {
+        path: "/jamye/message:postSeq",
+        name: "messageJamye",
+        component: MessageJamye,
+        props: true
+    },
+    {
+        path: "/jamye/board:postSeq",
+        name: "boardJamye",
+        component: BoardJamye,
+        props: true
     }
 ]
 

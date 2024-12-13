@@ -1,14 +1,13 @@
 <template>
     <div class="b-container">
-        <br><br><br>
-        <h1 class="modal-title fs-5" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록</h1>
+        <h1 class="title" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록</h1>
         <div class="jamye-info-box-container">
             <div class="jamye-info-box" v-for="jamye in jamyes" :key="jamye.postSequence"
                 :class="{ selectable: jamye.isViewable }"
-                @click="movePost()" 
+                @click="movePost(jamye.postType, jamye.postSequence)" 
             >
                 <div class="jamye-header">
-                    <div class="jamye-type">{{ jamye.postType }}</div>
+                    <div class="jamye-type">{{ jamye.postTypeName }}</div>
                     <div class="jamye-title">{{ jamye.title }}</div>
                     <div class="isViewable" v-if="jamye.isViewable">{{ jamye.isViewableName }}</div>
                 </div>
@@ -66,9 +65,9 @@ export default{
                             jamye.updateDate = formatDate(jamye.updateDate); // 수정일 포맷
                         }
                         if (jamye.postType == 'MSG') {
-                            jamye.postType = "메세지"
+                            jamye.postTypeName = "메세지"
                         } else {
-                            jamye.postType = "포스트"
+                            jamye.postTypeName = "포스트"
                         }
                         if(jamye.isViewable) {
                             jamye.isViewableName = "보유"
@@ -79,8 +78,13 @@ export default{
                 })
     },
     methods: {
-        movePost() {
-            console.log("이동")
+        movePost(type, postSeq) {
+            if(type == "MSG") {
+                this.$router.push("/jamye/message" + postSeq)
+            } else if(type == "BOR") {
+                this.$router.push("/jamye/post" + postSeq)
+            }
+            
         }
     }
     

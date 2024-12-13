@@ -1,6 +1,6 @@
 <template>
-    <div class="b-container"><br><br><br>
-        <h2 class="pb-4 mb-4 fst-italic border-bottom">회원 가입</h2>
+    <div class="b-container">
+        <h2 class="title pb-4 mb-4 fst-italic border-bottom">회원 가입</h2>
         <div class="duplicateMessage-error" v-if="idIsDuplicate!=null && idIsDuplicate">이미 가입된 ID입니다.</div>
         <div class="duplicateMessage-success" v-if="idIsDuplicate!=null && !idIsDuplicate">사용 가능한 ID입니다.</div>
         <div v-if="idIsDuplicate==null"><div class="duplicate-message-space"></div></div>

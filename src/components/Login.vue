@@ -1,10 +1,6 @@
 <template>
     <div class="b-container">
-        <br>
-        <br>
-        <br>
-
-        <h2 class="pb-4 mb-4 fst-italic border-bottom">로그인</h2>
+        <h2 class="title pb-4 mb-4 fst-italic border-bottom">로그인</h2>
         <form @submit.prevent="submitForm">
             <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon1">아이디</span>

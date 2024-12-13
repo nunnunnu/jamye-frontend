@@ -1,6 +1,5 @@
 <template>
     <div class="b-container">
-        <br><br><br>
         <h2 class="title">그룹 추가</h2>
         <div class="group-add">
             <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal1">

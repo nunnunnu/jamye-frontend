@@ -48,7 +48,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <button type="button" class="btn btn-dark custom-btn" >잼얘 목록</button>
+                                        <router-link class="btn btn-dark custom-btn" :to="{name:'jamyeList'}">잼얘 목록</router-link>
                                 </div>
                                 <div v-if="currentGroup == null">
                                     <button type="button" class="btn btn-dark" disabled>뽑기</button>
@@ -165,5 +165,11 @@ export default {
         justify-content: center;
         border-radius: 15px;
         font-size: 30px;
+    }
+    .title {
+        font-size: 30px; /* 제목 크기 조정 */
+        margin: 0; /* 기본 여백 제거 */
+        margin-top: 65px;
+        margin-bottom: 10px;
     }
 </style>

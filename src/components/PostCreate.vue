@@ -1,7 +1,6 @@
 <template>
     <div class="b-container">
-        <br><br><br>
-        <h1 class="modal-title fs-5" id="jamye-create1">{{ groupName }}가챠 잼얘 넣기 - 게시글 타입</h1>
+        <h1 class="title" id="jamye-create1">{{ groupName }}가챠 잼얘 넣기 - 게시글 타입</h1>
         <div class="form-group">
             <input type="text" class="form-control" name="post-title" id="post-title" v-model="postTitle" placeholder="게시글 제목">
         </div>

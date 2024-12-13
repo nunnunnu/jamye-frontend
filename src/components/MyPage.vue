@@ -1,7 +1,4 @@
 <template>
-    <br>
-    <br>
-    <br>
     <div class="b-container">
         <h2 class="title"> 사용자 정보 </h2><br>
         <div class="user-info-box">
@@ -135,13 +132,6 @@ export default {
 .btn-block {
     width: 100%;
 }
-
-.title {
-  font-size: 24px; /* 제목 크기 조정 */
-  margin: 0; /* 기본 여백 제거 */
-}
-
-
 .add-group-btn {
   padding: 10px 15px; /* 버튼 내부 여백 */
   background-color: #007bff; /* 버튼 배경 색상 */
