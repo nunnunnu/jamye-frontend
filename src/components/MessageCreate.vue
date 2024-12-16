@@ -429,13 +429,24 @@ export default {
                     }, 0);
 
                     var maxMsg = preMessageCut.message.pop()
+                    var lastMessage = messageText.pop()
                     preMessageCut.message.push({
                         seq: maxSeq,
-                        message: messageText.pop().message
+                        message: lastMessage.message,
+                        imageKey: lastMessage.imageKey,
+                        imageUri: lastMessage.imageUri,
+                        isReply: lastMessage.isReply,
+                        replyMessage: lastMessage.replyMessage,
+                        replyTo: lastMessage.replyTo
                     })
                     preMessageCut.message.push({
                         seq: maxSeq + 1,
-                        message: maxMsg.message
+                        message: maxMsg.message,
+                        imageKey: maxMsg.imageKey,
+                        imageUri: maxMsg.imageUri,
+                        isReply: maxMsg.isReply,
+                        replyMessage: maxMsg.replyMessage,
+                        replyTo: maxMsg.replyTo
                     })
                     this.messageResponse[key - 1].message = []
                 } else {
@@ -484,7 +495,12 @@ export default {
                         }, 0);
                         value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
                             seq: ++maxNum,
-                            message: msg.message
+                            message: msg.message,
+                            imageKey: msg.imageKey,
+                            imageUri: msg.imageUri,
+                            isReply: msg.isReply,
+                            replyMessage: msg.replyMessage,
+                            replyTo: msg.replyTo
                         }))
                     } else {
                         tempMapUser[tempKey++] = value
@@ -525,9 +541,15 @@ export default {
             if (seq === editMapMaxSeq) {
                 var messageText = JSON.parse(JSON.stringify(this.messageResponse[key]))
                 messageText.message = []
+                var lastMessage = this.messageResponse[key].message.pop()
                 messageText.message.push({
                     seq: 1,
-                    message: this.messageResponse[key].message.pop().message
+                    message: lastMessage.message,
+                    imageKey: lastMessage.imageKey,
+                    imageUri: lastMessage.imageUri,
+                    isReply: lastMessage.isReply,
+                    replyMessage: lastMessage.replyMessage,
+                    replyTo: lastMessage.replyTo
                 })
                 var nextKey = Number(key) + 1
                 var upMessage = JSON.parse(JSON.stringify(this.messageResponse[nextKey]))
@@ -571,7 +593,12 @@ export default {
                         }, 0);
                         value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
                             seq: ++maxNum,
-                            message: msg.message
+                            message: msg.message,
+                            imageKey: msg.imageKey,
+                            imageUri: msg.imageUri,
+                            isReply: msg.isReply,
+                            replyMessage: msg.replyMessage,
+                            replyTo: msg.replyTo
                         }))
                     } else {
                         tempMapUser[tempKey++] = value
