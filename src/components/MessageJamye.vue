@@ -2,15 +2,20 @@
     <div class="b-container">
         <h1 class="title">{{ message.title }}</h1>
         <div class="create-user">작성자: {{ message.createdUserNickName }}</div>
-
+        <div v-if="isEditing == null">
+            <button  @click="editMode" class="btn btn-dark">수정하기</button>
+        </div>
+        <div v-else>
+            <button  @click="editModeClose" class="btn btn-dark">수정완료</button>
+        </div>
         <div class="card card-body">
                     <div class="chat-room">
-                        <div v-for="(text, key) in message.content" :key="key">                                                                        
+                        <div v-for="[key, text] in Object.entries(this.messageResponse)" :key="key">                                                                        
                             <!-- 내 매세지 -->
                             <div v-if="text.myMessage" class="chat-message mt-3">
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(msg)"   :id="'message-' + key + '_' + msg.seq" >
                                     <div class="info-container">
-                                        <!-- <div class="button-container">
+                                        <div class="button-container" v-if="this.isEditing != null">
                                             <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)">
                                                 <i class="fas fa-plus"></i>
                                             </button>
@@ -29,10 +34,10 @@
                                             <button class="circle-btn camera" data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)">
                                                 <i class="fas fa-camera"></i>
                                             </button>
-                                        </div> -->
+                                        </div>
                                         <span class="send-date">{{ text.sendDate }}</span>
                                     </div>
-                                    <!-- <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key)">
+                                    <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key)">
                                         <template v-if="msg.isReply">
                                             <input class="reply-header" v-model="msg.replyTo"><br />
                                             <input class="reply-message" v-model="msg.replyMessage">
@@ -41,16 +46,16 @@
                                         <input  type="text" v-model="msg.message" class="from-me">
                                         <span class="image-gallery">
                                             <img
-                                                v-for="(image, index) in msg.imageKey"
+                                                v-for="(image, index) in msg.imageUri"
                                                 :key="index"
-                                                :src="this.imageMap[image]"
+                                                :src="`http://localhost:8080/api/file/${image}`"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
                                             />
                                         </span>
-                                    </p> -->
-                                    <p class="from-me">
+                                    </p>
+                                    <p v-else class="from-me">
                                         <input 
                                             v-if="replyMode" 
                                             type="radio" 
@@ -60,7 +65,7 @@
                                             class="form-check-input mt-1"
                                         />
                                         <template v-if="msg.isReply">
-                                            <button 
+                                            <button v-if="this.isEditing != null"
                                             class="btn btn-sm btn-link me-2" 
                                             @click="toggleReplyMode(msg)"
                                             title="답장 연결"
@@ -72,16 +77,16 @@
                                             <hr />
                                         </template>
                                         {{ msg.message }}
-                                        <!-- <span class="image-gallery">
+                                        <span class="image-gallery">
                                             <img
-                                                v-for="(image, index) in msg.imageKey"
+                                                v-for="(image, index) in msg.imageUri"
                                                 :key="index"
-                                                :src="this.imageMap[image]"
+                                                :src="`http://localhost:8080/api/file/${image}`"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
                                             />
-                                        </span> -->
+                                        </span>
                                     </p>
                                 </div>
                             </div>
@@ -89,7 +94,7 @@
                             <div v-else class="chat-message mt-3">
                                 <div class="send-user">{{ text.sendUser }}</div>
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(msg)">
-                                    <!-- <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
+                                    <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
                                             <input class="reply-header-them" v-model="msg.replyTo"><br />
                                             <input class="reply-message-them" v-model="msg.replyMessage">
@@ -100,18 +105,19 @@
                                             <img
                                                 v-for="(image, index) in msg.imageKey"
                                                 :key="index"
-                                                :src="this.imageMap[image]"
+                                                :src="`http://localhost:8080/api/file/${image}`"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
                                             />
                                         </span>
-                                    </p> -->
-                                    <p class="from-them">
+                                    </p>
+                                    <p v-else class="from-them">
                                         <template v-if="msg.isReply">
                                             <span class="reply-header-them">{{ msg.replyTo }}</span>
                                             <button 
                                             class="btn btn-sm btn-link me-2" 
+                                            v-if="this.isEditing != null"
                                             @click="toggleReplyMode(msg)"
                                             title="답장 연결"
                                             >
@@ -134,7 +140,7 @@
                                             <img
                                                 v-for="(image, index) in msg.imageKey"
                                                 :key="index"
-                                                :src="this.imageMap[image]"
+                                                :src="`http://localhost:8080/api/file/${image}`"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -143,18 +149,23 @@
                                     </p>
                                     <div class="info-container-them">
                                         <span class="send-date">{{ text.sendDate }}</span>
-                                        <!-- <div class="button-container">
+                                        <div class="button-container" v-if="this.isEditing != null">
                                             <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)"><i class="fas fa-plus"></i></button>
                                             <button class="circle-btn up-arrow" @click="moveMessageUp(key, msg.seq)"><i class="fas fa-arrow-up"></i></button>
                                             <button class="circle-btn down-arrow" @click="moveMessageDown(key, msg.seq)"><i class="fas fa-arrow-down"></i></button>
                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)"><i class="fas fa-trash"></i></button>
                                             <button class="circle-btn camera"  data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)"><i class="fas fa-camera"></i></button>
-                                        </div> -->
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div v-if="isPreviewOpen" class="image-preview-overlay" @click="closePreview">
+                    <div class="image-preview-container">
+                        <img :src="`http://localhost:8080/api/file/${previewImage}`" alt="Preview Image" class="large-image" />
                     </div>
                 </div>
     </div>    
@@ -165,7 +176,11 @@ import axios from 'axios';
 export default {
     data() {
         return {
-            message: {}
+            message: {},
+            messageResponse: {},
+            isEditing: null,
+            previewImage: null,
+            isPreviewOpen: false
         }
     },
     props: {
@@ -191,9 +206,291 @@ export default {
             })
             .then(r => {
                 this.message = r.data.data
+                this.messageResponse = r.data.data.content
             })
         }
 
+    },
+    methods: {
+        editMode() {
+            this.isEditing = {}
+        },
+        editModeClose() {
+            this.isEditing = null
+        },
+        editMessage(key, seq) {
+            if (!this.isEditing[key]) {
+                this.isEditing[key] = {}; 
+            }
+            if(this.isEditing[key][seq]) {
+                this.isEditing[key][seq] = false; 
+            } else {
+                this.isEditing[key][seq] = true; 
+            }
+            
+        },
+        saveMessage(key) {
+            this.isEditing[key] = false;
+        },
+        removeMessageSeq(key, msgSeq) {
+            if (this.messageResponse[key] && Array.isArray(this.messageResponse[key].message)) {
+                this.messageResponse[key].message = this.messageResponse[key].message.filter(
+                    (msg) => msg.seq !== msgSeq
+                );
+                this.messageResponse[key].message.forEach(it => {
+                    if(it.seq > msgSeq) {
+                        it.seq = it.seq - 1
+                    }
+                });
+                if (!this.isEditing[key]) {
+                    this.isEditing[key] = {}; 
+                }
+                this.isEditing[key][msgSeq] = false 
+                }
+                var tempKey = 1
+                var tempMap = new Map
+                for(let [index, value] of Object.entries(this.messageResponse)) {
+                    if(value.message.length != 0) {
+                        console.log(index)
+                        tempMap[tempKey++] = value
+                    }
+                }
+                this.messageResponse = tempMap
+        },
+        addEmptyMessage(key, msgSeq) {
+            if (this.messageResponse[key] && Array.isArray(this.messageResponse[key].message)) {
+                this.messageResponse[key].message.forEach(it => {
+                    if(it.seq > msgSeq) {
+                        it.seq = it.seq + 1
+                    }
+                });
+                this.messageResponse[key].message.push({
+                    seq: msgSeq + 1,
+                    message: "."
+                });    
+                this.messageResponse[key].message.sort((a, b) => a.seq - b.seq);
+                
+                if(this.isEditing[key, msgSeq + 1]) {
+                    this.editMessage(key, msgSeq + 1 + 1)
+                }
+                this.editMessage(key, msgSeq + 1)
+            }    
+        },
+        moveMessageUp(key, seq) {
+            if(key==1 && seq ==1) {
+                return
+            }
+            const messageArray = this.messageResponse[key].message;
+
+            if (seq === 1) {
+                var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
+                this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
+                var orderSeq = 1
+                if(this.messageResponse[key].message.length != 0) {
+                    this.messageResponse[key].message.forEach(msg => {
+                        msg.seq = orderSeq++
+                    })
+                }
+                
+                var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
+                
+                var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
+                if(preMessageCut.sendUser == messageText.sendUser) {
+                    const maxSeq = preMessageCut.message.reduce((max, msg) => {
+                        return msg.seq > max ? msg.seq : max;
+                    }, 0);
+
+                    var maxMsg = preMessageCut.message.pop()
+                    preMessageCut.message.push({
+                        seq: maxSeq,
+                        message: messageText.pop().message
+                    })
+                    preMessageCut.message.push({
+                        seq: maxSeq + 1,
+                        message: maxMsg.message
+                    })
+                    this.messageResponse[key - 1].message = []
+                } else {
+                    preMessageCut.message = [preMessageCut.message.pop()]
+                    messageNewObject.message = messageText
+                    messageNewObject.sendDate = null
+                }
+                const lastSeq = preMessageCut.message.reduce((max, msg) => {
+                    return msg.seq > max ? msg.seq : max;
+                    }, 0);
+                this.messageResponse[key - 1].message = this.messageResponse[key - 1].message.filter(msg => msg.seq != lastSeq)
+
+                var tempMap = new Map
+                var tempKey = 1
+                for(let [id, value] of Object.entries(this.messageResponse)) {
+                    if(id == key) {
+                        if(messageNewObject.message.length != 0) {
+                            tempMap[tempKey++] = messageNewObject
+                        }
+                        
+                        if(preMessageCut.message.length != 0) {
+                            tempMap[tempKey++] = preMessageCut
+                        }
+                        
+                        if(value.message.length != 0) {
+                            tempMap[tempKey++] = value
+                        }
+
+                    } else if(value.message.length != 0){
+                        tempMap[tempKey++] = value
+                    }
+                }
+                
+                var tempMapUser = new Map
+                var preUser = null
+                tempKey = 1
+                for(let [id, value] of Object.entries(tempMap)) {
+                    if(id == 1) {
+                        preUser = value.sendUser
+                        tempMapUser[tempKey++] = value
+                        continue
+                    }
+                    if (value.sendUser == preUser) {
+                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
+                            return msg.seq > max ? msg.seq : max;
+                        }, 0);
+                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
+                            seq: ++maxNum,
+                            message: msg.message
+                        }))
+                    } else {
+                        tempMapUser[tempKey++] = value
+                    }
+                    preUser = value.sendUser
+                }
+                this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
+            } else {
+                // seq가 1이 아닌 경우 배열 내에서 순서 변경
+                const index = messageArray.findIndex(msg => msg.seq === seq);
+                if (index > 0) {
+                // 현재 메시지를 한 단계 위로 올림
+                [messageArray[index - 1], messageArray[index]] = [messageArray[index], messageArray[index - 1]];
+                
+                // seq 값을 업데이트
+                messageArray[index - 1].seq -= 1;
+                messageArray[index].seq += 1;
+                }
+            }
+
+        },
+        moveMessageDown(key, seq) {
+            const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
+            const maxSeq = this.messageResponse[maxKey].message.reduce((max, msg) => {
+                        return msg.seq > max ? msg.seq : max;
+                    }, 0);
+
+            if(key==maxKey && seq ==maxSeq) {
+                return
+            }
+
+
+            const messageArray = this.messageResponse[key].message;
+            const editMapMaxSeq = messageArray.reduce((max, msg) => {
+                        return msg.seq > max ? msg.seq : max;
+                    }, 0);
+
+            if (seq === editMapMaxSeq) {
+                var messageText = JSON.parse(JSON.stringify(this.messageResponse[key]))
+                messageText.message = []
+                messageText.message.push({
+                    seq: 1,
+                    message: this.messageResponse[key].message.pop().message
+                })
+                var nextKey = Number(key) + 1
+                var upMessage = JSON.parse(JSON.stringify(this.messageResponse[nextKey]))
+                upMessage.message = this.messageResponse[nextKey].message.filter(msg => msg.seq == 1)
+                this.messageResponse[nextKey].message = this.messageResponse[nextKey].message.filter(msg => msg.seq != 1)
+                var orderSeq = 1
+                if(this.messageResponse[nextKey].message.length != 0) {
+                    this.messageResponse[nextKey].message.forEach(msg => {
+                        msg.seq = orderSeq++
+                    })
+                }
+                var tempMap = new Map
+                var tempKey = 1
+                for(let [id, value] of Object.entries(this.messageResponse)) {
+                    if(id == key) {
+                        if(value.message.length != 0) {
+                            tempMap[tempKey++] = value
+                        }
+                        if(upMessage.message.length != 0) {
+                            tempMap[tempKey++] = upMessage
+                        }
+                        if(messageText.message.length != 0) {
+                            tempMap[tempKey++] = messageText
+                        }
+                    } else if(value.message.length != 0){
+                        tempMap[tempKey++] = value
+                    }
+                }
+                var tempMapUser = new Map
+                var preUser = null
+                tempKey = 1
+                for(let [id, value] of Object.entries(tempMap)) {
+                    if(id == 1) {
+                        preUser = value.sendUser
+                        tempMapUser[tempKey++] = value
+                        continue
+                    }
+                    if (value.sendUser == preUser) {
+                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
+                            return msg.seq > max ? msg.seq : max;
+                        }, 0);
+                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
+                            seq: ++maxNum,
+                            message: msg.message
+                        }))
+                    } else {
+                        tempMapUser[tempKey++] = value
+                    }
+                    preUser = value.sendUser
+                }
+                this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
+
+            } else {
+                // seq가 최대값이 아닌 경우 배열 내에서 순서 변경
+                const index = messageArray.findIndex(msg => msg.seq === seq);
+                if (index < messageArray.length - 1) {
+                    // 현재 메시지를 한 단계 아래로 내림
+                    [messageArray[index], messageArray[index + 1]] = [messageArray[index + 1], messageArray[index]];
+
+                    // seq 값을 업데이트
+                    messageArray[index].seq -= 1;
+                    messageArray[index + 1].seq += 1;
+
+                }
+            }
+        },
+        scrollToMessage(msg) {
+            if(msg.replyToKey == undefined || msg.replyToKey == null || msg.replyToSeq == undefined || msg.replyToSeq == null) {
+                return
+            }
+            const targetMessageId = `message-${msg.replyToKey}_${msg.replyToSeq}`
+            const targetMessage = document.getElementById(targetMessageId)          
+            if(targetMessage) {
+                targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
+                targetMessage.classList.add('shake');
+
+                // 애니메이션 종료 후 클래스 제거
+                setTimeout(() => {
+                targetMessage.classList.remove('shake');
+                }, 500);
+            }  
+            
+        },
+        openPreview(image) {
+            this.previewImage = image
+            this.isPreviewOpen = true;
+        },
+        closePreview() {
+            this.isPreviewOpen = false;
+            this.previewImage = null;
+        }
     }
 }
 </script>
