@@ -2,10 +2,12 @@
     <div class="b-container">
         <h1 class="title">{{ message.title }}</h1>
         <div class="create-user">작성자: {{ message.createdUserNickName }}</div>
-        <div v-if="isEditing == null">
-            <button  @click="editMode" class="btn btn-dark">수정하기</button>
+        <div class="editModeOpen" v-if="isEditing == null && message.createdUserSequence == $cookies.get('sequence')">
+            <button @click="editMode" class="btn btn-dark">수정하기</button>
         </div>
-        <div v-else>
+        <div class="editMode" v-if="isEditing != null && message.createdUserSequence == $cookies.get('sequence')">
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+                <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
             <button  @click="editModeClose" class="btn btn-dark">수정완료</button>
         </div>
         <div class="card card-body">
@@ -53,6 +55,14 @@
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
                                             />
+                                            <img
+                                                v-for="(image, index) in msg.imageKey"
+                                                :key="index"
+                                                :src="this.imageMap[image]"
+                                                class="small-image"
+                                                @click="openPreview(image)"
+                                                alt="Uploaded Image"
+                                            />
                                         </span>
                                     </p>
                                     <p v-else class="from-me">
@@ -86,6 +96,14 @@
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
                                             />
+                                            <img
+                                                v-for="(image, index) in msg.imageKey"
+                                                :key="index"
+                                                :src="this.imageMap[image]"
+                                                class="small-image"
+                                                @click="openPreview(image)"
+                                                alt="Uploaded Image"
+                                            />
                                         </span>
                                     </p>
                                 </div>
@@ -106,6 +124,14 @@
                                                 v-for="(image, index) in msg.imageKey"
                                                 :key="index"
                                                 :src="`http://localhost:8080/api/file/${image}`"
+                                                class="small-image"
+                                                @click="openPreview(image)"
+                                                alt="Uploaded Image"
+                                            />
+                                            <img
+                                                v-for="(image, index) in msg.imageKey"
+                                                :key="index"
+                                                :src="this.imageMap[image]"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -145,6 +171,14 @@
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
                                             />
+                                            <img
+                                                v-for="(image, index) in msg.imageKey"
+                                                :key="index"
+                                                :src="this.imageMap[image]"
+                                                class="small-image"
+                                                @click="openPreview(image)"
+                                                alt="Uploaded Image"
+                                            />
                                         </span>
                                     </p>
                                     <div class="info-container-them">
@@ -165,22 +199,35 @@
                 </div>
                 <div v-if="isPreviewOpen" class="image-preview-overlay" @click="closePreview">
                     <div class="image-preview-container">
-                        <img :src="`http://localhost:8080/api/file/${previewImage}`" alt="Preview Image" class="large-image" />
+                        <img 
+                            v-if="imageMap[previewImage]" 
+                            :src="this.imageMap[previewImage]" 
+                            alt="Preview Image" 
+                            class="large-image" 
+                            />
+                        <img v-else :src="`http://localhost:8080/api/file/${previewImage}`" alt="Preview Image" class="large-image" />  
                     </div>
                 </div>
     </div>    
 </template>
 <script>
 import axios from 'axios';
+import ImageBox from './ImageBox.vue';
 
 export default {
+    components: {
+        ImageBox
+    },
     data() {
         return {
             message: {},
             messageResponse: {},
             isEditing: null,
             previewImage: null,
-            isPreviewOpen: false
+            isPreviewOpen: false,
+            imageMap: {},
+            imageAddKey: null,
+            imageAddSeq: null
         }
     },
     props: {
@@ -519,7 +566,11 @@ export default {
         closePreview() {
             this.isPreviewOpen = false;
             this.previewImage = null;
-        }
+        },
+        selectImageKey(key, seq) {
+            this.imageAddKey = key
+            this.imageAddSeq = seq
+        },
     }
 }
 </script>
@@ -531,5 +582,11 @@ export default {
 .post-title{
     font-weight: bold;
     font-size: 30px;
+}
+.editModeOpen {
+    margin-bottom: 10px;
+}
+.editMode {
+    margin-bottom: 10px;
 }
 </style>
