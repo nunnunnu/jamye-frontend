@@ -30,7 +30,7 @@
                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)">
                                                 <i class="fas fa-pencil-alt"></i>
                                             </button>
-                                            <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)">
+                                            <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq, msg.messageSeq)">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                             <button class="circle-btn camera" data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)">
@@ -188,7 +188,7 @@
                                             <button class="circle-btn up-arrow" @click="moveMessageUp(key, msg.seq)"><i class="fas fa-arrow-up"></i></button>
                                             <button class="circle-btn down-arrow" @click="moveMessageDown(key, msg.seq)"><i class="fas fa-arrow-down"></i></button>
                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
-                                            <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)"><i class="fas fa-trash"></i></button>
+                                            <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq, msg.messageSeq)"><i class="fas fa-trash"></i></button>
                                             <button class="circle-btn camera"  data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)"><i class="fas fa-camera"></i></button>
                                         </div>
                                     </div>
@@ -228,7 +228,8 @@ export default {
             imageMap: {},
             imageAddKey: null,
             imageAddSeq: null,
-            nickNameMap: {}
+            nickNameMap: {},
+            deleteSeqs: new Set
         }
     },
     props: {
@@ -269,7 +270,8 @@ export default {
             axios.post(`/api/post/message/${group.groupSequence}/${this.postSeq}`,
             {
                 message: this.messageResponse,
-                nickName: this.nickNameMap
+                nickName: this.nickNameMap,
+                deleteMessage: Array.from(this.deleteSeqs)
             }
             ,
                 {
@@ -295,7 +297,11 @@ export default {
         saveMessage(key) {
             this.isEditing[key] = false;
         },
-        removeMessageSeq(key, msgSeq) {
+        removeMessageSeq(key, msgSeq, messageSeq) {
+            if(messageSeq != null) {
+                this.deleteSeqs.add(messageSeq)
+            }
+            
             if (this.messageResponse[key] && Array.isArray(this.messageResponse[key].message)) {
                 this.messageResponse[key].message = this.messageResponse[key].message.filter(
                     (msg) => msg.seq !== msgSeq
