@@ -512,12 +512,12 @@ export default {
                 // seq가 1이 아닌 경우 배열 내에서 순서 변경
                 const index = messageArray.findIndex(msg => msg.seq === seq);
                 if (index > 0) {
-                // 현재 메시지를 한 단계 위로 올림
-                [messageArray[index - 1], messageArray[index]] = [messageArray[index], messageArray[index - 1]];
-                
-                // seq 값을 업데이트
-                messageArray[index - 1].seq -= 1;
-                messageArray[index].seq += 1;
+                    // 현재 메시지를 한 단계 위로 올림
+                    [messageArray[index - 1], messageArray[index]] = [messageArray[index], messageArray[index - 1]];
+                    
+                    // seq 값을 업데이트
+                    messageArray[index - 1].seq -= 1;
+                    messageArray[index].seq += 1;
                 }
             }
 

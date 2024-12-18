@@ -227,7 +227,8 @@ export default {
             isPreviewOpen: false,
             imageMap: {},
             imageAddKey: null,
-            imageAddSeq: null
+            imageAddSeq: null,
+            nickNameMap: {}
         }
     },
     props: {
@@ -253,7 +254,8 @@ export default {
             })
             .then(r => {
                 this.message = r.data.data
-                this.messageResponse = r.data.data.content
+                this.messageResponse = r.data.data.content.message
+                this.nickNameMap = r.data.data.content.nickName
             })
         }
 
@@ -263,6 +265,20 @@ export default {
             this.isEditing = {}
         },
         editModeClose() {
+            var group = this.$cookies.get("group")
+            axios.post(`/api/post/message/${group.groupSequence}/${this.postSeq}`,
+            {
+                message: this.messageResponse,
+                nickName: this.nickNameMap
+            }
+            ,
+                {
+                    headers: {
+                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    }
+                }
+            )
+
             this.isEditing = null
         },
         editMessage(key, seq) {
@@ -513,7 +529,6 @@ export default {
                         }, 0);
                         value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
                             seq: ++maxNum,
-                            message: msg.message,
                             message: msg.message,
                             imageKey: msg.imageKey,
                             imageUri: msg.imageUri,
