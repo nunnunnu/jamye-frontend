@@ -50,9 +50,9 @@
                                             <img
                                                 v-for="(image, index) in msg.imageUri"
                                                 :key="index"
-                                                :src="`http://localhost:8080/api/file/${image}`"
+                                                :src="`http://localhost:8080/api/file/${image.second}`"
                                                 class="small-image"
-                                                @click="openPreview(image)"
+                                                @click="openPreview(image.second)"
                                                 alt="Uploaded Image"
                                             />
                                             <img
@@ -91,9 +91,9 @@
                                             <img
                                                 v-for="(image, index) in msg.imageUri"
                                                 :key="index"
-                                                :src="`http://localhost:8080/api/file/${image}`"
+                                                :src="`http://localhost:8080/api/file/${image.second}`"
                                                 class="small-image"
-                                                @click="openPreview(image)"
+                                                @click="openPreview(image.second)"
                                                 alt="Uploaded Image"
                                             />
                                             <img
@@ -213,6 +213,7 @@
 <script>
 import axios from 'axios';
 import ImageBox from './ImageBox.vue';
+import { base64ToFile } from '@/js/fileScripts';
 
 export default {
     components: {
@@ -266,13 +267,24 @@ export default {
             this.isEditing = {}
         },
         editModeClose() {
-            var group = this.$cookies.get("group")
-            axios.post(`/api/post/message/${group.groupSequence}/${this.postSeq}`,
-            {
+            const formdata = new FormData()
+            Object.entries(this.imageMap).forEach(([key, value]) => {
+                if (value instanceof File) {
+                    formdata.append(key, value);
+                } else {
+                    formdata.append(key, base64ToFile(value));
+                }
+            });
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            const data = {
                 message: this.messageResponse,
                 nickName: this.nickNameMap,
                 deleteMessage: Array.from(this.deleteSeqs)
             }
+
+            formdata.append('data', JSON.stringify(data));
+            axios.post(`/api/post/message/${groupSeq}/${this.postSeq}`,
+            formdata
             ,
                 {
                     headers: {
@@ -333,6 +345,15 @@ export default {
                         it.seq = it.seq + 1
                     }
                 });
+                for(let[id, value] of Object.entries(this.messageResponse)) {
+                    if(id > key) {
+                        value.message.forEach(it => {
+                            it.seq = it.seq + 1
+                });
+                    }
+                }
+                
+
                 this.messageResponse[key].message.push({
                     seq: msgSeq + 1,
                     message: "."
