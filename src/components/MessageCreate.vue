@@ -646,24 +646,17 @@ export default {
             };
 
             formdata.append('data', JSON.stringify(data));
+            var nickNameMap = new Map
+            for(let [id, value] of Object.entries(this.userNameMap)) {
+                nickNameMap[id] = value.groupUserSequence
+            }
+            formdata.append('nickNameMap', JSON.stringify(nickNameMap))
             
                 axios.post("/api/post/message", formdata, {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
                 })
-            // else 
-            //     axios.post("/api/post/board", {
-            //             title: this.postTitle,
-            //             groupSeq: groupSeq,
-            //             content: {
-            //                 content: this.detail
-            //             }
-            //         }, {
-            //             headers: {
-            //                 Authorization: `Bearer `+this.$cookies.get('accessToken')
-            //             }
-            //         })
         },
         groupUserList() {
             axios.get("/api/group/users/" + this.$cookies.get("group").groupSequence, {

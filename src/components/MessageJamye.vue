@@ -8,6 +8,32 @@
         <div class="editMode" v-if="isEditing != null && message.createdUserSequence == $cookies.get('sequence')">
             <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
                 <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
+                <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#nickNameMapping">닉네임</button>
+                    <div class="modal fade" id="nickNameMapping" tabindex="-1" aria-labelledby="nickNameMapping" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="nickNameMapping">닉네임</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                            <div class="modal-body">
+                                <div v-for="[key, value] in Object.entries(this.nickNameMap)" :key = key>
+                                    {{ value.nickName }} : {{  value.userNameInGroup }}
+                                </div>
+                                <button class="btn btn-dark" @click="nickNameAdd">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
+                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                                    </svg>
+                                    닉네임 추가
+                                </button>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <button  @click="editModeClose" class="btn btn-dark">수정완료</button>
         </div>
         <div class="card card-body">
@@ -110,7 +136,12 @@
                             </div>
                             <!-- 상대 메세지 -->
                             <div v-else class="chat-message mt-3">
-                                <div class="send-user">{{ text.sendUser }}</div>
+                                <div v-if="this.nickNameMap[text.sendUserSeq].userNameInGroup != null">
+                                    <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].userNameInGroup }}</div>
+                                </div>
+                                <div v-else>
+                                    <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].nickName }}</div>
+                                </div>
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(msg)">
                                     <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
@@ -613,6 +644,9 @@ export default {
             this.imageAddKey = key
             this.imageAddSeq = seq
         },
+        nickNameAdd(){
+            console.log("닉네임 추가")
+        }
     }
 }
 </script>
