@@ -8,7 +8,7 @@
         <div class="editMode" v-if="isEditing != null && message.createdUserSequence == $cookies.get('sequence')">
             <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
                 <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
-                <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#nickNameMapping">닉네임</button>
+                <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#nickNameMapping" @click="groupNickNameInfo()">닉네임</button>
                     <div class="modal fade" id="nickNameMapping" tabindex="-1" aria-labelledby="nickNameMapping" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
@@ -18,7 +18,26 @@
                                 </div>
                             <div class="modal-body">
                                 <div v-for="[key, value] in Object.entries(this.nickNameMap)" :key = key>
-                                    {{ value.nickName }} : {{  value.userNameInGroup }}
+                                    {{ value.nickName }} : 
+                                    <button v-if="value.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
+                                            </button>
+                                            <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                {{ value.userNameInGroup }}
+                                            </button>
+                                            <ul 
+                                                class="dropdown-menu" 
+                                                style="max-height: 200px; overflow-y: auto;"
+                                            >
+                                                <li 
+                                                    v-for="user in userInGroup" 
+                                                    :key="user.groupUserSequence"
+                                                    @click="userInGroupSet(key, user)"
+                                                    style="padding: 8px; cursor: pointer;"
+                                                >
+                                                    {{ user.nickname }}
+                                                </li>
+                                            </ul>
                                 </div>
                                 <button class="btn btn-dark" @click="nickNameAdd">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
@@ -261,7 +280,8 @@ export default {
             imageAddKey: null,
             imageAddSeq: null,
             nickNameMap: {},
-            deleteSeqs: new Set
+            deleteSeqs: new Set,
+            userInGroup: {}
         }
     },
     props: {
@@ -645,7 +665,28 @@ export default {
             this.imageAddSeq = seq
         },
         nickNameAdd(){
-            console.log("닉네임 추가")
+            this.nickNameMap[0] = {
+                "nickName": ","
+            }
+        },
+        groupNickNameInfo() {
+            axios.get("/api/group/users/" + this.$cookies.get("group").groupSequence, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
+            .then(r => {
+                this.userInGroup = r.data.data
+            })
+        },
+        userInGroupSet(nickNameSeq, userInGroupInfo) {
+            console.log(userInGroupInfo)
+            this.nickNameMap[nickNameSeq] = {
+                "nickName": this.nickNameMap[nickNameSeq].nickName,
+                "userSeqInGroup": userInGroupInfo.groupUserSequence,
+                "userNameInGroup":userInGroupInfo.nickname,
+                "imageUri": userInGroupInfo.imageUrl
+            }
         }
     }
 }
