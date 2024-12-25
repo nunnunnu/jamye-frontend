@@ -18,26 +18,53 @@
                                 </div>
                             <div class="modal-body">
                                 <div v-for="[key, value] in Object.entries(this.nickNameMap)" :key = key>
-                                    {{ value.nickName }} : 
-                                    <button v-if="value.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
-                                            </button>
-                                            <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                {{ value.userNameInGroup }}
-                                            </button>
-                                            <ul 
-                                                class="dropdown-menu" 
-                                                style="max-height: 200px; overflow-y: auto;"
-                                            >
-                                                <li 
-                                                    v-for="user in userInGroup" 
-                                                    :key="user.groupUserSequence"
-                                                    @click="userInGroupSet(key, user)"
-                                                    style="padding: 8px; cursor: pointer;"
+                                    <div v-if="value != null && value.nickName != null">
+                                        {{ value.nickName }} : 
+                                        <button v-if="value.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
+                                                </button>
+                                                <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    {{ value.userNameInGroup }}
+                                                </button>
+                                                <ul 
+                                                    class="dropdown-menu" 
+                                                    style="max-height: 200px; overflow-y: auto;"
                                                 >
-                                                    {{ user.nickname }}
-                                                </li>
-                                            </ul>
+                                                    <li 
+                                                        v-for="user in userInGroup" 
+                                                        :key="user.groupUserSequence"
+                                                        @click="userInGroupSet(key, user)"
+                                                        style="padding: 8px; cursor: pointer;"
+                                                    >
+                                                        {{ user.nickname }}
+                                                    </li>
+                                                </ul>
+                                        <span class="remove-butto" @click="removeNickname(key)">X</span>
+                                    </div>
+                                </div>
+                                <div class="nickNameAdd" v-if="nickNameEditMod">
+                                    <input v-model="nicknameInput" placeholder="닉네임 입력" />
+                                    <button
+                                        class="btn btn-dark btn-sm dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                    >
+                                        {{ selectedUser?.nickname || "사용자 선택" }}
+                                    </button>
+                                    <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
+                                        <li
+                                        v-for="user in userInGroup"
+                                        :key="user.groupUserSequence"
+                                        @click="selectedUser = user"
+                                        style="padding: 8px; cursor: pointer;"
+                                        >
+                                        {{ user.nickname }}
+                                        </li>
+                                    </ul>
+                                    <button class="btn btn-dark btn-sm" @click="nickNameAddComplate">
+                                        저장
+                                    </button>
                                 </div>
                                 <button class="btn btn-dark" @click="nickNameAdd">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
@@ -48,6 +75,7 @@
                                 </button>
                             </div>
                             <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" @click="updateNickNameInfo">반영하기</button>
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
                             </div>
                         </div>
@@ -155,11 +183,13 @@
                             </div>
                             <!-- 상대 메세지 -->
                             <div v-else class="chat-message mt-3">
-                                <div v-if="this.nickNameMap[text.sendUserSeq].userNameInGroup != null">
-                                    <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].userNameInGroup }}</div>
-                                </div>
-                                <div v-else>
-                                    <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].nickName }}</div>
+                                <div v-if="this.nickNameMap[text.sendUserSeq] != null">
+                                    <div v-if="this.nickNameMap[text.sendUserSeq].userNameInGroup != null">
+                                        <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].userNameInGroup }}</div>
+                                    </div>
+                                    <div v-else>
+                                        <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].nickName }}</div>
+                                    </div>
                                 </div>
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(msg)">
                                     <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
@@ -281,7 +311,11 @@ export default {
             imageAddSeq: null,
             nickNameMap: {},
             deleteSeqs: new Set,
-            userInGroup: {}
+            userInGroup: {},
+            nickNameEditMod: false,
+            nicknameInput: '',
+            selectedUser: null,
+            deleteNickNames: new Set
         }
     },
     props: {
@@ -665,9 +699,30 @@ export default {
             this.imageAddSeq = seq
         },
         nickNameAdd(){
-            this.nickNameMap[0] = {
-                "nickName": ","
-            }
+            this.nickNameEditMod = true
+            
+        },
+        nickNameAddComplate() {
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            axios.post(`/api/post/message/${groupSeq}/${this.postSeq}/nickNameAdd?nickName=${this.nicknameInput}&userSeqInGroup=${this.selectedUser.groupUserSequence}`, {}, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
+            .then(r => {
+                console.log(r)
+                console.log(this.selectedUser)
+                this.nickNameMap[r.data.data] = {
+                    "nickName": this.nicknameInput,
+                    "userSeqInGroup": this.selectedUser.groupUserSequence,
+                    "userNameInGroup": this.selectedUser.nickname,
+                    "imageUrl": this.selectedUser.imageUrl
+                }
+                this.nicknameInput = null
+                this.selectedUser = null
+            })
+            this.nickNameEditMod = false
+            
         },
         groupNickNameInfo() {
             axios.get("/api/group/users/" + this.$cookies.get("group").groupSequence, {
@@ -687,6 +742,31 @@ export default {
                 "userNameInGroup":userInGroupInfo.nickname,
                 "imageUri": userInGroupInfo.imageUrl
             }
+        },
+        updateNickNameInfo() {
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            var tempMap = new Map
+            for(let [id, value] of Object.entries(this.nickNameMap)) {
+                if(value.nickName != null) {
+                    tempMap[id] = value
+                }
+            }
+            axios.post(`/api/post/message/${groupSeq}/${this.postSeq}/nickName`, {
+                "updateInfo" : tempMap,
+                "deleteMessageNickNameSeqs" : Array.from(this.deleteNickNames)
+            }, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
+            .then(r => {
+                console.log(r)
+                this.deleteNickNames = new Set
+            })
+        },
+        removeNickname(key) {
+            this.deleteNickNames.add(key)
+            this.nickNameMap[key] = {"userNameInGroup": this.nickNameMap[key].nickName }
         }
     }
 }
@@ -705,5 +785,12 @@ export default {
 }
 .editMode {
     margin-bottom: 10px;
+}
+.remove-button {
+    margin-left: 8px;
+    color: rgb(0, 0, 0); 
+    font-size: 12px; 
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out;
 }
 </style>
