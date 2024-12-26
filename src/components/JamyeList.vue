@@ -82,7 +82,7 @@ export default{
             if(type == "MSG") {
                 this.$router.push("/jamye/message" + postSeq)
             } else if(type == "BOR") {
-                this.$router.push("/jamye/post" + postSeq)
+                this.$router.push("/jamye/board" + postSeq)
             }
             
         }
