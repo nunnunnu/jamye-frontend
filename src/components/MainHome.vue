@@ -26,7 +26,7 @@
                             </div>
                             <div v-if="this.isLogin">
                                 <div v-if="currentGroup != null" class="mt-3 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-dark custom-btn">뽑기</button>
+                                    <button type="button" class="btn btn-dark custom-btn" @click="luckyDraw">뽑기</button>
                                     <button type="button" class="btn btn-dark custom-btn" data-bs-toggle="modal" data-bs-target="#jamye-create">잼얘 넣기</button>
                                         <div class="modal fade" id="jamye-create" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
@@ -130,7 +130,20 @@ export default {
             }).then (r => {
                 this.groupInfos = r.data.data
             })
-      }
+        },
+        luckyDraw() {
+            var groupSeq = this.$cookies.get("group").groupSequence
+            axios.get("/api/post/lucky-draw/" + groupSeq, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(r => {
+                console.log(r)
+            }).catch(e => {
+                console.log(e.response.data.message)
+                alert(e.response.data.message)
+            })
+        }
     },
     props: {
         isLogin: {
