@@ -532,7 +532,6 @@ export default {
                 return
             }
 
-
             const messageArray = this.messageResponse[key].message;
             const editMapMaxSeq = messageArray.reduce((max, msg) => {
                         return msg.seq > max ? msg.seq : max;

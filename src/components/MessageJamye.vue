@@ -470,7 +470,7 @@ export default {
                 var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
                 
                 var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
-                if(preMessageCut.sendUser == messageText.sendUser) {
+                if(preMessageCut.sendUserSeq == messageText.sendUserSeq) {
                     const maxSeq = preMessageCut.message.reduce((max, msg) => {
                         return msg.seq > max ? msg.seq : max;
                     }, 0);
@@ -484,7 +484,8 @@ export default {
                         imageUri: lastMessage.imageUri,
                         isReply: lastMessage.isReply,
                         replyMessage: lastMessage.replyMessage,
-                        replyTo: lastMessage.replyTo
+                        replyTo: lastMessage.replyTo,
+                        sendUserSeq: lastMessage.sendUserSeq
                     })
                     preMessageCut.message.push({
                         seq: maxSeq + 1,
@@ -493,7 +494,8 @@ export default {
                         imageUri: maxMsg.imageUri,
                         isReply: maxMsg.isReply,
                         replyMessage: maxMsg.replyMessage,
-                        replyTo: maxMsg.replyTo
+                        replyTo: maxMsg.replyTo,
+                        sendUserSeq: maxMsg.sendUserSeq
                     })
                     this.messageResponse[key - 1].message = []
                 } else {
@@ -532,11 +534,11 @@ export default {
                 tempKey = 1
                 for(let [id, value] of Object.entries(tempMap)) {
                     if(id == 1) {
-                        preUser = value.sendUser
+                        preUser = value.sendUserSeq
                         tempMapUser[tempKey++] = value
                         continue
                     }
-                    if (value.sendUser == preUser) {
+                    if (value.sendUserSeq == preUser) {
                         var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
                             return msg.seq > max ? msg.seq : max;
                         }, 0);
@@ -552,7 +554,7 @@ export default {
                     } else {
                         tempMapUser[tempKey++] = value
                     }
-                    preUser = value.sendUser
+                    preUser = value.sendUserSeq
                 }
                 this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
             } else {
@@ -585,6 +587,7 @@ export default {
                         return msg.seq > max ? msg.seq : max;
                     }, 0);
 
+            console.log("editMapMaxSeq:" + editMapMaxSeq)
             if (seq === editMapMaxSeq) {
                 var messageText = JSON.parse(JSON.stringify(this.messageResponse[key]))
                 messageText.message = []
@@ -596,7 +599,8 @@ export default {
                     imageUri: lastMessage.imageUri,
                     isReply: lastMessage.isReply,
                     replyMessage: lastMessage.replyMessage,
-                    replyTo: lastMessage.replyTo
+                    replyTo: lastMessage.replyTo,
+                    sendUserSeq: lastMessage.sendUserSeq
                 
                 })
                 var nextKey = Number(key) + 1
@@ -631,11 +635,11 @@ export default {
                 tempKey = 1
                 for(let [id, value] of Object.entries(tempMap)) {
                     if(id == 1) {
-                        preUser = value.sendUser
+                        preUser = value.sendUserSeq
                         tempMapUser[tempKey++] = value
                         continue
                     }
-                    if (value.sendUser == preUser) {
+                    if (value.sendUserSeq == preUser) {
                         var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
                             return msg.seq > max ? msg.seq : max;
                         }, 0);
@@ -651,11 +655,12 @@ export default {
                     } else {
                         tempMapUser[tempKey++] = value
                     }
-                    preUser = value.sendUser
+                    preUser = value.sendUserSeq
                 }
                 this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
 
             } else {
+                console.log("else")
                 // seq가 최대값이 아닌 경우 배열 내에서 순서 변경
                 const index = messageArray.findIndex(msg => msg.seq === seq);
                 if (index < messageArray.length - 1) {
