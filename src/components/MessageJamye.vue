@@ -452,31 +452,37 @@ export default {
             }    
         },
         moveMessageUp(key, seq) {
-            if(key==1 && seq ==1) {
+            const minSeq = this.messageResponse[key].message.reduce((min, msg) => {
+                        return msg.seq < min ? msg.seq : min;
+                    }, Infinity);
+
+            if(key==1 && seq == minSeq) {
                 return
             }
             const messageArray = this.messageResponse[key].message;
-
-            if (seq === 1) {
-                var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
-                this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
+            
+            if (seq === minSeq) {
+                var thisMessage = this.messageResponse[key]
+                var messageText = JSON.parse(JSON.stringify(thisMessage.message.filter(msg => msg.seq == minSeq)));
+                console.log("why:"+ JSON.stringify(messageText))
+                thisMessage.message = thisMessage.message.filter(msg => msg.seq != seq)
                 var orderSeq = 1
-                if(this.messageResponse[key].message.length != 0) {
-                    this.messageResponse[key].message.forEach(msg => {
+                if(thisMessage.message.length != 0) {
+                    thisMessage.message.forEach(msg => {
                         msg.seq = orderSeq++
                     })
                 }
                 
-                var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
-                
+                var messageNewObject = JSON.parse(JSON.stringify(thisMessage));
                 var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
-                if(preMessageCut.sendUserSeq == messageText.sendUserSeq) {
+                if(preMessageCut.sendUserSeq == thisMessage.sendUserSeq) {
                     const maxSeq = preMessageCut.message.reduce((max, msg) => {
                         return msg.seq > max ? msg.seq : max;
                     }, 0);
 
                     var maxMsg = preMessageCut.message.pop()
                     var lastMessage = messageText.pop()
+                    console.log(JSON.stringify(messageText))
                     preMessageCut.message.push({
                         seq: maxSeq,
                         message: lastMessage.message,
