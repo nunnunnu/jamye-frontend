@@ -68,12 +68,18 @@ p.from-me {
     color: #fff;
     text-align: right;
     font-size: 17px;
+    word-wrap: break-word; /* 긴 단어가 잘리지 않고 줄 바꿈되도록 */
+    word-break: break-word; /* 긴 텍스트를 줄 바꿈 */
+    overflow-wrap: break-word; /* 긴 단어를 처리 */
 }
 
 input.from-me {
     background-color: #248bf5;
     color: #fff;
     border: none;
+    word-wrap: break-word; 
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* 상대방 메시지 스타일링 */
@@ -82,12 +88,18 @@ input.from-me {
     color: #000;
     font-size: 17px;
     text-align: left;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 input.from-them {
     background-color: #e5e5ea;
     color: #000;
     border: none;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* 날짜와 버튼 컨테이너 설정 */
