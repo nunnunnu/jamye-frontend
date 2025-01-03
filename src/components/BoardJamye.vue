@@ -6,11 +6,11 @@
             <button @click="editMode" class="btn btn-dark">수정하기</button>
         </div>
         <div v-else-if="isEditing && board.createdUserSequence == $cookies.get('sequence')">
-            <button type="button" class="btn btn-dark mb-3 btn-imgbox" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+            <button type="button" class="btn btn-dark btn-imgbox" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
         <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
             <button @click="editModeComplate" class="btn btn-dark">수정완료</button>
         </div>
-        <div v-if="!isEditing" v-html="content"></div>
+        <div v-if="!isEditing" v-html="content" class="post-container-view"></div>
         <div v-else class="post-container">
             <div
             id = "content"
@@ -74,6 +74,7 @@ export default {
             .then(r => {
                 this.board = r.data.data
                 this.content = r.data.data.content.content
+                this.postContent = this.content
             })
         }
 
@@ -196,5 +197,13 @@ export default {
     font-size: 12px; 
     cursor: pointer;
     transition: opacity 0.2s ease-in-out;
+}
+.post-container-view {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px
+}
+.post-container {
+    margin-top: 10px;
 }
 </style>
