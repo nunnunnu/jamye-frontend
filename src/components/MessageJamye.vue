@@ -714,8 +714,6 @@ export default {
                 }
             })
             .then(r => {
-                console.log(r)
-                console.log(this.selectedUser)
                 this.nickNameMap[r.data.data] = {
                     "nickName": this.nicknameInput,
                     "userSeqInGroup": this.selectedUser.groupUserSequence,

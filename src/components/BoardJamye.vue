@@ -86,7 +86,9 @@ export default {
                 this.$refs.postArea.innerHTML = this.content;
             });
         },
-        editModeClose() {
+        editModeComplate() {
+            this.isEditing = false
+
             const formdata = new FormData()
             Object.entries(this.imageMap).forEach(([key, value]) => {
                 if (value instanceof File) {
@@ -95,28 +97,28 @@ export default {
                     formdata.append(key, base64ToFile(value));
                 }
             });
+            var tempContent = this.postContent.replace(/<img([^>]+)src="([^"]+)"([^>]*)>/g, (match, before, src, after) => {
+                const imageId = Object.keys(this.imageMap).find(key => this.imageMap[key] === src);
+                if (imageId) {
+                    return `<img${before}src="${imageId}"${after}>`;
+                }
+                return match;
+            });
             const groupSeq = this.$cookies.get("group").groupSequence;
             const data = {
-                message: this.messageResponse,
-                nickName: this.nickNameMap,
-                deleteMessage: Array.from(this.deleteSeqs)
+                content: tempContent
             }
 
             formdata.append('data', JSON.stringify(data));
-            axios.post(`/api/post/message/${groupSeq}/${this.postSeq}`,
-            formdata
-            ,
+            axios.post(`/api/post/board/${groupSeq}/${this.postSeq}`, formdata,
                 {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
                 }
-            )
-
-            this.isEditing = null
-        },
-        editModeComplate() {
-            this.isEditing = false
+            ).then(r => {
+                this.content = r.data.data
+            })
         },
         openPreview(image) {
             this.previewImage = image
