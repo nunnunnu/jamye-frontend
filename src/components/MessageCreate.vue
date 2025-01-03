@@ -678,8 +678,9 @@ export default {
                     this.selectedReplyKey = null
                     this.selectedReplySeq = null; // 모드 비활성화 시 선택 초기화
                     this.replyOriginMessage = null
-                } else this.replyOriginMessage = msg
-            },
+                } else 
+                    this.replyOriginMessage = msg
+        },
         // 답장 대상 저장
         saveReplyTarget() {
             if(this.selectedReplyKey == null || this.selectedReplySeq == null) {

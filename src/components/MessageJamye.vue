@@ -81,6 +81,12 @@
                         </div>
                     </div>
                 </div>
+            <button 
+                v-if="replyMode" 
+                class="btn btn-dark" 
+                @click="saveReplyTarget">
+                답장 수정완료
+            </button>
             <button  @click="editModeClose" class="btn btn-dark">수정완료</button>
         </div>
         <div class="card card-body">
@@ -88,7 +94,7 @@
                         <div v-for="[key, text] in Object.entries(this.messageResponse)" :key="key">                                                                        
                             <!-- 내 매세지 -->
                             <div v-if="text.myMessage" class="chat-message mt-3">
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(msg)"   :id="'message-' + key + '_' + msg.seq" >
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(msg)"   :id="'message-' + (msg.messageSeq!=null? msg.messageSeq : key + '_' + msg.seq)" >
                                     <div class="info-container">
                                         <div class="button-container" v-if="this.isEditing != null">
                                             <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)">
@@ -144,7 +150,7 @@
                                             type="radio" 
                                             name="replySelect" 
                                             :value="key || ',' || msg.seq" 
-                                            @input="updateReplySeq(key, msg.seq)"
+                                            @input="updateReplySeq(msg.messageSeq, key, msg.seq)"
                                             class="form-check-input mt-1"
                                         />
                                         <template v-if="msg.isReply">
@@ -191,7 +197,7 @@
                                         <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].nickName }}</div>
                                     </div>
                                 </div>
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(msg)">
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + (msg.messageSeq!=null? msg.messageSeq : key + '_' + msg.seq)" @click="scrollToMessage(msg)">
                                     <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
                                             <input class="reply-header-them" v-model="msg.replyTo"><br />
@@ -238,7 +244,7 @@
                                             type="radio" 
                                             name="replySelect" 
                                             :value="key || ',' || msg.seq" 
-                                            @input="updateReplySeq(key, msg.seq)"
+                                            @input="updateReplySeq(msg.messageSeq, key, msg.seq)"
                                             class="form-check-input mt-1"
                                         />
                                         {{ msg.message }}
@@ -315,7 +321,11 @@ export default {
             nickNameEditMod: false,
             nicknameInput: '',
             selectedUser: null,
-            deleteNickNames: new Set
+            deleteNickNames: new Set,
+            replyMode: false,
+            selectedReplyMessageSeq: null,
+            selectedReplyKey: null,
+            selectedReplySeq: null
         }
     },
     props: {
@@ -680,23 +690,6 @@ export default {
                 }
             }
         },
-        scrollToMessage(msg) {
-            if(msg.replyToKey == undefined || msg.replyToKey == null || msg.replyToSeq == undefined || msg.replyToSeq == null) {
-                return
-            }
-            const targetMessageId = `message-${msg.replyToKey}_${msg.replyToSeq}`
-            const targetMessage = document.getElementById(targetMessageId)          
-            if(targetMessage) {
-                targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
-                targetMessage.classList.add('shake');
-
-                // 애니메이션 종료 후 클래스 제거
-                setTimeout(() => {
-                targetMessage.classList.remove('shake');
-                }, 500);
-            }  
-            
-        },
         openPreview(image) {
             this.previewImage = image
             this.isPreviewOpen = true;
@@ -778,7 +771,71 @@ export default {
         removeNickname(key) {
             this.deleteNickNames.add(key)
             this.nickNameMap[key] = {"userNameInGroup": this.nickNameMap[key].nickName }
-        }
+        },
+        toggleReplyMode(msg) {
+            this.replyMode = !this.replyMode;
+                if (!this.replyMode) {
+                    this.selectedReplyKey = null
+                    this.selectedReplySeq = null; // 모드 비활성화 시 선택 초기화
+                    this.replyOriginMessage = null
+                } else {
+                    this.replyOriginMessage = msg
+                }
+        },
+        updateReplySeq(messageSeq, key, seq) {
+            console.log(messageSeq)
+            if(messageSeq != null) {
+                console.log("1")
+                this.selectedReplyMessageSeq = messageSeq
+            } else {
+                console.log("2")
+                this.selectedReplyKey = key
+                this.selectedReplySeq = seq
+            }
+        },
+        saveReplyTarget() {
+            if(this.selectedReplyMessageSeq == null && (this.selectedReplyKey == null || this.selectedReplySeq == null)) {
+                alert("연결할 메세지를 선택해주세요")
+                return
+            }
+
+            if(this.selectedReplyMessageSeq != null) {
+                this.replyOriginMessage.replyMessageSeq = this.selectedReplyMessageSeq
+                this.selectedReplyMessageSeq = null
+            } else {
+                this.replyOriginMessage.replyToKey = this.selectedReplyKey
+                this.replyOriginMessage.replyToSeq = this.selectedReplySeq
+                this.replyOriginMessage.replyMessageSeq = null
+                this.selectedReplyKey = null;
+                this.selectedReplySeq = null;
+            }
+
+            this.replyMode = false;
+            
+        },
+        scrollToMessage(msg) {
+            if(msg.replyMessageSeq == null && ((msg.replyToKey == undefined || msg.replyToKey == null) && (msg.replyToSeq == undefined || msg.replyToSeq == null))) {
+                console.log("end")
+                return
+            }
+            var targetMessageId = ''
+            if(msg.replyMessageSeq != null) {
+                targetMessageId = `message-${msg.replyMessageSeq}`
+            } else {
+                targetMessageId = `message-${msg.replyToKey}_${msg.replyToSeq}`
+            }
+            console.log(targetMessageId)
+            const targetMessage = document.getElementById(targetMessageId)          
+                if(targetMessage) {
+                    targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
+                    targetMessage.classList.add('shake');
+
+                    // 애니메이션 종료 후 클래스 제거
+                    setTimeout(() => {
+                    targetMessage.classList.remove('shake');
+                    }, 500);
+                }  
+        },
     }
 }
 </script>
