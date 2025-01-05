@@ -30,8 +30,54 @@
                             </div>
                         </div>
                         <div class="group-actions">
-                            <button class="edit-btn" @click="editGroupProfile(group.id)">프로필 수정</button>
-                            <button class="delete-btn" @click="leaveGroup(group.id)">그룹 탈퇴</button>
+                            <button class="edit-btn" @click="editGroupProfile(group)" data-bs-toggle="modal" data-bs-target="#editGroupProfile">프로필 수정</button>
+                            <div class="modal fade" id="editGroupProfile" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            {{selectGroup.name}} 프로필 수정
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="upload-container">
+                                                <input type="file" id="imageUpload" accept="image/*" @change="previewImage" style="display: none;">
+                                                <label for="imageUpload" class="upload-label group-image">
+                                                    <img v-if="imageSrc" :src="imageSrc" alt="Image Preview" class="image-preview" />
+                                                    <img v-else-if="groupNickNameInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupNickNameInfo.imageUrl}`" class="image-preview">
+                                                    <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
+                                                </label>
+                                            </div>
+                                            <input type="text" id="groupName" class="nickName form-control" placeholder=" " v-model="groupNickNameInfo.nickname" />
+                                            <div v-if="groupNickNameInfo.grade=='NORMAL'">일반 회원</div>
+                                            <div v-else>운영자</div>
+                                            <div>{{ groupNickNameInfo.createDate }}</div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
+                                            <button class="btn btn-dark" @click="updateUserInGroupInfo" data-bs-dismiss="modal" aria-label="Close">저장</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="delete-btn" data-bs-toggle="modal" data-bs-target="#leaveGroup" @click="selectOneGroup(group)">그룹 탈퇴</button>
+                            <div class="modal fade" id="leaveGroup" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            {{selectGroup.name}} 탈퇴
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            정말 {{selectGroup.name}} 그룹을 떠나시겠습니까?
+                                            탈퇴 후 인원이 남지않은 그룹은 자동 삭제됩니다
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close" @click="leaveGroup">탈퇴</button>
+                                            <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">취소</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <br>
@@ -46,7 +92,11 @@ export default {
     data() {
         return {
             id: null,
-            groups: null
+            groups: null,
+            selectGroup: {},
+            groupNickNameInfo: {},
+            imageSrc: null,
+            profileImage: null
         }
     },
     props: {
@@ -88,6 +138,64 @@ export default {
         },
         groupAdd() {
             this.$router.push("/add")
+        },
+        editGroupProfile(group) {
+            this.selectGroup = group
+            axios.get("/api/group/user/" + group.groupSequence, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
+            .then(r => {
+                this.groupNickNameInfo = r.data.data
+            })
+        },
+        selectOneGroup(group) {
+            this.selectGroup = group
+        },
+        previewImage(event) {
+            const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
+            if(event.target.files && event.target.files[0]){ //파일있는지 검사
+                this.profileImage = event.target.files[0]
+            }else{
+                imgbox.style.backgroundImage = ""
+            }
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.imageSrc = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+        updateUserInGroupInfo() {
+            const formData = new FormData();
+            if (this.profileImage) {
+                formData.append('profile', this.profileImage)
+            }
+            axios.post(`/api/group/${this.selectGroup.groupSequence}/${this.groupNickNameInfo.groupUserSequence}?nickName=${this.groupNickNameInfo.nickname}`, formData, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                }
+            })
+            .then(response => {
+                console.log('Update successful:', response.data);
+                this.profileImage = null
+                this.imageSrc = null
+                this.selectGroup = null
+                this.groupNickNameInfo = null
+            })
+            .catch(error => {
+                console.error('Error updating user info:', error);
+            });
+        },
+        leaveGroup() {
+            axios.post("/api/group/leave/" + this.selectGroup.groupSequence, {}, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                }
+            }).then(this.selectGroup = null)
         }
     }
     
@@ -144,5 +252,29 @@ export default {
 
 .add-group-btn:hover {
   background-color: #0056b3; /* 호버 시 버튼 색상 변경 */
+}
+
+.upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    overflow: hidden;
+    border: 2px solid #ddd;
+    position: relative;
+}
+
+.nickName {
+    margin-top: 20px;
+    background-color: #f0f0f0;
+    outline: solid #d7d7d7;
+    height: 50px;
+    border-radius: 15px;
+    padding-right: 10px; /* 오른쪽 여백 추가 */
+    padding-left: 10px; /* 왼쪽 여백 추가 */
 }
 </style>

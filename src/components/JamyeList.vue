@@ -59,10 +59,10 @@ export default{
 
                     jamyesData.forEach(jamye => {
                         if (jamye.createDate) {
-                            jamye.createDate = formatDate(jamye.createDate); // 생성일 포맷
+                            jamye.createDate = formatDate(jamye.createDate);
                         }
                         if (jamye.updateDate) {
-                            jamye.updateDate = formatDate(jamye.updateDate); // 수정일 포맷
+                            jamye.updateDate = formatDate(jamye.updateDate);
                         }
                         if (jamye.postType == 'MSG') {
                             jamye.postTypeName = "메세지"
