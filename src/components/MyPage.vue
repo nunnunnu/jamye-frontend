@@ -31,7 +31,7 @@
                         </div>
                         <div class="group-actions">
                             <button class="edit-btn" @click="editGroupProfile(group)" data-bs-toggle="modal" data-bs-target="#editGroupProfile">프로필 수정</button>
-                            <div class="modal fade" id="editGroupProfile" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+                            <div class="modal fade" id="editGroupProfile" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true" v-if="selectGroup != null">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -61,7 +61,7 @@
                             </div>
                             <button class="delete-btn" data-bs-toggle="modal" data-bs-target="#leaveGroup" @click="selectOneGroup(group)">그룹 탈퇴</button>
                             <div class="modal fade" id="leaveGroup" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-dialog modal-dialog-centered" v-if="selectGroup != null">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             {{selectGroup.name}} 탈퇴
@@ -195,7 +195,10 @@ export default {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken'),
                 }
-            }).then(this.selectGroup = null)
+            }).then(() => {
+                this.selectGroup = null
+                this.$router.go()
+            })
         }
     }
     

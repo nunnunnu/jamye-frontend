@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import { Modal } from 'bootstrap';
 import axios from 'axios';
 export default {
     data() {
@@ -89,12 +88,11 @@ export default {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
+            }).then(() => {
+                this.$router.push("/groups")
             })
-            this.step = 1; // 단계 초기화
-            this.resetForm(); // 폼 리셋
-            const modalInstance = Modal.getInstance(document.getElementById('exampleModal'));
-            if (modalInstance) modalInstance.hide();
-            this.modalClose()
+            
+            
         },
         modalClose() {
             this.$emit("createModalClose", false)

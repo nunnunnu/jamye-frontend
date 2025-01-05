@@ -150,8 +150,10 @@ export default {
                 }
             }).then(r => {
                 console.log(r)
-                alert("성공")
                 this.modalClose()  
+                this.$router.go("/groups")
+            }).catch(e => {
+                alert(e.response.data.message)
             })
         }
     }

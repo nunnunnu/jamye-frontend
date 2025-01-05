@@ -43,9 +43,44 @@
             </div>
         </div>
     </div>
-        <button v-if="groupInfo.isMaster" class="btn btn-dark btn-block group-btn" @click="deleteGroupVote">그룹 삭제 투표 진행</button>
+        <button v-if="groupInfo.isMaster" class="btn btn-dark btn-block group-btn" @click="isGroupDeletionVoteInProgress" data-bs-toggle="modal" data-bs-target="#deleteVoteModal">그룹 삭제 투표 진행</button>
+        <div class="modal fade" id="deleteVoteModal" tabindex="-1" aria-labelledby="deleteVoteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteVoteModalLabel">그룹 삭제 투표 개시</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    그룹 삭제 투표가 진행됩니다.<br>
+                    그룹 내 회원이 과반수 이상이 찬성한다면 즉시 삭제됩니다.<br>
+                    과반수가 동의하지 않았다면 삭제는 무산됩니다.<br>
+                    일주일 내로 투표가 재 진행된다면 2차 투표가 시작됩니다.<br>
+                    2차 투표에서도 과반수가 동의하지 않는다면 재투표에서 그룹 삭제에 동의한 인원은 그룹에서 탈퇴됩니다(작성한 잼얘도 함께 삭제됩니다)
+                    <br>
+                    <div v-if="voteInfo != null">
+                        <div v-if="voteInfo.isNowVoting">
+                            <span v-if="voteInfo.hasRevoted">현재 2차 투표 진행 중 입니다.</span>
+                            <span v-else>현재 1차 투표 진행 중 입니다.</span>
+                            동의 인원 : {{ voteInfo.agreeUserSeqs.length }}
+                            비동의 인원 : {{ voteInfo.disagreeUserSeqs.length }}
+                        </div>
+                        <div v-else-if="voteInfo.isWaitingDeleteReVoted">
+                            1차 투표에서 과반수의 삭제 승인을 얻지못해 2차 투표 대기중입니다.
+                            삭제를 누르면 2차 투표가 진행됩니다.
+                            만약 재투표에서도 과반수의 동의를 얻지못한다면 운영자는 자동 그룹탈퇴처리되며 운영자 권한은 가입 기간이 가장 오래된 유저에게 자동 양도됩니다.
+                        </div>
+                    </div>                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close" @click="deleteGroupVote">삭제</button>
+                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
+                </div>
+            </div>
+        </div>
         </div>
         
+    </div>
     </div>
 </template>
 <script>
@@ -57,7 +92,8 @@ export default {
         return {
             groupInfo: null,
             userSequence: null,
-            inviteCode: null
+            inviteCode: null,
+            voteInfo: null
         }
     },
     props: {
@@ -72,6 +108,9 @@ export default {
             })
             .then(r => {
                 this.groupInfo = r.data.data
+            }).catch(e => {
+                alert(e.response.data.message)
+                this.$router.push("/groups")
             })
     },
     methods: {
@@ -82,8 +121,12 @@ export default {
                 }
             })
             .then(r => {
-                console.log(r)
-                alert("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")
+                if(r.data.data) {
+                    alert("그룹이 삭제 완료되었습니다")
+                    this.$router.push("groups")
+                } else {
+                    alert("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")
+                }
             })
             .catch(e=> {
                 alert(e.response.data.message)
@@ -102,6 +145,15 @@ export default {
                 alert(e.response.data.message + ": 잠시 후 다시 시도해주세요.")
             })
             
+        },
+        isGroupDeletionVoteInProgress() {
+            axios.get("/api/group/vote-info/"+this.seq, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(r => {
+                this.voteInfo = r.data.data
+            })
         }
     }
 }
