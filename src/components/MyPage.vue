@@ -6,7 +6,28 @@
             <button class="edit-btn" @click="editUserInfo">회원정보 수정</button>
         </div>
         <div class="mt-3 d-flex justify-content-between">
-            <div class="custom-btn"><button class="btn btn-dark btn-sm btn-block text-danger">회원탈퇴</button></div>
+            <div class="custom-btn"><button class="btn btn-dark btn-sm btn-block text-danger" data-bs-toggle="modal" data-bs-target="#deleteUser">회원탈퇴</button></div>
+                <div class="modal fade" id="deleteUser" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true" >
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                회원 탈퇴
+                            </div>
+                            <div class="modal-body">
+                                정말 탈퇴하시겠습니까?<br>
+                                탈퇴 시 소속 그룹에서 자동 탈퇴되며 모든 운영자 권한은 그룹 별 가장 오래 활동한 회원에게 자동 양도됩니다.<br>
+                                탈퇴시 작성한 잼얘는 자동 삭제되지않습니다.<br><br>
+                                비밀번호 인증
+                                <input type="password" id="passwordCheck" class="nickName form-control" placeholder=" " v-model="passwordCheck" />
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
+                                <button v-if="passwordCheck == null" class="btn btn-dark" @click="deleteUser" data-bs-dismiss="modal" aria-label="Close" disabled>탈퇴</button>
+                                <button v-else class="btn btn-dark" @click="deleteUser" data-bs-dismiss="modal" aria-label="Close">탈퇴</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <div class="custom-btn"><button class="btn btn-dark btn-sm btn-block" @click="logout">로그아웃</button></div>
         </div>
         <br><br>
@@ -20,7 +41,7 @@
                 <div class="group-info-box-container">
                     <div class="group-info-box" v-for="group in groups" :key="group.groupSequence">
                         <div class="group-image">
-                            <img v-if="group.imageUrl == null" src="@/assets/img/file.png" class="img-thumbnail" alt="..." />
+                            <img v-if="group == null || group.imageUrl == null" src="@/assets/img/file.png" class="img-thumbnail" alt="..." />
                             <img v-else :src="group.imageUrl" class="img-thumbnail" alt="Group Image" />
                         </div>
                         <div class="group-details">
@@ -31,9 +52,9 @@
                         </div>
                         <div class="group-actions">
                             <button class="edit-btn" @click="editGroupProfile(group)" data-bs-toggle="modal" data-bs-target="#editGroupProfile">프로필 수정</button>
-                            <div class="modal fade" id="editGroupProfile" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true" v-if="selectGroup != null">
+                            <div class="modal fade" id="editGroupProfile" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true" >
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
+                                    <div class="modal-content" v-if="selectGroup != null">
                                         <div class="modal-header">
                                             {{selectGroup.name}} 프로필 수정
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -42,15 +63,18 @@
                                             <div class="upload-container">
                                                 <input type="file" id="imageUpload" accept="image/*" @change="previewImage" style="display: none;">
                                                 <label for="imageUpload" class="upload-label group-image">
-                                                    <img v-if="imageSrc" :src="imageSrc" alt="Image Preview" class="image-preview" />
-                                                    <img v-else-if="groupNickNameInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupNickNameInfo.imageUrl}`" class="image-preview">
+                                                    <img v-if="imageSrc != null" :src="imageSrc" alt="Image Preview" class="image-preview" />
+                                                    <img v-else-if="groupNickNameInfo != null && groupNickNameInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupNickNameInfo.imageUrl}`" class="image-preview">
                                                     <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
                                                 </label>
                                             </div>
-                                            <input type="text" id="groupName" class="nickName form-control" placeholder=" " v-model="groupNickNameInfo.nickname" />
-                                            <div v-if="groupNickNameInfo.grade=='NORMAL'">일반 회원</div>
-                                            <div v-else>운영자</div>
-                                            <div>{{ groupNickNameInfo.createDate }}</div>
+                                            <div v-if="groupNickNameInfo != null">
+                                                <input type="text" id="groupName" class="nickName form-control" placeholder=" " v-model="groupNickNameInfo.nickname" />
+                                                <div v-if="groupNickNameInfo.grade=='NORMAL'">일반 회원</div>
+                                                <div v-else>운영자</div>
+                                                <div>{{ groupNickNameInfo.createDate }}</div>
+                                            </div>
+                                            
                                         </div>
                                         <div class="modal-footer">
                                             <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
@@ -83,7 +107,8 @@ export default {
             selectGroup: {},
             groupNickNameInfo: {},
             imageSrc: null,
-            profileImage: null
+            profileImage: null,
+            passwordCheck: null
         }
     },
     props: {
@@ -174,7 +199,27 @@ export default {
                 console.error('Error updating user info:', error);
             });
         },
- 
+        deleteUser() {
+            if(this.passwordCheck == null) {
+                alert("비밀번호를 먼저 입력해주세요")
+            }
+            axios.post("/api/user", {
+                password: this.passwordCheck
+            }, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                }
+            }).then(() => {
+                alert("탈퇴되었습니다.")
+                this.$cookies.keys().forEach(cookie => {
+                    this.$cookies.remove(cookie);
+                });
+                this.$emit('isLoginChange', false)
+                this.$router.push("/")
+            }).catch(e => {
+                alert(e.response.data.message)
+            })
+        }
     }
     
 }
