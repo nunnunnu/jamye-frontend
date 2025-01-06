@@ -87,5 +87,7 @@ export default {
 </script>
 
 <style>
-
+.nav-link {
+    cursor: pointer;
+}
 </style>

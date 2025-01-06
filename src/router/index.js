@@ -12,6 +12,7 @@ import PostCreate from '@/components/PostCreate.vue'
 import JamyeList from '@/components/JamyeList.vue'
 import BoardJamye from '@/components/BoardJamye.vue'
 import MessageJamye from '@/components/MessageJamye.vue'
+import LeaveGroup from '@/components/LeaveGroup.vue'
 const routes = [
     {
         path: "/",
@@ -83,7 +84,13 @@ const routes = [
         name: "boardJamye",
         component: BoardJamye,
         props: true
-    }
+    },
+    {
+        path: "/leave-group",
+        name: "leaveGroup",
+        component: LeaveGroup,
+        props: true
+    },
 ]
 
 const router = createRouter({

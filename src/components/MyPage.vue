@@ -59,25 +59,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <button class="delete-btn" data-bs-toggle="modal" data-bs-target="#leaveGroup" @click="selectOneGroup(group)">그룹 탈퇴</button>
-                            <div class="modal fade" id="leaveGroup" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered" v-if="selectGroup != null">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            {{selectGroup.name}} 탈퇴
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            정말 {{selectGroup.name}} 그룹을 떠나시겠습니까?
-                                            탈퇴 후 인원이 남지않은 그룹은 자동 삭제됩니다
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close" @click="leaveGroup">탈퇴</button>
-                                            <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">취소</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <button class="delete-btn" data-bs-toggle="modal" data-bs-target="#leaveGroup">그룹 탈퇴</button>
+                            <leave-group :group= "group"></leave-group>
                         </div>
                     </div>
                     <br>
@@ -88,7 +71,11 @@
 </template>
 <script>
 import axios from 'axios'
+import LeaveGroup from './LeaveGroup.vue';
 export default {
+    components: {
+        LeaveGroup
+    },
     data() {
         return {
             id: null,
@@ -150,9 +137,6 @@ export default {
                 this.groupNickNameInfo = r.data.data
             })
         },
-        selectOneGroup(group) {
-            this.selectGroup = group
-        },
         previewImage(event) {
             const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
             if(event.target.files && event.target.files[0]){ //파일있는지 검사
@@ -190,16 +174,7 @@ export default {
                 console.error('Error updating user info:', error);
             });
         },
-        leaveGroup() {
-            axios.post("/api/group/leave/" + this.selectGroup.groupSequence, {}, {
-                headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
-                }
-            }).then(() => {
-                this.selectGroup = null
-                this.$router.go()
-            })
-        }
+ 
     }
     
 }
@@ -215,7 +190,7 @@ export default {
   outline-color: #d7d7d7;
   padding: 10px;
   border-radius: 10px;
-  overflow: hidden; /* 내용이 넘칠 경우 숨김 처리 */
+  overflow: hidden; 
 }
 
 .user-id {

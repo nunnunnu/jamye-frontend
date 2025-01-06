@@ -24,7 +24,8 @@
                     </div>
                 </div>
             </div>
-        <button class="btn btn-dark btn-block group-btn">그룹 탈퇴</button>
+        <button class="btn btn-dark btn-block group-btn" data-bs-toggle="modal" data-bs-target="#leaveGroup">그룹 탈퇴</button>
+        <leave-group :group= "groupInfo"></leave-group>
         <button class="btn btn-dark btn-block group-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="getInviteCode">초대코드 발급</button>
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -85,9 +86,13 @@
 </template>
 <script>
 import axios from 'axios';
+import LeaveGroup from './LeaveGroup.vue';
 
 export default {
     name: 'groupInfo',
+    components: {
+        LeaveGroup
+    },
     data() {
         return {
             groupInfo: null,

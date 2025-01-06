@@ -52,6 +52,7 @@
 </template>
 
 <script>
+import { Modal } from 'bootstrap';
 import axios from 'axios';
 export default {
     data() {
@@ -89,6 +90,9 @@ export default {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
             }).then(() => {
+                const modalInstance = Modal.getInstance(document.getElementById('exampleModal1'))
+                if (modalInstance) modalInstance.hide()
+                this.modalClose()
                 this.$router.push("/groups")
             })
             
