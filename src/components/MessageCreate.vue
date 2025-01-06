@@ -655,6 +655,8 @@ export default {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
+                }).then((r) => {
+                    this.$router.push("/jamye/message" + r.data.data)
                 })
         },
         groupUserList() {

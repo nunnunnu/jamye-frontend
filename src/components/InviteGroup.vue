@@ -153,7 +153,8 @@ export default {
                 this.modalClose()  
                 const modalInstance = Modal.getInstance(document.getElementById('exampleModal2'))
                 if (modalInstance) modalInstance.hide()
-                this.$router.go("/groups")
+                
+                this.$router.push("/groups")
             }).catch(e => {
                 alert(e.response.data.message)
             })

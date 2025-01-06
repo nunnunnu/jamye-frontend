@@ -138,9 +138,13 @@ export default {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
             }).then(r => {
-                console.log(r)
+                const postInfo = r.data.data
+                if (postInfo.type == "MSG") {
+                    this.$router.push("/jamye/message" + postInfo.postSequence)
+                } else {
+                    this.$router.push("/jamye/board" + postInfo.postSequence)
+                }
             }).catch(e => {
-                console.log(e.response.data.message)
                 alert(e.response.data.message)
             })
         }

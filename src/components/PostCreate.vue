@@ -120,7 +120,6 @@ export default {
                 }
                 return match;
             });
-            console.log(content)
             const groupSeq = this.$cookies.get("group").groupSequence;
             const data = {
                 title: this.postTitle,
@@ -131,14 +130,15 @@ export default {
             };
 
             formdata.append('data', JSON.stringify(data));
-            
 
             axios.post("/api/post/board", formdata
                 , {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
-                })
+            }).then((r) => {
+                this.$router.push("/jamye/board" + r.data.data)
+            })
         },
         handleImageMapUpdate(imageUidMap) {
             this.imageMap = imageUidMap
