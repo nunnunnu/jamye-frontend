@@ -10,10 +10,16 @@
                         {{ currentGroup.name }}
                     </a>
                     <ul class="dropdown-menu">
-                        <div v-for="group in groupInfos" :key="group.sequence">
-                            <li><a class="dropdown-item" href="#" @click="groupSelect(group)">{{ group.name }}</a></li>
+                        <div v-if="groupInfos.length != 0">
+                            <div v-for="group in groupInfos" :key="group.sequence">
+                                <li><a class="dropdown-item" href="#" @click="groupSelect(group)">{{ group.name }}</a></li>
+                            </div>
                         </div>
+                        <div v-else>
+                            <li><a> 가입된 그룹이 없습니다 </a></li>
+                        </div>    
                     </ul>
+                    
                 </div>
                 <div class="row gx-5 align-items-center">
                     <div class="col-lg-6">
@@ -101,7 +107,7 @@ export default {
     data() {
         return {
             currentGroup: null,
-            groupInfos: null
+            groupInfos: {}
         }
     },
     methods: {

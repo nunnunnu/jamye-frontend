@@ -7,7 +7,7 @@
                 <button type="button" class="btn btn-outline-danger btn-sm" @click="groupAdd">+</button>
             </div>
         </div>
-        <div class="group-info-box-container">
+        <div class="group-info-box-container" v-if="groups.length != 0">
             <div class="group-info-box" v-for="group in groups" :key="group.groupSequence">
                 <div class="group-image">
                     <img v-if="group.imageUrl == null" src="@/assets/img/file.png" class="img-thumbnail" alt="..." />
@@ -25,6 +25,9 @@
             </div>
             <br>
         </div>
+        <div v-else>
+                가입된 그룹이 없습니다.
+        </div>
     </div>
 </template>
 
@@ -37,7 +40,7 @@ export default {
     },
     data() {
         return {
-            groups: null,
+            groups: {},
             groupinfo: null,
             userSequence: null
         };

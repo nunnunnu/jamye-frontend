@@ -1,8 +1,8 @@
 <template>
     <div class="b-container">
         <h1 class="title" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록</h1>
-        <div class="jamye-info-box-container">
-            <div class="jamye-info-box" v-for="jamye in jamyes" :key="jamye.postSequence"
+        <div class="jamye-info-box-container" v-if="jamyes.length != 0">
+            <div class="jamye-info-box" v-for="jamye in jamyes" :key="jamye.postSequenc"
                 :class="{ selectable: jamye.isViewable }"
                 @click="movePost(jamye.postType, jamye.postSequence)" 
             >
@@ -17,6 +17,9 @@
                     <div>수정일: {{ jamye.updateDate }}</div>
                 </div>
             </div>
+        </div>
+        <div v-else>
+                    등록된 잼얘가 없습니다.
         </div>
     </div>
 </template>

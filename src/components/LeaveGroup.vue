@@ -44,6 +44,9 @@ export default {
                     Authorization: `Bearer `+this.$cookies.get('accessToken'),
                 }
             }).then(() => {
+                if(this.$cookies.get("group").groupSequence == this.group.groupSequence) {
+                    this.$cookies.remove("group")
+                }
                 const modalInstance = Modal.getInstance(document.getElementById('leaveGroup'))
                 if (modalInstance) modalInstance.hide()
                     this.$router.push("/groups")

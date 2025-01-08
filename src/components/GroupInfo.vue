@@ -128,6 +128,9 @@ export default {
             .then(r => {
                 if(r.data.data) {
                     alert("그룹이 삭제 완료되었습니다")
+                    if(this.$cookies.get("group").groupSequence == this.seq) {
+                        this.$cookies.remove("group")
+                    }
                     this.$router.push("groups")
                 } else {
                     alert("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")
