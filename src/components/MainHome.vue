@@ -23,7 +23,6 @@
                 </div>
                 <div class="row gx-5 align-items-center">
                     <div class="col-lg-6">
-                        <!-- Mashead text and app badges-->
                         <div class="mb-5 mb-lg-0 text-center text-lg-start">
                             <h1 class="display-1 lh-1 mb-3" style="font-weight: bold;">잼얘 가챠</h1>
                             <p class="lead fw-normal text-muted mb-5">Talk Funny(잼얘해봐)<br>U GO GIRL(님선하세요 소녀여)</p>
@@ -100,7 +99,7 @@
   
   <script>
 import { nextTick } from 'vue';
-import axios from 'axios';
+import axios from '@/js/axios';
 
 export default {
     name: 'MainHome',

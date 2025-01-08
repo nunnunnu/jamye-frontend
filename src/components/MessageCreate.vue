@@ -240,7 +240,7 @@
             </div>
 </template>
 <script>
-import axios from 'axios';
+import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts'
 
@@ -646,8 +646,13 @@ export default {
 
             formdata.append('data', JSON.stringify(data));
             var nickNameMap = new Map
+            console.log(this.userNameMap)
             for(let [id, value] of Object.entries(this.userNameMap)) {
-                nickNameMap[id] = value.groupUserSequence
+                if(value != null) {
+                    nickNameMap[id] = value.groupUserSequence
+                } else {
+                    nickNameMap[id] = null
+                }
             }
             formdata.append('nickNameMap', JSON.stringify(nickNameMap))
             
