@@ -94,7 +94,7 @@
     </div>
 </template>
 <script>
-import axios from 'axios'
+import axios from '@/js/axios';
 import LeaveGroup from './LeaveGroup.vue';
 export default {
     components: {

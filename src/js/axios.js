@@ -23,10 +23,19 @@ instance.interceptors.response.use((response) => {
   activeRequests--;
   if (activeRequests === 0 && loadingCallback) loadingCallback(false); // 로딩 종료
   return response;
-}, (error) => {
-  activeRequests--;
-  if (activeRequests === 0 && loadingCallback) loadingCallback(false); // 로딩 종료
-  return Promise.reject(error);
+}, async (error) => {
+    activeRequests--;
+    if (error.response && error.response.status === 403) {
+      
+      try {
+        // const refreshResponse = await instance.post('/auth/refresh-token');
+        // console.log('토큰 리프레시 성공:', refreshResponse.data);
+      } catch (refreshError) {
+        console.error('리프레시 API 호출 실패:', refreshError);
+      }
+    }
+    if (activeRequests === 0 && loadingCallback) loadingCallback(false); 
+    return Promise.reject(error);
 });
 
 export default instance;

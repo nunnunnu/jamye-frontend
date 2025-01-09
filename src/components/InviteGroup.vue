@@ -44,6 +44,7 @@
                         <div class="form-group">
                             <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="nickname" />
                             <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
+                            <button class="btn btn-dark" @click="nickNameCheck">중복 체크</button>
                         </div>
                     </template>
                 </div>
@@ -53,7 +54,10 @@
                         <button type="button" class="btn btn-dark btn-block" @click="back" >이전</button>
                         <button type="button" class="btn btn-dark btn-block" @click="nextTwo" >다음</button>
                     </div>
-                    <button v-if="step === 3" type="button" class="btn btn-dark btn-block"  data-bs-dismiss="modal" aria-label="Close" @click="create">가입</button>
+                    <div v-if="step === 3">
+                        <button v-if="nickNameDupCheck" type="button" class="btn btn-dark btn-block"  data-bs-dismiss="modal" aria-label="Close" @click="create">가입</button>
+                        <button v-else type="button" class="btn btn-dark btn-block"  disabled>가입</button>
+                    </div>
                 </div> 
             </div>
         </div>
@@ -73,7 +77,8 @@ export default {
             step: 1,
             profileimageSrc: null,
             groupInfo: null,
-            inviteCode: null
+            inviteCode: null,
+            nickNameDupCheck : false
         }
     },
     methods: {
@@ -155,6 +160,17 @@ export default {
                 if (modalInstance) modalInstance.hide()
                 
                 this.$router.push("/groups")
+            }).catch(e => {
+                alert(e.response.data.message)
+            })
+        },
+        nickNameCheck() {
+            axios.get(`/api/group/${this.groupInfo.groupSequence}/nick-name?nickName=${this.nickname}`, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(() => {
+                this.nickNameDupCheck = true
             }).catch(e => {
                 alert(e.response.data.message)
             })
