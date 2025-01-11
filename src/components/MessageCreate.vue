@@ -100,6 +100,9 @@
                                             <button class="circle-btn camera" data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)">
                                                 <i class="fas fa-camera"></i>
                                             </button>
+                                            <button class="circle-btn left" @click="moveLeft(key, msg.seq)">
+                                                <i class="fas fa-arrow-left"></i>
+                                            </button>
                                         </div>
                                         <span class="send-date">{{ text.sendDate }}</span>
                                     </div>
@@ -158,10 +161,22 @@
                             </div>
                             <!-- 상대 메세지 -->
                             <div v-else class="chat-message mt-3">
-                                <div v-if="userNameMap[text.sendUser] != null">
-                                    <div class="send-user">{{ userNameMap[text.sendUser].nickname }}</div>
+                                <div class="info-container">
+                                    <div v-if="userNameMap[text.sendUser] != null">
+                                        <div class="send-user">{{ userNameMap[text.sendUser].nickname }}</div>
+                                    </div>
+                                    <div v-else class="send-user">{{ text.sendUser }}</div>
+                                    <div class="button-container">
+                                            <button class="circle-btn up-arrow" @click="moveSendUserUp(key)"><i class="fas fa-arrow-up"></i></button>
+                                            <button class="circle-btn down-arrow" @click="moveSendUserDown(key)"><i class="fas fa-arrow-down"></i></button>
+                                            <button class="circle-btn edit" @click="editNickName(key)"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="circle-btn delete" @click="removeSendUser(key)"><i class="fas fa-trash"></i></button>
+                                            <button class="circle-btn right" @click="moveRight(key)">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </button>
+                                    </div>
                                 </div>
-                                <div v-else class="send-user">{{ text.sendUser }}</div>
+                                
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(msg)">
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
@@ -224,6 +239,9 @@
                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq)"><i class="fas fa-trash"></i></button>
                                             <button class="circle-btn camera"  data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)"><i class="fas fa-camera"></i></button>
+                                            <button class="circle-btn right" @click="moveLeft(key, msg.seq)">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -403,6 +421,10 @@ export default {
                 }
                 this.editMessage(key, msgSeq + 1)
             }    
+        
+        },
+        moveLeft(key, seq) {
+            console.log(key, seq)
         },
         moveMessageUp(key, seq) {
             if(key==1 && seq ==1) {
