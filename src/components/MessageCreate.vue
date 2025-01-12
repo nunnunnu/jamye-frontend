@@ -395,9 +395,8 @@ export default {
                 }
                 var tempKey = 1
                 var tempMap = new Map
-                for(let [index, value] of Object.entries(this.messageResponse)) {
+                for(let [, value] of Object.entries(this.messageResponse)) {
                     if(value.message.length != 0) {
-                        console.log(index)
                         tempMap[tempKey++] = value
                     }
                 }
@@ -435,23 +434,30 @@ export default {
             if (seq === 1) {
                 var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
                 this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
+                console.log(JSON.parse(JSON.stringify(messageText)))
                 var orderSeq = 1
                 if(this.messageResponse[key].message.length != 0) {
                     this.messageResponse[key].message.forEach(msg => {
                         msg.seq = orderSeq++
                     })
                 }
+                console.log("??")
+                console.log(JSON.parse(JSON.stringify(this.messageResponse[key])))
                 
                 var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
-                
                 var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
+                console.log(JSON.parse(JSON.stringify(preMessageCut)))
                 if(preMessageCut.sendUser == messageText.sendUser) {
                     const maxSeq = preMessageCut.message.reduce((max, msg) => {
                         return msg.seq > max ? msg.seq : max;
                     }, 0);
 
                     var maxMsg = preMessageCut.message.pop()
+                    console.log("maxMsg")
+                    console.log(JSON.parse(JSON.stringify(maxMsg)))
                     var lastMessage = messageText.pop()
+                    console.log("lastMessage")
+                    console.log(JSON.parse(JSON.stringify(lastMessage)))
                     preMessageCut.message.push({
                         seq: maxSeq,
                         message: lastMessage.message,
@@ -470,6 +476,8 @@ export default {
                         replyMessage: maxMsg.replyMessage,
                         replyTo: maxMsg.replyTo
                     })
+                    console.log("mm")
+                    console.log(JSON.parse(JSON.stringify(preMessageCut)))
                     this.messageResponse[key - 1].message = []
                 } else {
                     preMessageCut.message = [preMessageCut.message.pop()]
@@ -502,42 +510,12 @@ export default {
                     }
                 }
                 
-                var tempMapUser = new Map
-                var preUser = null
-                tempKey = 1
-                for(let [id, value] of Object.entries(tempMap)) {
-                    if(id == 1) {
-                        preUser = value.sendUser
-                        tempMapUser[tempKey++] = value
-                        continue
-                    }
-                    if (value.sendUser == preUser) {
-                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
-                            return msg.seq > max ? msg.seq : max;
-                        }, 0);
-                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
-                            seq: ++maxNum,
-                            message: msg.message,
-                            imageKey: msg.imageKey,
-                            imageUri: msg.imageUri,
-                            isReply: msg.isReply,
-                            replyMessage: msg.replyMessage,
-                            replyTo: msg.replyTo
-                        }))
-                    } else {
-                        tempMapUser[tempKey++] = value
-                    }
-                    preUser = value.sendUser
-                }
-                this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
+                this.messageResponseTempRemove()
             } else {
-                // seq가 1이 아닌 경우 배열 내에서 순서 변경
                 const index = messageArray.findIndex(msg => msg.seq === seq);
                 if (index > 0) {
-                    // 현재 메시지를 한 단계 위로 올림
                     [messageArray[index - 1], messageArray[index]] = [messageArray[index], messageArray[index - 1]];
                     
-                    // seq 값을 업데이트
                     messageArray[index - 1].seq -= 1;
                     messageArray[index].seq += 1;
                 }
@@ -599,34 +577,7 @@ export default {
                         tempMap[tempKey++] = value
                     }
                 }
-                var tempMapUser = new Map
-                var preUser = null
-                tempKey = 1
-                for(let [id, value] of Object.entries(tempMap)) {
-                    if(id == 1) {
-                        preUser = value.sendUser
-                        tempMapUser[tempKey++] = value
-                        continue
-                    }
-                    if (value.sendUser == preUser) {
-                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
-                            return msg.seq > max ? msg.seq : max;
-                        }, 0);
-                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
-                            seq: ++maxNum,
-                            message: msg.message,
-                            imageKey: msg.imageKey,
-                            imageUri: msg.imageUri,
-                            isReply: msg.isReply,
-                            replyMessage: msg.replyMessage,
-                            replyTo: msg.replyTo
-                        }))
-                    } else {
-                        tempMapUser[tempKey++] = value
-                    }
-                    preUser = value.sendUser
-                }
-                this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
+                this.messageResponseTempRemove()
 
             } else {
                 // seq가 최대값이 아닌 경우 배열 내에서 순서 변경
@@ -762,7 +713,73 @@ export default {
         },
         messageUpdate(message) {
             this.messageResponse = message
+        },
+        messageResponseTempRemove() {
+            var tempMapUser = new Map
+                var preUser = null
+                var tempKey = 1
+                for(let [id, value] of Object.entries(this.messageResponse)) {
+                    if(id == 1) {
+                        preUser = value.sendUser
+                        tempMapUser[tempKey++] = value
+                        continue
+                    }
+                    if (value.sendUser == preUser) {
+                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
+                            return msg.seq > max ? msg.seq : max;
+                        }, 0);
+                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
+                            seq: ++maxNum,
+                            message: msg.message,
+                            imageKey: msg.imageKey,
+                            imageUri: msg.imageUri,
+                            isReply: msg.isReply,
+                            replyMessage: msg.replyMessage,
+                            replyTo: msg.replyTo
+                        }))
+                    } else {
+                        tempMapUser[tempKey++] = value
+                    }
+                    preUser = value.sendUser
+                }
+                this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
+        },
+        moveSendUserUp(key) {
+            if(key == 1) {
+                return
+            } 
+            const moveKey = Number(key) - Number(1)
+            const upMessage = JSON.parse(JSON.stringify(this.messageResponse[key]))
+            const downMessage = JSON.parse(JSON.stringify(this.messageResponse[moveKey]))
+            this.messageResponse[key] = downMessage
+            this.messageResponse[moveKey] = upMessage
+            this.messageResponseTempRemove()
+        },
+        moveSendUserDown(key) {
+            const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
+            if(key == maxKey) {
+                return
+            } 
+            const moveKey = Number(key) + Number(1)
+            const upMessage = JSON.parse(JSON.stringify(this.messageResponse[moveKey]))
+            const downMessage = JSON.parse(JSON.stringify(this.messageResponse[key]))
+            this.messageResponse[key] = upMessage
+            this.messageResponse[moveKey] = downMessage
+            this.messageResponseTempRemove()
+        },
+        removeSendUser(key) {
+            delete this.messageResponse[key];
+            this.messageResponseTempRemove()
+        },
+        moveRight(key) {
+            this.messageResponse[key] = {
+                ...this.messageResponse[key],
+                sendUser: null,
+                myMessage: true
+            };
+            this.messageResponseTempRemove()
         }
+
     },
 }
 </script>
