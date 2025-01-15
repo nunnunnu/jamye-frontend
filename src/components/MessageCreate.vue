@@ -423,7 +423,35 @@ export default {
         
         },
         moveLeft(key, seq) {
-            console.log(key, seq)
+            // 1. 기존 key에서 해당 seq 메시지 잘라내기
+            const messages = this.messageResponse[key]?.message || [];
+            const targetIndex = messages.findIndex((msg) => msg.seq === seq);
+
+            if (targetIndex === -1) {
+                console.error("해당 seq를 가진 메시지가 없습니다.");
+                return;
+            }
+
+            const [removedMessage] = messages.splice(targetIndex, 1);
+            console.log(removedMessage)
+
+            let currentKey = String(Number(key) + 2);
+            let nextSeq = 1;
+
+            while (this.messageResponse[currentKey]) {
+                this.messageResponse[currentKey].message.forEach((msg) => {
+                msg.seq = nextSeq++;
+                });
+
+                currentKey = String(Number(currentKey) + 1); // 다음 key로 이동
+                nextSeq = 1; // 다음 key의 seq는 1부터 다시 시작
+            }
+
+            const nextKey = Number(key) + 1
+            removedMessage.seq = 1
+            this.messageResponse[nextKey] = { sendUserSeq: null, sendUser: "randomUser", message: [] };
+            this.messageResponse[nextKey].message.unshift(removedMessage);
+            // this.messageResponseTempRemove(this.messageResponse)
         },
         moveMessageUp(key, seq) {
             if(key==1 && seq ==1) {
@@ -436,30 +464,20 @@ export default {
                 if(preMessageCut.message.length == 1) {
                     var editMessage = JSON.parse(JSON.stringify(this.messageResponse[key]))
                     var upMessage = editMessage.message.shift()
-                    console.log(JSON.parse(JSON.stringify(editMessage)))
                     this.messageResponse[key - 1] = {
                         ...this.messageResponse[key],
                         message: [upMessage]
                     };
-                    console.log("preMessageCut")
-                    console.log(JSON.parse(JSON.stringify(preMessageCut)))
-                    console.log("설마")
                     this.messageResponse[key] = preMessageCut 
-                    console.log("너냐")
-                    // console.log(JSON.parse(JSON.stringify(this.downMessage)))
                     var downMap = new Map
                     var downKey = 1
                     for(let [id, value] of Object.entries(this.messageResponse)) {
                         console.log(downKey)
                         if(editMessage.message.length != 0 && id == (Number(key) + 1)) {
                             downMap[downKey++] = editMessage
-                            console.log("new")
-                            console.log(downKey)
-                            console.log(JSON.parse(JSON.stringify(downMap)))
                         } 
                         downMap[downKey++] = value
                     }
-                    console.log(JSON.parse(JSON.stringify(downMap)))
                     this.messageResponseTempRemove(downMap)
                     return
                 }
