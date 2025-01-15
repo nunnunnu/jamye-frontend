@@ -435,17 +435,46 @@ export default {
             const [removedMessage] = messages.splice(targetIndex, 1);
             console.log(removedMessage)
 
-            let currentKey = String(Number(key) + 2);
-            let nextSeq = 1;
+            var tempMap = new Map
+            var tempKey = 1
+            for (let [id, value] of Object.entries(this.messageResponse)) {
+                if(id==key) {
+                    var downMsg = new Set
+                    var downSeq = 1
+                    var originMsg = new Set
+                    for(const msg of value.message) {
+                        if(msg.seq > seq) {
+                           downMsg.add({
+                                ...msg,
+                                seq: downSeq++
+                           })
+                        } else {
+                            originMsg.add(msg)
+                        }
+                    }
+                    if(originMsg.length != 0) {
+                        tempMap[tempKey++] = {
+                            ...value,
+                            message: originMsg
+                        }
+                    }
+                    if(downMsg.length != 0) {
+                        tempKey = tempKey + 2
+                        tempMap[tempKey++] = {
+                            ...value,
+                            message: downMsg
+                        }
+                    }
+                } else if(id > key) {
+                    tempKey = tempKey + 2
+                    tempMap[tempKey++] = value
 
-            while (this.messageResponse[currentKey]) {
-                this.messageResponse[currentKey].message.forEach((msg) => {
-                msg.seq = nextSeq++;
-                });
-
-                currentKey = String(Number(currentKey) + 1); // 다음 key로 이동
-                nextSeq = 1; // 다음 key의 seq는 1부터 다시 시작
+                } else {
+                    console.log("??")
+                    tempMap[tempKey++] = value 
+                }
             }
+            this.messageResponse = tempMap
 
             const nextKey = Number(key) + 1
             removedMessage.seq = 1
