@@ -189,12 +189,48 @@
                             </div>
                             <!-- 상대 메세지 -->
                             <div v-else class="chat-message mt-3">
-                                <div v-if="this.nickNameMap[text.sendUserSeq] != null">
-                                    <div v-if="this.nickNameMap[text.sendUserSeq].userNameInGroup != null">
-                                        <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].userNameInGroup }}</div>
+                                <div class="info-container">
+                                    <div v-if="nickNameEdit[key]">
+                                        <div v-if="this.nickNameMap[text.sendUserSeq] != null">
+                                            <button v-if="this.nickNameMap[text.sendUserSeq].userNameInGroup != null" class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                {{ this.nickNameMap[text.sendUserSeq].userNameInGroup }}
+                                                </button>
+                                            <button v-else class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                {{ this.nickNameMap[text.sendUserSeq].nickName }}
+                                            </button>
+                                            <ul 
+                                                class="dropdown-menu" 
+                                                style="max-height: 200px; overflow-y: auto;"
+                                            >
+                                                <li 
+                                                    v-for="[id, value] in Object.entries(nickNameMap)" 
+                                                    :key="id"
+                                                    @click="editNickNameComplate(key, value)"
+                                                    style="padding: 8px; cursor: pointer;"
+                                                >
+                                                    {{ value.nickName }} <span v-if="value.userNameInGroup">| {{ value.userNameInGroup }}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                     <div v-else>
-                                        <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].nickName }}</div>
+                                        <div v-if="this.nickNameMap[text.sendUserSeq] != null">
+                                            <div v-if="this.nickNameMap[text.sendUserSeq].userNameInGroup != null">
+                                                <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].userNameInGroup }}</div>
+                                            </div>
+                                            <div v-else>
+                                                <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].nickName }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="button-container" v-if="this.isEditing != null">
+                                            <button class="circle-btn up-arrow" @click="moveSendUserUp(key)"><i class="fas fa-arrow-up"></i></button>
+                                            <button class="circle-btn down-arrow" @click="moveSendUserDown(key)"><i class="fas fa-arrow-down"></i></button>
+                                            <button class="circle-btn edit" @click="editNickName(key)"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="circle-btn delete" @click="removeSendUser(key)"><i class="fas fa-trash"></i></button>
+                                            <button class="circle-btn right" @click="moveRight(key)">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </button>
                                     </div>
                                 </div>
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + (msg.messageSeq!=null? msg.messageSeq : key + '_' + msg.seq)" @click="scrollToMessage(msg)">
@@ -325,7 +361,8 @@ export default {
             replyMode: false,
             selectedReplyMessageSeq: null,
             selectedReplyKey: null,
-            selectedReplySeq: null
+            selectedReplySeq: null,
+            nickNameEdit: {}
         }
     },
     props: {
@@ -834,6 +871,81 @@ export default {
                     }, 500);
                 }  
         },
+        moveSendUserUp(key) {
+            if(key == 1) {
+                return
+            } 
+            const moveKey = Number(key) - Number(1)
+            const upMessage = JSON.parse(JSON.stringify(this.messageResponse[key]))
+            const downMessage = JSON.parse(JSON.stringify(this.messageResponse[moveKey]))
+            this.messageResponse[key] = downMessage
+            this.messageResponse[moveKey] = upMessage
+            this.messageResponseTempRemove(this.messageResponse)
+        },
+        moveSendUserDown(key) {
+            const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
+            if(key == maxKey) {
+                return
+            } 
+            const moveKey = Number(key) + Number(1)
+            const upMessage = JSON.parse(JSON.stringify(this.messageResponse[moveKey]))
+            const downMessage = JSON.parse(JSON.stringify(this.messageResponse[key]))
+            this.messageResponse[key] = upMessage
+            this.messageResponse[moveKey] = downMessage
+            this.messageResponseTempRemove(this.messageResponse)
+        },
+        removeSendUser(key) {
+            delete this.messageResponse[key];
+            this.messageResponseTempRemove(this.messageResponse)
+        },
+        moveRight(key) {
+            this.messageResponse[key] = {
+                ...this.messageResponse[key],
+                sendUser: null,
+                myMessage: true
+            };
+            this.messageResponseTempRemove(this.messageResponse)
+        },
+        editNickName(key) {
+            console.log("!!")
+            this.nickNameEdit[key] = true
+            console.log("??")
+        },
+        editNickNameComplate(key, nickNameInfo) {
+            this.nickNameEdit[key] = false
+            this.messageResponse[key].sendUser = nickNameInfo.nickName
+            this.messageResponse[key].sendUserSeq = nickNameInfo.userSeqInGroup
+        },
+        messageResponseTempRemove(message) {
+            var tempMapUser = new Map
+            var preUser = null
+            var tempKey = 1
+            for(let [id, value] of Object.entries(message)) {
+                if(id == 1) {
+                    preUser = value.sendUserSeq
+                    tempMapUser[tempKey++] = value
+                    continue
+                }
+                if (value.sendUserSeq == preUser) {
+                    var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
+                        return msg.seq > max ? msg.seq : max;
+                    }, 0);
+                    value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
+                        seq: ++maxNum,
+                        message: msg.message,
+                        imageKey: msg.imageKey,
+                        imageUri: msg.imageUri,
+                        isReply: msg.isReply,
+                        replyMessage: msg.replyMessage,
+                        replyTo: msg.replyTo
+                    }))
+                } else {
+                    tempMapUser[tempKey++] = value
+                }
+                preUser = value.sendUserSeq
+            }
+            this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
+        }
     }
 }
 </script>
