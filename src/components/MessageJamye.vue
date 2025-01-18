@@ -115,6 +115,9 @@
                                             <button class="circle-btn camera" data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)">
                                                 <i class="fas fa-camera"></i>
                                             </button>
+                                            <button class="circle-btn left" @click="moveLeft(key, msg.seq)">
+                                                <i class="fas fa-arrow-left"></i>
+                                            </button>
                                         </div>
                                         <span class="send-date">{{ text.sendDate }}</span>
                                     </div>
@@ -205,7 +208,7 @@
                                                 <li 
                                                     v-for="[id, value] in Object.entries(nickNameMap)" 
                                                     :key="id"
-                                                    @click="editNickNameComplate(key, value)"
+                                                    @click="editNickNameComplate(key, id, value)"
                                                     style="padding: 8px; cursor: pointer;"
                                                 >
                                                     {{ value.nickName }} <span v-if="value.userNameInGroup">| {{ value.userNameInGroup }}</span>
@@ -911,10 +914,10 @@ export default {
             this.nickNameEdit[key] = true
             console.log("??")
         },
-        editNickNameComplate(key, nickNameInfo) {
+        editNickNameComplate(key, id, nickNameInfo) {
             this.nickNameEdit[key] = false
             this.messageResponse[key].sendUser = nickNameInfo.nickName
-            this.messageResponse[key].sendUserSeq = nickNameInfo.userSeqInGroup
+            this.messageResponse[key].sendUserSeq = id
         },
         messageResponseTempRemove(message) {
             var tempMapUser = new Map
@@ -945,7 +948,91 @@ export default {
                 preUser = value.sendUserSeq
             }
             this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
-        }
+        },
+        moveLeft(key, seq) {
+            console.log(`start - key=${key}, seq=${seq}`)
+            const messages = this.messageResponse[key]?.message || [];
+            const targetIndex = messages.findIndex((msg) => msg.seq === seq);
+
+            if (targetIndex === -1) {
+                console.error("해당 seq를 가진 메시지가 없습니다.");
+                return;
+            }
+
+            const [removedMessage] = messages.splice(targetIndex, 1);
+            console.log(removedMessage)
+
+            var tempMap = new Map
+            var tempKey = 1
+            for (let [id, value] of Object.entries(this.messageResponse)) {
+                if(id==key) {
+                    var downMsg = []
+                    var downSeq = 1
+                    var originMsg = []
+                    if(value.message.length == 0) {
+                        tempKey = tempKey + 2
+                    }
+                    for(const msg of value.message) {
+                        if(msg.seq > seq) {
+                            console.log("downCheck" + msg.message)
+                           downMsg.push({
+                                ...msg,
+                                seq: downSeq++
+                           })
+                           console.log("addCheck" + JSON.stringify(downMsg))
+                        } else {
+                            console.log("originCheck" + JSON.stringify(msg.message))
+                            originMsg.push(msg)
+                        }
+                    }
+                    if(originMsg.length != 0) {
+                        tempMap[tempKey++] = {
+                            ...value,
+                            message: originMsg
+                        }
+                        console.log("origin" + JSON.stringify(originMsg))
+                    }
+                    if(downMsg.length != 0) {
+                        tempKey = tempKey + 2
+                        tempMap[tempKey++] = {
+                            ...value,
+                            message: downMsg
+                        }
+                        console.log("down:" + JSON.stringify(downMsg))
+                    }
+                } else if(Number(id) > Number(key)) {
+                    console.log(`id=${id}, key=${key}`)
+                    console.log("2down" + JSON.stringify(value))
+                    tempKey = tempKey + 2
+                    tempMap[tempKey++] = value
+                } else {
+                    console.log("std" + tempKey + JSON.stringify(value))
+                    tempMap[tempKey++] = value 
+                }
+            }
+            console.log(JSON.stringify(tempMap))
+            this.messageResponse = tempMap
+
+            const nextKey = Number(key) + 1
+            removedMessage.seq = 1
+            var randomUser = "임시"
+            var randomkey = null
+            console.log(this.nickNameMap)
+            if(this.nickNameMap != null && Object.keys(this.nickNameMap).length > 0) {
+                const firstEntry = Object.entries(this.nickNameMap)[0]; // 첫 번째 엔트리 가져오기
+                if (firstEntry) {
+                    const [key, value] = firstEntry;
+                    randomkey = key
+                    randomUser = value.nickName
+                    console.log("첫 번째 키:", key);
+                    console.log("첫 번째 값:", value);
+                }
+            }
+            console.log(nextKey)
+            this.messageResponse[nextKey] = { sendUserSeq: randomkey, sendUser: randomUser, message: [] };
+            this.messageResponse[nextKey].message.unshift(removedMessage);
+            this.messageResponseTempRemove(this.messageResponse)
+        },
     }
 }
 </script>
