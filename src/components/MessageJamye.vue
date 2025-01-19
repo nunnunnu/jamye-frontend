@@ -905,6 +905,7 @@ export default {
             this.messageResponse[key] = {
                 ...this.messageResponse[key],
                 sendUser: null,
+                sendUserSeq: null,
                 myMessage: true
             };
             this.messageResponseTempRemove(this.messageResponse)
@@ -934,13 +935,8 @@ export default {
                         return msg.seq > max ? msg.seq : max;
                     }, 0);
                     value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
+                        ...msg,
                         seq: ++maxNum,
-                        message: msg.message,
-                        imageKey: msg.imageKey,
-                        imageUri: msg.imageUri,
-                        isReply: msg.isReply,
-                        replyMessage: msg.replyMessage,
-                        replyTo: msg.replyTo
                     }))
                 } else {
                     tempMapUser[tempKey++] = value
@@ -1031,6 +1027,8 @@ export default {
             console.log(nextKey)
             this.messageResponse[nextKey] = { sendUserSeq: randomkey, sendUser: randomUser, message: [] };
             this.messageResponse[nextKey].message.unshift(removedMessage);
+            console.log(removedMessage)
+            console.log(this.messageResponse[nextKey].message)
             this.messageResponseTempRemove(this.messageResponse)
         },
     }
