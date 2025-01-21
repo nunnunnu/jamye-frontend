@@ -10,15 +10,16 @@
         <div class="data-title">비밀번호 변경</div>
         <div class="data-sub-title">비밀번호 확인</div>
             <div class="password-check">
-                <input type="password" id="password" class="form-control" placeholder=" " v-model="originPassword" />
-                <button class="btn btn-dark">비밀번호 확인</button>
+                <input id="originPassword" type="password" class="form-control" placeholder=" " v-model="originPassword" />
+                <button class="btn btn-dark" @click="passwordCheck">비밀번호 확인</button>
             </div>
         <div class="data-sub-title">새로운 비밀번호</div>
         <div class="change-password">
-            <input v-if="passwordCheck" type="password" id="password" class="form-control" placeholder=" " v-model="newPassword" />
+            <input id="newPassword" v-if="passwordChecked" type="password"  class="form-control" placeholder=" " v-model="newPassword" />
             <input v-else type="password" id="password" class="form-control" placeholder=" " v-model="newPassword" disabled />
         </div>
-        <button class="btn btn-dark">비밀번호 변경</button>
+        <button class="btn btn-dark" v-if="this.newPassword == null" disabled>비밀번호 변경</button>
+        <button class="btn btn-dark" v-else @click="changePassword">비밀번호 변경</button>
     </div>
 </template>
 <script>
@@ -28,13 +29,19 @@ export default {
         return {
             userInfo: {},
             originPassword: null,
-            passwordCheck: false,
+            passwordChecked: false,
             newPassword: null
         }
     },
     props: {
         isLogin: {
             require: true
+        }
+    },
+    watch: {
+        originPassword() {
+            console.log("nn")
+            this.passwordChecked = false
         }
     },
     created() {
@@ -50,7 +57,22 @@ export default {
         }).then(r => {
             this.userInfo = r.data.data
         })
-    }
+    },
+    methods: {
+        passwordCheck() {
+            if(this.originPassword == null) {
+                alert("비밀번호를 입력해주세요")
+                return
+            }
+            this.passwordChecked = true
+        },
+        changePassword() {
+            if(this.newPassword == null) {
+                alert("변경할 비밀번호를 입력해주세요")
+                return
+            }
+        }
+    },
 }
 </script>
 <style>

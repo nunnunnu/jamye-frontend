@@ -80,10 +80,10 @@ export default {
     },
     watch: {
         message: {
-        deep: true,
-        handler(newVal) {
-            this.localMessage = newVal
-        }
+            deep: true,
+            handler(newVal) {
+                this.localMessage = newVal
+            }
         }
     },
     setup() {
