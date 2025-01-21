@@ -65,6 +65,11 @@ export default {
             profileimageSrc: null
         }
     },
+    props: {
+        isLogin: {
+            require: true
+        }
+    },
     methods: {
         next() {
             if(this.groupName == '' || this.groupName == null || this.groupName == undefined) {
@@ -74,6 +79,11 @@ export default {
             this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
         },
         create() {
+            if(!this.isLogin) {
+                alert("로그인 후 접속가능한 페이지입니다.")
+                this.$router.push("/login")
+                return
+            }
             if(this.nickname == '' || this.nickname == null || this.nickname == undefined) {
                 alert("닉네임을 입력하지않으셨습니다.")
                 return

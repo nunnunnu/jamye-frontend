@@ -3,7 +3,7 @@
         <h2 class="title"> 사용자 정보 </h2><br>
         <div class="user-info-box">
             <span class="user-id">{{ id }}</span>
-            <button class="edit-btn" @click="editUserInfo">회원정보 수정</button>
+            <router-link class="edit-btn" :to="{name:'userInfoEdit'}">회원정보 수정</router-link>
         </div>
         <div class="mt-3 d-flex justify-content-between">
             <div class="custom-btn"><button class="btn btn-dark btn-sm btn-block text-danger" data-bs-toggle="modal" data-bs-target="#deleteUser">회원탈퇴</button></div>
@@ -133,8 +133,8 @@ export default {
             this.$cookies.remove("id")
             this.$cookies.remove("sequence")
             this.$cookies.remove("group")
-            this.$emit("groupSelect", null)
             this.$router.push("/")
+            this.$emit("groupSelect", null)
             this.$emit('isLoginChange', false)
         },
         loadMyGroupList() {

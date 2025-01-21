@@ -40,10 +40,10 @@ export default{
     created() {
         var group = this.$cookies.get("group")
         if(!this.isLogin) {
-            alert("로그인 후 게시글 작성이 가능합니다.")
+            alert("로그인 후 조회 가능합니다.")
             this.$router.push("/login")
         } else if(group == null) {
-            alert("메세지를 작성할 그룹을 먼저 선택해주세요")
+            alert("잼얘를 조회할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
         } else {
             this.groupName = group.name

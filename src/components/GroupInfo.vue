@@ -102,9 +102,17 @@ export default {
         }
     },
     props: {
-        seq: Number
+        seq: Number,
+        isLogin: {
+            require: true
+        }
     },
     created() {
+        if(!this.isLogin) {
+            alert("로그인 후 접속가능한 페이지입니다.")
+            this.$router.push("/login")
+            return
+        }
         this.userSequence = this.$cookies.get("sequence")
         axios.get("/api/group/"+this.seq, {
                 headers: {

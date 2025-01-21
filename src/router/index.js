@@ -13,6 +13,7 @@ import JamyeList from '@/components/JamyeList.vue'
 import BoardJamye from '@/components/BoardJamye.vue'
 import MessageJamye from '@/components/MessageJamye.vue'
 import LeaveGroup from '@/components/LeaveGroup.vue'
+import UserInfoEdit from '@/components/UserInfoEdit.vue'
 const routes = [
     {
         path: "/",
@@ -91,6 +92,11 @@ const routes = [
         component: LeaveGroup,
         props: true
     },
+    {
+        path: "/user-info",
+        name: "userInfoEdit",
+        component: UserInfoEdit,
+    }
 ]
 
 const router = createRouter({

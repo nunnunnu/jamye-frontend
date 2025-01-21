@@ -86,9 +86,6 @@ export default {
         }
         }
     },
-    created() {
-
-    },
     setup() {
         
     },
