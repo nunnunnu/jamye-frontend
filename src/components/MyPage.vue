@@ -39,7 +39,7 @@
             <div v-if="groups==0"> 아직 소속된 그룹이 없습니다.</div>
             <div v-else>
                 <div class="group-info-box-container">
-                    <div class="group-info-box" v-for="group in groups" :key="group.groupSequence" @click="moveGroup(group.groupSequence)">
+                    <div class="group-info-box" v-for="group in groups" :key="group.groupSequence" >
                         <div class="group-image">
                             <img v-if="group == null || group.imageUrl == null" src="@/assets/img/file.png" class="img-thumbnail" alt="..." />
                             <img v-else :src="group.imageUrl" class="img-thumbnail" alt="Group Image" />

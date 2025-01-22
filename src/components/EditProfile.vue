@@ -16,7 +16,7 @@
                         </label>
                     </div>
                     <div v-if="groupNickNameInfo != null">
-                        <input type="text" id="groupName" class="nickName form-control" placeholder=" " v-model="data.nickname" />
+                        <input type="text" id="groupName" class="nickName form-control" placeholder=" " v-model="newNickName" />
                         <div v-if="groupNickNameInfo.grade=='NORMAL'">일반 회원</div>
                         <div v-else>운영자</div>
                         <div>{{ groupNickNameInfo.createDate }}</div>
@@ -48,7 +48,8 @@ export default{
         return {
             imageSrc: null,
             profileImage: null,
-            data: this.groupNickNameInfo
+            data: this.groupNickNameInfo,
+            newNickName: null
         }
     },
     methods: {
@@ -69,11 +70,15 @@ export default{
             }
         },
         updateUserInGroupInfo() {
+            if(this.newNickName == null) {
+                alert("변경할 닉네임을 입력해주세요")
+                return
+            }
             const formData = new FormData();
             if (this.profileImage) {
                 formData.append('profile', this.profileImage)
             }
-            axios.post(`/api/group/${this.selectGroup.groupSequence}/${this.groupNickNameInfo.groupUserSequence}?nickName=${this.groupNickNameInfo.nickname}`, formData, {
+            axios.post(`/api/group/${this.selectGroup.groupSequence}/${this.groupNickNameInfo.groupUserSequence}?nickName=${this.newNickName}`, formData, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken'),
                 }
@@ -85,8 +90,9 @@ export default{
                 this.$emit("resetGroup")
             })
             .catch(error => {
-                console.error('Error updating user info:', error);
+                alert(error.response.data.message)
             });
+            this.newNickName = null
         },
     }
 }
