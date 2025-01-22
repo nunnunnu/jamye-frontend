@@ -4,7 +4,7 @@
         <div class="jamye-info-box-container" v-if="jamyes.length != 0">
             <div class="jamye-info-box" v-for="jamye in jamyes" :key="jamye.postSequenc"
                 :class="{ selectable: jamye.isViewable }"
-                @click="movePost(jamye.postType, jamye.postSequence)" 
+                @click="movePost(jamye.postType, jamye.postSequence, jamye.isViewable)" 
             >
                 <div class="jamye-header">
                     <div class="jamye-type">{{ jamye.postTypeName }}</div>
@@ -81,7 +81,10 @@ export default{
                 })
     },
     methods: {
-        movePost(type, postSeq) {
+        movePost(type, postSeq, isViewable) {
+            if(!isViewable) {
+                return
+            }
             if(type == "MSG") {
                 this.$router.push("/jamye/message" + postSeq)
             } else if(type == "BOR") {

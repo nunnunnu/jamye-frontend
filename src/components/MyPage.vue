@@ -39,7 +39,7 @@
             <div v-if="groups==0"> 아직 소속된 그룹이 없습니다.</div>
             <div v-else>
                 <div class="group-info-box-container">
-                    <div class="group-info-box" v-for="group in groups" :key="group.groupSequence">
+                    <div class="group-info-box" v-for="group in groups" :key="group.groupSequence" @click="moveGroup(group.groupSequence)">
                         <div class="group-image">
                             <img v-if="group == null || group.imageUrl == null" src="@/assets/img/file.png" class="img-thumbnail" alt="..." />
                             <img v-else :src="group.imageUrl" class="img-thumbnail" alt="Group Image" />
@@ -52,37 +52,7 @@
                         </div>
                         <div class="group-actions">
                             <button class="edit-btn" @click="editGroupProfile(group)" data-bs-toggle="modal" data-bs-target="#editGroupProfile">프로필 수정</button>
-                            <div class="modal fade" id="editGroupProfile" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true" >
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content" v-if="selectGroup != null">
-                                        <div class="modal-header">
-                                            {{selectGroup.name}} 프로필 수정
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="upload-container">
-                                                <input type="file" id="imageUpload" accept="image/*" @change="previewImage" style="display: none;">
-                                                <label for="imageUpload" class="upload-label group-image">
-                                                    <img v-if="imageSrc != null" :src="imageSrc" alt="Image Preview" class="image-preview" />
-                                                    <img v-else-if="groupNickNameInfo != null && groupNickNameInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupNickNameInfo.imageUrl}`" class="image-preview">
-                                                    <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
-                                                </label>
-                                            </div>
-                                            <div v-if="groupNickNameInfo != null">
-                                                <input type="text" id="groupName" class="nickName form-control" placeholder=" " v-model="groupNickNameInfo.nickname" />
-                                                <div v-if="groupNickNameInfo.grade=='NORMAL'">일반 회원</div>
-                                                <div v-else>운영자</div>
-                                                <div>{{ groupNickNameInfo.createDate }}</div>
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
-                                            <button class="btn btn-dark" @click="updateUserInGroupInfo" data-bs-dismiss="modal" aria-label="Close">저장</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <EditProfile :selectGroup = "selectGroup" :groupNickNameInfo = "groupNickNameInfo" @resetGroup="resetGroup"></EditProfile>
                             <button class="delete-btn" data-bs-toggle="modal" data-bs-target="#leaveGroup">그룹 탈퇴</button>
                             <leave-group :group= "group"></leave-group>
                         </div>
@@ -96,9 +66,11 @@
 <script>
 import axios from '@/js/axios';
 import LeaveGroup from './LeaveGroup.vue';
+import EditProfile from './EditProfile.vue';
 export default {
     components: {
-        LeaveGroup
+        LeaveGroup,
+        EditProfile
     },
     data() {
         return {
@@ -106,8 +78,6 @@ export default {
             groups: null,
             selectGroup: {},
             groupNickNameInfo: {},
-            imageSrc: null,
-            profileImage: null,
             passwordCheck: null
         }
     },
@@ -162,43 +132,6 @@ export default {
                 this.groupNickNameInfo = r.data.data
             })
         },
-        previewImage(event) {
-            const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
-            if(event.target.files && event.target.files[0]){ //파일있는지 검사
-                this.profileImage = event.target.files[0]
-            }else{
-                imgbox.style.backgroundImage = ""
-            }
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.imageSrc = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        },
-        updateUserInGroupInfo() {
-            const formData = new FormData();
-            if (this.profileImage) {
-                formData.append('profile', this.profileImage)
-            }
-            axios.post(`/api/group/${this.selectGroup.groupSequence}/${this.groupNickNameInfo.groupUserSequence}?nickName=${this.groupNickNameInfo.nickname}`, formData, {
-                headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
-                }
-            })
-            .then(response => {
-                console.log('Update successful:', response.data);
-                this.profileImage = null
-                this.imageSrc = null
-                this.selectGroup = null
-                this.groupNickNameInfo = null
-            })
-            .catch(error => {
-                console.error('Error updating user info:', error);
-            });
-        },
         deleteUser() {
             if(this.passwordCheck == null) {
                 alert("비밀번호를 먼저 입력해주세요")
@@ -219,6 +152,13 @@ export default {
             }).catch(e => {
                 alert(e.response.data.message)
             })
+        },
+        moveGroup(seq) {
+            this.$router.push("/group"+seq)
+        },
+        resetGroup() {
+            this.selectGroup = null
+            this.groupNickNameInfo = null
         }
     }
     
@@ -299,5 +239,8 @@ export default {
     border-radius: 15px;
     padding-right: 10px; /* 오른쪽 여백 추가 */
     padding-left: 10px; /* 왼쪽 여백 추가 */
+}
+.group-info-box {
+    cursor: pointer;
 }
 </style>

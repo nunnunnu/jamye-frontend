@@ -14,6 +14,7 @@ import BoardJamye from '@/components/BoardJamye.vue'
 import MessageJamye from '@/components/MessageJamye.vue'
 import LeaveGroup from '@/components/LeaveGroup.vue'
 import UserInfoEdit from '@/components/UserInfoEdit.vue'
+import EditProfile from '@/components/EditProfile.vue'
 const routes = [
     {
         path: "/",
@@ -90,6 +91,12 @@ const routes = [
         path: "/leave-group",
         name: "leaveGroup",
         component: LeaveGroup,
+        props: true
+    },
+    {
+        path: "/edit-profile",
+        name: "editProfile",
+        component: EditProfile,
         props: true
     },
     {
