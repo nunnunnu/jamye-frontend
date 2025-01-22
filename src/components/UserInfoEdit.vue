@@ -64,13 +64,36 @@ export default {
                 alert("비밀번호를 입력해주세요")
                 return
             }
-            this.passwordChecked = true
+            axios.post("/api/user/password/check", {
+                password: this.originPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+            }}).then(() => {
+                this.passwordChecked = true
+            })
+            .catch(e => {
+                alert(e.response.data.message)
+            })
+            
         },
         changePassword() {
             if(this.newPassword == null) {
                 alert("변경할 비밀번호를 입력해주세요")
                 return
             }
+            axios.patch("/api/user", {
+                newPassword: this.newPassword,
+                oldPassword: this.originPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+            }}).then(() => {
+                alert("비밀번호 변경 성공")
+                this.$router.push("/")
+            }).catch(e => {
+                alert(e.response.data.message)
+            })
         }
     },
 }
