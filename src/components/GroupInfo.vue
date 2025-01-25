@@ -20,7 +20,8 @@
                             {{ user.nickname }}
                             <span v-if="user.grade=='MASTER'" class="master-badge">(마스터)</span>
                         </span>
-                        <button v-if="user.userSequence==userSequence" class="btn btn-dark edit-button" @click="editUserName">수정</button>
+                        <button v-if="user.userSequence==userSequence" class="btn btn-dark edit-button" @click="editUserName" data-bs-toggle="modal" data-bs-target="#editGroupProfile">수정</button>
+                        <EditProfile :selectGroup = "groupInfo" :groupNickNameInfo = "groupNickNameInfo" @resetGroup="resetGroup"></EditProfile>
                     </div>
                 </div>
             </div>
@@ -87,18 +88,21 @@
 <script>
 import axios from 'axios';
 import LeaveGroup from './LeaveGroup.vue';
+import EditProfile from './EditProfile.vue';
 
 export default {
     name: 'groupInfo',
     components: {
-        LeaveGroup
+        LeaveGroup,
+        EditProfile
     },
     data() {
         return {
             groupInfo: null,
             userSequence: null,
             inviteCode: null,
-            voteInfo: null
+            voteInfo: null,
+            groupNickNameInfo: {}
         }
     },
     props: {
@@ -170,7 +174,17 @@ export default {
             }).then(r => {
                 this.voteInfo = r.data.data
             })
-        }
+        },
+        editUserName() {
+            axios.get("/api/group/user/" + this.groupInfo.groupSequence, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
+            .then(r => {
+                this.groupNickNameInfo = r.data.data
+            })
+        },
     }
 }
 </script>
