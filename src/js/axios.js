@@ -33,14 +33,15 @@ instance.interceptors.response.use((response) => {
         const refreshResponse = await instance.post('/api/user/refresh', {
           refreshToken: refreshToken
         });
+        console.log(refreshResponse.data.data)
         var date = new Date();
         date.setDate(date.getDate() + 1000 * 60 * 60 * 24);
         console.log(date.toUTCString())
-        console.log(encodeURIComponent("accessToken") + '=' + encodeURIComponent(refreshResponse.data.accessToken) + ';expires=' + date.toUTCString() + ';path=/')
-        document.cookie = encodeURIComponent("accessToken") + '=' + encodeURIComponent(refreshResponse.data.accessToken) + ';expires=' + date.toUTCString() + ';path=/';
+        console.log(encodeURIComponent("accessToken") + '=' + encodeURIComponent(refreshResponse.data.data.accessToken) + ';expires=' + date.toUTCString() + ';path=/')
+        document.cookie = encodeURIComponent("accessToken") + '=' + encodeURIComponent(refreshResponse.data.data.accessToken) + ';expires=' + date.toUTCString() + ';path=/';
         
         console.log('토큰 리프레시 성공:', refreshResponse.data);
-        error.config.headers['Authorization'] = `Beare ${refreshResponse.data.accessToken}`
+        error.config.headers['Authorization'] = `Beare ${refreshResponse.data.data.accessToken}`
         return instance.request(error.config)
       } catch (refreshError) {
         console.error('리프레시 API 호출 실패:', refreshError);
