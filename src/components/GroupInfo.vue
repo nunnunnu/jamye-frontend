@@ -6,7 +6,36 @@
                 <img src="@/assets/img/file.png" alt="Group Profile" class="group-profile-img" />
                 <div class="group-info">
                     <span class="group-info-name">{{ groupInfo.name }}</span>
-                    <button class="btn btn-dark edit-button" v-if="groupInfo.isMaster" @click="editGroupName">수정</button>
+                    <button class="btn btn-dark edit-button" v-if="groupInfo.isMaster" @click="editGroupName" data-bs-toggle="modal" data-bs-target="#editGroupInfo">수정</button>
+                    <div class="modal fade" id="editGroupInfo" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true" >
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    {{groupInfo.name}} 프로필 수정
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="upload-container">
+                                        <input type="file" id="imageUpload" accept="image/*" @change="previewImage" style="display: none;">
+                                        <label for="imageUpload" class="upload-label group-image">
+                                            <img v-if="imageSrc != null" :src="imageSrc" alt="Image Preview" class="image-preview" />
+                                            <img v-else-if="groupInfo != null && groupInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupInfo.imageUrl}`" class="image-preview">
+                                            <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
+                                        </label>
+                                    </div>
+                                    <div v-if="groupInfo != null">
+                                        <input type="text" id="groupName" class="nickName form-control" placeholder=" " v-model="groupNewName" />
+                                        <input type="text" id="groupDesc" class="desc form-control" placeholder=" " v-model="groupDescript" />
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
+                                    <button class="btn btn-dark" v-if="this.groupNewName == null || this.groupNewName == undefined || this.groupNewName == ''" disabled>저장</button>
+                                    <button class="btn btn-dark" v-else @click="updateGroupInfo" data-bs-dismiss="modal" aria-label="Close">저장</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div>
@@ -102,7 +131,10 @@ export default {
             userSequence: null,
             inviteCode: null,
             voteInfo: null,
-            groupNickNameInfo: {}
+            groupNickNameInfo: {},
+            imageUrl: null,
+            groupNewName: null,
+            groupDescript: null
         }
     },
     props: {
@@ -125,6 +157,8 @@ export default {
             })
             .then(r => {
                 this.groupInfo = r.data.data
+                this.groupNewName = this.groupInfo.name
+                this.groupDescript = this.groupInfo.description
             }).catch(e => {
                 alert(e.response.data.message)
                 this.$router.push("/groups")
@@ -185,6 +219,38 @@ export default {
                 this.groupNickNameInfo = r.data.data
             })
         },
+        resetGroup() {
+            axios.get("/api/group/"+this.seq, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
+            .then(r => {
+                this.groupInfo = r.data.data
+            }).catch(e => {
+                alert(e.response.data.message)
+                this.$router.push("/groups")
+            })
+        },
+        updateGroupInfo() {
+            if(this.groupNewName == null) {
+                alert("그룹 명은 비워둘 수 없습니다.")
+            }
+            axios.post("/api/group/"+this.seq, {
+                name: this.groupNewName,
+                description: this.groupDescript,
+                imageUrl: this.imageSrc
+            }, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(r => {
+                const group = r.data.data
+                this.groupInfo.name = group.name
+                this.groupInfo.description = group.description,
+                this.groupInfo.imageUrl = group.imageUrl
+            })
+        }
     }
 }
 </script>
@@ -281,5 +347,8 @@ edit-button {
     width: 100%;
     height: 40px;
     border-radius: 15px;
+}
+.nickName {
+    margin-bottom: 10px;
 }
 </style>
