@@ -13,6 +13,7 @@
                         <!-- <li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li> -->
                     </ul>
                     <div v-if="isLogin">
+                        <button type="button" class="btn" @click="notify">쪽지함</button>
                         <button type="button" class="btn btn-light" @click="myPage">MY</button>
                     </div>
                     <div v-if="!isLogin">
@@ -80,6 +81,9 @@ export default {
       },
       groups() {
         this.$router.push("/groups")
+      },
+      notify() {
+        this.$router.push("/notify-box")
       }
   }
 };
@@ -89,5 +93,9 @@ export default {
 <style>
 .nav-link {
     cursor: pointer;
+}
+.btn-light {
+    margin-right: 10px;
+    margin-left: 10px;
 }
 </style>
