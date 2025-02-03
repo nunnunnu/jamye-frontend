@@ -21,7 +21,7 @@
 </template>
 <script>
 import ImageBox from './ImageBox.vue';
-import axios from 'axios';
+import axios from '@/js/axios';
 import { base64ToFile } from '@/js/fileScripts'
 
 export default {

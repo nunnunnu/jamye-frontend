@@ -24,7 +24,7 @@
     </div>    
 </template>
 <script>
-import axios from 'axios';
+import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts';
 

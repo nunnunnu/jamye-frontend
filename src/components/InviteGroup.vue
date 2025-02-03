@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from '@/js/axios';
 import { Modal } from 'bootstrap';
 export default {
     data() {
