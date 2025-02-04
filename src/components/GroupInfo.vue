@@ -3,7 +3,8 @@
         <h2 class="title">그룹 상세 정보</h2>
         <div v-if="groupInfo!=null" class="group-container">
             <div class="group-header">
-                <img src="@/assets/img/file.png" alt="Group Profile" class="group-profile-img" />
+                <img v-if="groupInfo.imageUrl == null" src="@/assets/img/file.png" alt="Group Profile" class="group-profile-img" />
+                <img v-else :src="`http://localhost:8080/api/file/${groupInfo.imageUrl}`" alt="Group Profile" class="group-profile-img" />
                 <div class="group-info">
                     <span class="group-info-name">{{ groupInfo.name }}</span>
                     <button class="btn btn-dark edit-button" v-if="groupInfo.isMaster" @click="editGroupName" data-bs-toggle="modal" data-bs-target="#editGroupInfo">수정</button>
@@ -43,7 +44,8 @@
             </div>
             <div class="user-list">
                 <div class="user-item" v-for="user in groupInfo.users" :key="user.userSequence">
-                    <img src="@/assets/img/file.png" alt="User Profile" class="user-profile-img" />
+                    <img v-if="user.imageUrl == null" src="@/assets/img/file.png" alt="User Profile" class="user-profile-img" />
+                    <img v-else :src="`http://localhost:8080/api/file/${user.imageUrl}`" alt="Group Profile" class="group-profile-img" />
                     <div class="user-info">
                         <span class="user-name">
                             {{ user.nickname }}

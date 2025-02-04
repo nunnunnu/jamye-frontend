@@ -54,6 +54,7 @@
 <script>
 import { Modal } from 'bootstrap';
 import axios from '@/js/axios';
+import { base64ToFile } from '@/js/fileScripts';
 export default {
     data() {
         return {
@@ -78,14 +79,24 @@ export default {
                 alert("닉네임을 입력하지않으셨습니다.")
                 return
             }
-            alert("생성 완료!");
-            axios.post("/api/group", {
+            
+            const formdata = new FormData()
+            const data = {
                 "name": this.groupName,
-                "imageUrl": this.imageSrc,
                 "description": this.groupDescription,
                 "nickname": this.nickname,
-                "profileImageUrl": this.profileimageSrc
-            }, {
+            }
+
+            formdata.append('data', JSON.stringify(data));
+
+            if(this.imageSrc != null) {
+                formdata.append('imageUrl', base64ToFile(this.imageSrc))
+            }
+            if(this.profileimageSrc != null) {
+                formdata.append('profileImageUrl', base64ToFile(this.profileimageSrc))
+            }
+
+            axios.post("/api/group", formdata, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
@@ -93,6 +104,7 @@ export default {
                 const modalInstance = Modal.getInstance(document.getElementById('exampleModal1'))
                 if (modalInstance) modalInstance.hide()
                 this.modalClose()
+                alert("생성 완료!");
                 this.$router.push("/groups")
             })
             

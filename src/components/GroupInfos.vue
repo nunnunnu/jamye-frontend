@@ -11,7 +11,7 @@
             <div class="group-info-box" v-for="group in groups" :key="group.groupSequence">
                 <div class="group-image">
                     <img v-if="group.imageUrl == null" src="@/assets/img/file.png" class="img-thumbnail" alt="..." />
-                    <img v-else :src="group.imageUrl" class="img-thumbnail" alt="Group Image" />
+                    <img v-else :src="`http://localhost:8080/api/file/${group.imageUrl}`" class="img-thumbnail" alt="Group Image" />
                 </div>
                 <div class="group-details">
                     <span class="group-name">{{ group.name }}</span>
