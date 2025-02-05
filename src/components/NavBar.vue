@@ -13,7 +13,7 @@
                         <!-- <li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li> -->
                     </ul>
                     <div v-if="isLogin">
-                        <button type="button" class="btn" @click="notify">쪽지함</button>
+                        <button type="button" class="btn" @click="notify">쪽지함{{ unreadCount }}</button>
                         <button type="button" class="btn btn-light" @click="myPage">MY</button>
                     </div>
                     <div v-if="!isLogin">
@@ -27,12 +27,14 @@
 <script>
 import { onMounted } from 'vue';
 import * as bootstrap from 'bootstrap';
+import axios from '@/js/axios';
 
 export default {
   name: 'NavBar',
   data() {
     return {
-        groupInfos: null
+        groupInfos: null,
+        unreadCount: null
     }
   },
   props: {
@@ -43,6 +45,13 @@ export default {
         currentGroup: {
             require: false
         }
+    },
+    mounted() {
+        this.fetchUnreadCount();  // 초기 호출
+        this.polling = setInterval(this.fetchUnreadCount, 5000);  // 5초마다 호출
+    },
+    beforeUnmount() {
+        clearInterval(this.polling);  // 컴포넌트 종료 시 polling 중지
     },
     setup() {
         onMounted(() => {
@@ -84,7 +93,20 @@ export default {
       },
       notify() {
         this.$router.push("/notify-box")
-      }
+      },
+      fetchUnreadCount() {
+        axios.get('/api/user/no-read', {
+            headers: {
+            Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+            }
+        })
+        .then(response => {
+            this.unreadCount = response.data.data;
+        })
+        .catch(error => {
+            console.error('안 읽은 쪽지 수 가져오기 실패:', error);
+        });
+    },
   }
 };
 
