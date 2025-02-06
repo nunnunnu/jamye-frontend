@@ -1,5 +1,5 @@
 <template>
-  <Navbar :isLogin="isLogin" :currentGroup="currentGroup" @groupSelect="groupSelect"></Navbar>
+  <Navbar :isLogin="isLogin" :currentGroup="currentGroup" @groupSelect="groupSelect" :unreadCount="unreadCount"></Navbar>
   <div id="app">
     <div v-if="loading" class="loading-overlay">
       <div class="spinner"></div>
@@ -11,6 +11,9 @@
 <script>
 import Navbar from './components/NavBar.vue'
 import { setLoadingCallback } from '@/js/axios'
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import axios from '@/js/axios';
 
 export default {
   name: 'App',
@@ -18,15 +21,37 @@ export default {
         return {
             isLogin: null,
             currentGroup: null,
-            loading: false
+            loading: false,
+            unreadCount: 0
         }
     },
     created() {
         this.isLogin = this.$cookies.get('accessToken') !== null;
         this.currentGroup = this.$cookies.get("group")
+        axios.get('/api/user/no-read', {
+            headers: {
+            Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+            }
+        })
+        .then(response => {
+            this.unreadCount = response.data.data;
+        })
+        .catch(error => {
+            console.error('안 읽은 쪽지 수 가져오기 실패:', error);
+        });
         setLoadingCallback((isLoading) => {
             this.loading = isLoading;
         });
+    },
+    mounted() {
+      if (!this.stompClient || !this.stompClient.active) {
+          this.connectWebSocket();
+      }
+    },
+    beforeUnmount() {
+      if (this.stompClient) {
+          this.stompClient.deactivate();
+      }
     },
     methods: {
       isLoginChange(isLoginChange) {
@@ -34,7 +59,48 @@ export default {
       },
       groupSelect(group) {
         this.currentGroup = group
-      }
+      },
+      connectWebSocket() {
+        console.log("🔹 WebSocket 연결 시도...");
+        const socket = new SockJS('http://localhost:8080/ws');  
+        const accessToken = this.$cookies.get('accessToken');
+        const userSeq = this.$cookies.get('sequence');
+
+        this.stompClient = new Client({
+            webSocketFactory: () => socket,
+            connectHeaders: {
+                Authorization: `Bearer ${accessToken}`
+            },
+            onConnect: () => {
+                console.log("✅ WebSocket 연결 성공");
+                this.stompClient.debug = console.log;
+                this.stompClient.subscribe(`/topic/#`, (message) => {
+                    console.log("📩 모든 토픽 수신 테스트:", message);
+                });
+                // 구독 경로 확인 (STOMP 디버깅)
+                this.stompClient.subscribe(`/user/${userSeq}/topic/unread-count`, (message) => {
+                    console.log("📩 새 쪽지 알림 수신:", message);
+                    this.unreadCount = JSON.parse(message.body);
+                });
+
+                this.stompClient.subscribe(`/user/topic/unread-count`, (message) => {
+                    console.log("📩 새 쪽지 알림 수신:", message);
+                    this.unreadCount = JSON.parse(message.body);
+                });
+
+                console.log(`🔹 구독 완료: /user/${userSeq}/topic/unread-count`);
+            },
+            onStompError: (frame) => {
+                console.error('❌ STOMP 오류:', frame.headers['message']);
+            },
+            onWebSocketError: (error) => {
+                console.error('❌ WebSocket 연결 실패:', error);
+            }
+        });
+
+        this.stompClient.activate();  
+    }
+
     },
   components: {
     Navbar

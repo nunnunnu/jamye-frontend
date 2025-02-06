@@ -28,12 +28,10 @@ instance.interceptors.response.use((response) => {
     activeRequests--;
     if (error.response && error.response.status === 403) {
       const refreshToken = document.cookie.match('(^|;) ?' + 'refreshToken' + '=([^;]*)(;|$)')[2];
-      console.log(refreshToken)
       try {
         const refreshResponse = await instance.post('/api/user/refresh', {
           refreshToken: refreshToken
         });
-        console.log(refreshResponse.data.data)
         var date = new Date();
         date.setTime(date.getTime() + 24 * 60 * 60 * 1000); 
         document.cookie = encodeURIComponent("accessToken") + '=' + encodeURIComponent(refreshResponse.data.data.accessToken) + ';expires=' + date.toUTCString() + ';path=/';
@@ -41,7 +39,6 @@ instance.interceptors.response.use((response) => {
         error.config.headers['Authorization'] = `Bearer ${refreshResponse.data.data.accessToken}`
         return instance.request(error.config)
       } catch (refreshError) {
-        console.error('리프레시 API 호출 실패:', refreshError);
         
         document.cookie = encodeURIComponent("accessToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
         document.cookie = encodeURIComponent("refreshToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';

@@ -100,8 +100,6 @@ export default {
         },
         insertSelectedImages() {
             if(this.type == 'MSG') {
-                console.log("MSG")
-                console.log(this.localMessage)
                 if (this.localMessage[this.imageKey] && Array.isArray(this.localMessage[this.imageKey].message)) {
                     this.localMessage[this.imageKey].message.forEach(it => {
                         if(it.seq > this.imageSeq) {
@@ -116,11 +114,6 @@ export default {
                     this.localMessage[this.imageKey].message.sort((a, b) => a.seq - b.seq);
                     
                     this.$emit('messageUpdate', this.localMessage)
-                    // if(this.isEditing[this.imageKey, this.imageSeq + 1]) {
-                        // console.log(true)
-                        // this.$emit.editMessage(this.imageKey, this.imageSeq + 1 + 1)
-                    // }
-                    // this.$emit.editMessage(this.imageKey, this.imageSeq + 1)
                 }    
                 this.selectedImages = []
             } else if(this.type == 'POST') {
@@ -145,7 +138,6 @@ export default {
             this.selectedImages.forEach((key) => {
                 this.localImageUidMap[key] = null
             }); 
-            console.log(this.localImageUidMap)
             this.selectedImages = [];
         },
         handleImageUpload(event) {

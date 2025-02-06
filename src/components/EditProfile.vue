@@ -83,8 +83,7 @@ export default{
                     Authorization: `Bearer `+this.$cookies.get('accessToken'),
                 }
             })
-            .then(response => {
-                console.log('Update successful:', response.data);
+            .then(() => {
                 this.profileImage = null
                 this.imageSrc = null
                 this.$emit("resetGroup")

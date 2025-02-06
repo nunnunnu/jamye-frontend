@@ -27,14 +27,14 @@
 <script>
 import { onMounted } from 'vue';
 import * as bootstrap from 'bootstrap';
-import axios from '@/js/axios';
+// import axios from '@/js/axios';
 
 export default {
   name: 'NavBar',
   data() {
     return {
         groupInfos: null,
-        unreadCount: null
+        stompClient: null,
     }
   },
   props: {
@@ -44,14 +44,10 @@ export default {
         },
         currentGroup: {
             require: false
-        }
-    },
-    mounted() {
-        this.fetchUnreadCount();  // 초기 호출
-        this.polling = setInterval(this.fetchUnreadCount, 5000);  // 5초마다 호출
-    },
-    beforeUnmount() {
-        clearInterval(this.polling);  // 컴포넌트 종료 시 polling 중지
+        },
+        unreadCount: {
+            type: Number
+        },
     },
     setup() {
         onMounted(() => {
@@ -78,36 +74,23 @@ export default {
     created() {
         
     },
-  methods: {
-    login() {
-        this.$router.push("/login")
-      },
-      home() {
-        this.$router.push("/")
-      },
-      myPage() {
-        this.$router.push("/my")
-      },
-      groups() {
-        this.$router.push("/groups")
-      },
-      notify() {
-        this.$router.push("/notify-box")
-      },
-      fetchUnreadCount() {
-        axios.get('/api/user/no-read', {
-            headers: {
-            Authorization: `Bearer ${this.$cookies.get('accessToken')}`
-            }
-        })
-        .then(response => {
-            this.unreadCount = response.data.data;
-        })
-        .catch(error => {
-            console.error('안 읽은 쪽지 수 가져오기 실패:', error);
-        });
-    },
-  }
+    methods: {
+        login() {
+            this.$router.push("/login")
+        },
+        home() {
+            this.$router.push("/")
+        },
+        myPage() {
+            this.$router.push("/my")
+        },
+        groups() {
+            this.$router.push("/groups")
+        },
+        notify() {
+            this.$router.push("/notify-box")
+        }
+    }
 };
 
 </script>

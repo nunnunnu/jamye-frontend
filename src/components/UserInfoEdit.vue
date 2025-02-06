@@ -40,7 +40,6 @@ export default {
     },
     watch: {
         originPassword() {
-            console.log("nn")
             this.passwordChecked = false
         }
     },
