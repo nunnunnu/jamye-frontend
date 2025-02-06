@@ -11,8 +11,8 @@
 <script>
 import Navbar from './components/NavBar.vue'
 import { setLoadingCallback } from '@/js/axios'
-import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 import axios from '@/js/axios';
 
 export default {
@@ -63,40 +63,25 @@ export default {
       connectWebSocket() {
         console.log("🔹 WebSocket 연결 시도...");
         const socket = new SockJS('http://localhost:8080/ws');  
-        const accessToken = this.$cookies.get('accessToken');
+        this.stompClient = Stomp.over(socket)
         const userSeq = this.$cookies.get('sequence');
-
-        this.stompClient = new Client({
-            webSocketFactory: () => socket,
-            connectHeaders: {
-                Authorization: `Bearer ${accessToken}`
-            },
-            onConnect: () => {
-                console.log("✅ WebSocket 연결 성공");
-                this.stompClient.debug = console.log;
-                this.stompClient.subscribe(`/topic/#`, (message) => {
-                    console.log("📩 모든 토픽 수신 테스트:", message);
-                });
-                // 구독 경로 확인 (STOMP 디버깅)
-                this.stompClient.subscribe(`/user/${userSeq}/topic/unread-count`, (message) => {
-                    console.log("📩 새 쪽지 알림 수신:", message);
-                    this.unreadCount = JSON.parse(message.body);
-                });
-
-                this.stompClient.subscribe(`/user/topic/unread-count`, (message) => {
-                    console.log("📩 새 쪽지 알림 수신:", message);
-                    this.unreadCount = JSON.parse(message.body);
-                });
-
-                console.log(`🔹 구독 완료: /user/${userSeq}/topic/unread-count`);
-            },
-            onStompError: (frame) => {
-                console.error('❌ STOMP 오류:', frame.headers['message']);
-            },
-            onWebSocketError: (error) => {
-                console.error('❌ WebSocket 연결 실패:', error);
+        this.stompClient.connect(
+          {},
+          () => {
+            try {
+              this.connected = true;
+              this.stompClient.subscribe(`/alarm/receive/${userSeq}`, (message) => {
+                  const data = JSON.parse(message.body);
+                  this.unreadCount = data;
+              });
+            } catch (error) {
+              console.error("❌ WebSocket 연결 처리 중 오류 발생:", error);
             }
-        });
+          },
+          (error) => {
+            console.error("❌ WebSocket 연결 실패:", error);
+          }
+        );
 
         this.stompClient.activate();  
     }

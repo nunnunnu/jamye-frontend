@@ -13,7 +13,12 @@
                         <!-- <li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li> -->
                     </ul>
                     <div v-if="isLogin">
-                        <button type="button" class="btn" @click="notify">쪽지함{{ unreadCount }}</button>
+                        <button type="button" class="btn position-relative" @click="notify">
+                            쪽지함
+                            <span v-if="unreadCount > 0" class="badge position-absolute">{{ unreadCount }}</span>
+                            </button>
+
+
                         <button type="button" class="btn btn-light" @click="myPage">MY</button>
                     </div>
                     <div v-if="!isLogin">
@@ -103,4 +108,23 @@ export default {
     margin-right: 10px;
     margin-left: 10px;
 }
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 30px; /* 크기 조정 */
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center; /* 글씨 중앙 정렬 */
+  line-height: 10px; /* 세로 중앙 정렬 */
+}
+
 </style>
