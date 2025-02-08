@@ -1,6 +1,8 @@
 <template>
     <div class="b-container">
         <div class="title">쪽지함</div>
+        <button v-if="isNoRead" class="btn btn-dark" @click="allNotifyRead">모두 읽기</button>
+        <button v-else class="btn btn-dark" disabled>모두 읽기</button>
             <div v-for="notify in notifyList" :key="notify.notifySeq" class="message-item">
                 <button v-if="notify.isRead" class="btn btn-dark read-button btn-sm" disabled>읽기</button>
                 <button v-else class="btn btn-dark read-button btn-sm" @click="readNotify(notify)">읽기</button>
@@ -18,19 +20,29 @@ import axios from '@/js/axios';
 export default {
     data() {
         return {
-            notifyList: {}
+            notifyList: [],
+            isNoRead: false
         }
     },
     created() {
-        axios.get("/api/user/notify", {
-                headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
-                }
-        }).then(r => {
-            this.notifyList = r.data.data
-        })
+        this.getNotiftList()
     },
     methods: {
+        getNotiftList() {
+            axios.get("/api/user/notify", {
+                    headers: {
+                        Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    }
+            }).then(r => {
+                this.notifyList = r.data.data
+                console.log("??")
+                this.notifyList.forEach(element => {
+                    if(!element.isRead) {
+                        this.isNoRead = true
+                    }
+                });
+            })
+        },
         readNotify(notify) {
             axios.post("/api/user/notify/" + notify.notifySeq, {}, {
                 headers: {
@@ -57,6 +69,18 @@ export default {
                 }
             })
             this.$router.push("/post" + postSeq)
+        },
+        allNotifyRead() {
+            console.log("!!")
+            axios.post("/api/user/notify/read/all", {}, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                }})
+                .then(() => {
+                    this.isNoRead = false
+                    this.getNotiftList()
+                })
+            
         }
     }
 }
