@@ -59,7 +59,7 @@
                     <div>
                         <div class="row g-2">
                         <div class="col-auto">
-                            <input type="file" class="form-control" id="inputPassword2" placeholder="" @change="messageImageChange">
+                            <input type="file" accept="image/*" class="form-control" id="inputPassword2" placeholder="" @change="messageImageChange">
                         </div>
                         <div class="col-auto">
                             <button type="submit" class="btn btn-dark mb-3" @click="messageListGet">메세지 변환</button>
@@ -563,7 +563,6 @@ export default {
                         msg.seq = orderSeq++
                     })
                 }
-                console.log("??")
                 console.log(JSON.parse(JSON.stringify(this.messageResponse[key])))
                 
                 var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));

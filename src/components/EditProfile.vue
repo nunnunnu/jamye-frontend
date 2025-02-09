@@ -8,12 +8,14 @@
                 </div>
                 <div class="modal-body">
                     <div class="upload-container">
-                        <input type="file" id="imageUpload" accept="image/*" @change="previewImage" style="display: none;">
-                        <label for="imageUpload" class="upload-label group-image">
-                            <img v-if="imageSrc != null" :src="imageSrc" alt="Image Preview" class="image-preview" />
+                        <div class="inputFile">
+                            <input type="file" id="profileImageUpload" accept="image/*" @change="previewImage" style="display: none;">
+                            <label for="profileImageUpload" class="upload-label group-image">
+                            <img v-if="imageSrc != null" :src="imageSrc" alt="profile Preview" class="profile-preview" />
                             <img v-else-if="groupNickNameInfo != null && groupNickNameInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupNickNameInfo.imageUrl}`" class="image-preview">
                             <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
                         </label>
+                        </div>
                     </div>
                     <div v-if="groupNickNameInfo != null">
                         <input type="text" id="groupName" class="nickName form-control" placeholder=" " v-model="newNickName" />
@@ -48,10 +50,21 @@ export default{
         return {
             imageSrc: null,
             profileImage: null,
-            data: this.groupNickNameInfo,
-            newNickName: null
+            data: null,
+            newNickName: null,
         }
     },
+    created() {
+        this.data = this.groupNickNameInfo
+    },
+    mounted() {
+    const input = document.getElementById("imageUpload");
+    console.log("input 태그 확인:", input);
+    if (input) {
+        console.log("이벤트 리스너 존재 여부:", input.onchange);
+    }
+}
+,
     methods: {
         previewImage(event) {
             const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
@@ -70,6 +83,7 @@ export default{
             }
         },
         updateUserInGroupInfo() {
+            console.log("aa")
             if(this.newNickName == null) {
                 alert("변경할 닉네임을 입력해주세요")
                 return
@@ -92,7 +106,12 @@ export default{
                 alert(error.response.data.message)
             });
             this.newNickName = null
-        },
+        }
     }
 }
 </script>
+<style>
+.inputFile {
+    cursor: pointer;
+}
+</style>

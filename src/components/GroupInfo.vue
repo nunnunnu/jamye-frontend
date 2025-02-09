@@ -17,8 +17,8 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="upload-container">
-                                        <input type="file" id="imageUpload" accept="image/*" @change="previewImage" style="display: none;">
-                                        <label for="imageUpload" class="upload-label group-image">
+                                        <input type="file" id="groupProfileImageUpload" accept="image/*" @change="previewImage" style="display: none;">
+                                        <label for="groupProfileImageUpload" class="upload-label group-image">
                                             <img v-if="imageSrc != null" :src="imageSrc" alt="Image Preview" class="image-preview" />
                                             <img v-else-if="groupInfo != null && groupInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupInfo.imageUrl}`" class="image-preview">
                                             <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
@@ -120,6 +120,7 @@
 import axios from '@/js/axios';
 import LeaveGroup from './LeaveGroup.vue';
 import EditProfile from './EditProfile.vue';
+import { base64ToFile } from '@/js/fileScripts';
 
 export default {
     name: 'groupInfo',
@@ -134,7 +135,7 @@ export default {
             inviteCode: null,
             voteInfo: null,
             groupNickNameInfo: {},
-            imageUrl: null,
+            imageSrc: null,
             groupNewName: null,
             groupDescript: null
         }
@@ -238,11 +239,18 @@ export default {
             if(this.groupNewName == null) {
                 alert("그룹 명은 비워둘 수 없습니다.")
             }
-            axios.post("/api/group/"+this.seq, {
+            const formdata = new FormData()
+            const data = {
                 name: this.groupNewName,
                 description: this.groupDescript,
-                imageUrl: this.imageSrc
-            }, {
+            }
+
+            formdata.append('data', JSON.stringify(data));
+
+            if(this.imageSrc != null) {
+                formdata.append('file', base64ToFile(this.imageSrc))
+            }
+            axios.post("/api/group/"+this.seq, formdata, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
@@ -252,7 +260,23 @@ export default {
                 this.groupInfo.description = group.description,
                 this.groupInfo.imageUrl = group.imageUrl
             })
-        }
+        },
+        previewImage(event) {
+            const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
+            if(event.target.files && event.target.files[0]){ //파일있는지 검사
+                this.profileImage = event.target.files[0]
+            }else{
+                imgbox.style.backgroundImage = ""
+            }
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.imageSrc = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        },
     }
 }
 </script>

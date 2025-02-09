@@ -9,7 +9,7 @@
                             <div class="modal-body">
                                 <div class="mb-3">
                                 <label for="imageUploadInput" class="form-label">이미지 업로드</label>
-                                <input class="form-control" type="file" id="imageUploadInput" @change="handleImageUpload" multiple>
+                                <input class="form-control" accept="image/*" type="file" id="imageUploadInput" @change="handleImageUpload" multiple>
                                 </div>
                                 <div class="row g-3" id="imagePreviewContainer">
                                     <div

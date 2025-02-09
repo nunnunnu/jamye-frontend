@@ -28,17 +28,19 @@ export default {
     created() {
         this.isLogin = this.$cookies.get('accessToken') !== null;
         this.currentGroup = this.$cookies.get("group")
-        axios.get('/api/user/no-read', {
-            headers: {
-            Authorization: `Bearer ${this.$cookies.get('accessToken')}`
-            }
-        })
-        .then(response => {
-            this.unreadCount = response.data.data;
-        })
-        .catch(error => {
-            console.error('안 읽은 쪽지 수 가져오기 실패:', error);
-        });
+        if(this,this.isLogin) {
+          axios.get('/api/user/no-read', {
+              headers: {
+              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              }
+          })
+          .then(response => {
+              this.unreadCount = response.data.data;
+          })
+          .catch(error => {
+              console.error('안 읽은 쪽지 수 가져오기 실패:', error);
+          });
+        }
         setLoadingCallback((isLoading) => {
             this.loading = isLoading;
         });
