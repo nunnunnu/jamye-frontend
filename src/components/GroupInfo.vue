@@ -3,8 +3,11 @@
         <h2 class="title">그룹 상세 정보</h2>
         <div v-if="groupInfo!=null" class="group-container">
             <div class="group-header">
-                <img v-if="groupInfo.imageUrl == null" src="@/assets/img/file.png" alt="Group Profile" class="group-profile-img" />
-                <img v-else :src="`http://localhost:8080/api/file/${groupInfo.imageUrl}`" alt="Group Profile" class="group-profile-img" />
+                <img v-if="groupInfo.imageUrl == null" src="@/assets/img/file.png" alt="Group Profile" class="group-profile-img" @click="imagePreviewOpen"/>
+                <img v-else :src="`http://localhost:8080/api/file/${groupInfo.imageUrl}`" alt="Group Profile" class="group-profile-img" @click="imagePreviewOpen"/>
+                <div v-if="isPreviewOpen" class="preview">
+                    <image-preview-open :imageUrl = "groupInfo.imageUrl" @closePreview = closePreview></image-preview-open>
+                </div>
                 <div class="group-info">
                     <span class="group-info-name">{{ groupInfo.name }}</span>
                     <button class="btn btn-dark edit-button" v-if="groupInfo.isMaster" @click="editGroupName" data-bs-toggle="modal" data-bs-target="#editGroupInfo">수정</button>
@@ -19,7 +22,7 @@
                                     <div class="upload-container">
                                         <input type="file" id="groupProfileImageUpload" accept="image/*" @change="previewImage" style="display: none;">
                                         <label for="groupProfileImageUpload" class="upload-label group-image">
-                                            <img v-if="imageSrc != null" :src="imageSrc" alt="Image Preview" class="image-preview" />
+                                            <img v-if="imageSrc != null" :src="imageSrc" alt="Image Preview" class="image-preview"/>
                                             <img v-else-if="groupInfo != null && groupInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupInfo.imageUrl}`" class="image-preview">
                                             <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
                                         </label>
@@ -121,12 +124,14 @@ import axios from '@/js/axios';
 import LeaveGroup from './LeaveGroup.vue';
 import EditProfile from './EditProfile.vue';
 import { base64ToFile } from '@/js/fileScripts';
+import ImagePreviewOpen from './ImagePreviewOpen.vue';
 
 export default {
     name: 'groupInfo',
     components: {
         LeaveGroup,
-        EditProfile
+        EditProfile,
+        ImagePreviewOpen
     },
     data() {
         return {
@@ -137,7 +142,8 @@ export default {
             groupNickNameInfo: {},
             imageSrc: null,
             groupNewName: null,
-            groupDescript: null
+            groupDescript: null,
+            isPreviewOpen: false
         }
     },
     props: {
@@ -277,6 +283,12 @@ export default {
                 reader.readAsDataURL(file);
             }
         },
+        imagePreviewOpen() {
+            this.isPreviewOpen = true
+        },
+        closePreview() {
+            this.isPreviewOpen = false
+        }
     }
 }
 </script>

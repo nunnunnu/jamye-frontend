@@ -16,6 +16,7 @@ import LeaveGroup from '@/components/LeaveGroup.vue'
 import UserInfoEdit from '@/components/UserInfoEdit.vue'
 import EditProfile from '@/components/EditProfile.vue'
 import NotifyBox from '@/components/NotifyBox.vue'
+import ImagePreviewOpen from '@/components/ImagePreviewOpen.vue'
 const routes = [
     {
         path: "/",
@@ -109,7 +110,13 @@ const routes = [
         path: "/notify-box",
         name: "notifyBox",
         component: NotifyBox,
-    }
+    },
+    {
+        path: "/image-preview-open",
+        name: "imagePreviewOpen",
+        component: ImageBox,
+        props: true
+    },
 ]
 
 const router = createRouter({
