@@ -45,6 +45,7 @@ export default{
         } else if(group == null) {
             alert("잼얘를 조회할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
+            return
         } else {
             this.groupName = group.name
         }

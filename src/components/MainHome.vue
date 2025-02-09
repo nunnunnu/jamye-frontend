@@ -55,9 +55,10 @@
                                         </div>
                                         <router-link class="btn btn-dark custom-btn" :to="{name:'jamyeList'}">잼얘 목록</router-link>
                                 </div>
-                                <div v-if="currentGroup == null">
-                                    <button type="button" class="btn btn-dark" disabled>뽑기</button>
-                                    <button type="button" class="btn btn-dark" disabled>잼얘 넣기</button>
+                                <div v-if="currentGroup == null" class="mt-3 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-dark custom-btn" disabled>뽑기</button>
+                                    <button type="button" class="btn btn-dark custom-btn" disabled>잼얘 넣기</button>
+                                    <button class="btn btn-dark custom-btn" disabled>잼얘 목록</button>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +138,12 @@ export default {
             })
         },
         luckyDraw() {
-            var groupSeq = this.$cookies.get("group").groupSequence
+            const group = this.$cookies.get("group")
+            if(group == null) {
+                alert("잼얘를 뽑을 그룹을 먼저 선택해주세요.")
+                return
+            }
+            var groupSeq = group.groupSequence
             axios.get("/api/post/lucky-draw/" + groupSeq, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
