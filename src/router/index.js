@@ -114,7 +114,7 @@ const routes = [
     {
         path: "/image-preview-open",
         name: "imagePreviewOpen",
-        component: ImageBox,
+        component: ImagePreviewOpen,
         props: true
     },
 ]

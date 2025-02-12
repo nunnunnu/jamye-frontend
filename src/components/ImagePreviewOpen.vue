@@ -20,16 +20,16 @@ export default {
     },
     props: {
         image: {
-            type: File
+            type: File,
+            require: false,
         },
         imageUrl: {
-            type: String
+            type: String,
+            require: false,
         }
     },
     methods: {
         closePreview() {
-            this.image = null
-            this.imageUrl = null
             this.$emit("closePreview", false)
         },
     }
