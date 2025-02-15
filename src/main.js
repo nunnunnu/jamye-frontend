@@ -17,4 +17,5 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 import bootstrap from 'bootstrap'
 
-axios.defaults.baseURL="http://localhost:8080"
+axios.defaults.baseURL="http://13.124.129.247:8080"
+// axios.defaults.baseURL="http://localhost:8080"

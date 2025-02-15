@@ -1,11 +1,12 @@
 import axios from 'axios';
-import VueCookie from 'vue-cookie';
+import router from '@/router';
 
 let activeRequests = 0;
 let loadingCallback = null;
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://13.124.129.247:8080',
+  // baseURL: 'http://localhost:8080'
 });
 
 export const setLoadingCallback = (callback) => {
@@ -26,6 +27,7 @@ instance.interceptors.response.use((response) => {
   return response;
 }, async (error) => {
     activeRequests--;
+    console.log(error.response)
     if (error.response && error.response.status === 403) {
       const refreshToken = document.cookie.match('(^|;) ?' + 'refreshToken' + '=([^;]*)(;|$)')[2];
       try {
@@ -45,9 +47,18 @@ instance.interceptors.response.use((response) => {
         document.cookie = encodeURIComponent("id") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
         document.cookie = encodeURIComponent("sequence") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
         document.cookie = encodeURIComponent("group") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-
-        VueCookie.$router.push("/login")
+        
+        router.push("/login");
       }
+    } else if(error.response && error.response.data.code == 'NON_EXISTENT_USER') {
+      alert("잘못된 접근입니다. 다시 로그인해주세요")
+      document.cookie = encodeURIComponent("accessToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
+      document.cookie = encodeURIComponent("refreshToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
+      document.cookie = encodeURIComponent("id") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
+      document.cookie = encodeURIComponent("sequence") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
+      document.cookie = encodeURIComponent("group") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
+      
+      router.push("/login");
     }
     if (activeRequests === 0 && loadingCallback) loadingCallback(false); 
     return Promise.reject(error);

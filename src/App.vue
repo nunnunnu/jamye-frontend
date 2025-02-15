@@ -64,7 +64,7 @@ export default {
       },
       connectWebSocket() {
         console.log("🔹 WebSocket 연결 시도...");
-        const socket = new SockJS('http://localhost:8080/ws');  
+        const socket = new SockJS('http://13.124.129.247:8080/ws');  
         this.stompClient = Stomp.over(socket)
         const userSeq = this.$cookies.get('sequence');
         this.stompClient.connect(
