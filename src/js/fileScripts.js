@@ -1,3 +1,5 @@
+import { BASE_URL } from '@/js/config';
+
 export function base64ToFile(base64String) {
     const byteString = atob(base64String.split(',')[1]);
     const arrayBuffer = new ArrayBuffer(byteString.length);
@@ -16,4 +18,8 @@ export function base64ToFile(base64String) {
                       `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
     const randomString = Math.random().toString(36).substring(2, 7); // 랜덤 문자 5자리 생성;
     return new File([uint8Array], `${timestamp}_${randomString}.${fileType}`, { type: 'image/jpeg' }); // MIME 타입을 적절히 설정
+}
+
+export function imageUrl(url) {
+    return `${BASE_URL}/api/file/${url}`;
 }

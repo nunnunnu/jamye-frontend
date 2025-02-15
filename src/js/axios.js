@@ -1,12 +1,12 @@
 import axios from 'axios';
 import router from '@/router';
+import { BASE_URL } from '@/js/config';
 
 let activeRequests = 0;
 let loadingCallback = null;
-
+console.log(BASE_URL)
 const instance = axios.create({
-  baseURL: 'http://13.124.129.247:8080',
-  // baseURL: 'http://localhost:8080'
+  baseURL: BASE_URL
 });
 
 export const setLoadingCallback = (callback) => {

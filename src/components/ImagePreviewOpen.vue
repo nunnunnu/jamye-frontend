@@ -7,12 +7,12 @@
                 alt="Preview Image" 
                 class="large-image" 
                 />
-            <img v-else-if="imageUrl != null" :src="`http://localhost:8080/api/file/${imageUrl}`" alt="Preview Image" class="large-image" />  
+            <img v-else-if="imageUrlLink != null" :src="imageUrl(imageUrlLink)" alt="Preview Image" class="large-image" />  
         </div>
     </div>
 </template>
 <script>
-
+import { imageUrl } from '@/js/fileScripts';
 export default {
     data() {
         return {
@@ -23,12 +23,13 @@ export default {
             type: File,
             require: false,
         },
-        imageUrl: {
+        imageUrlLink: {
             type: String,
             require: false,
         }
     },
     methods: {
+        imageUrl,
         closePreview() {
             this.$emit("closePreview", false)
         },

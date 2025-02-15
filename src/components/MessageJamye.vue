@@ -132,7 +132,7 @@
                                             <img
                                                 v-for="(image, index) in msg.imageUri"
                                                 :key="index"
-                                                :src="`http://localhost:8080/api/file/${image.second}`"
+                                                :src="imageUrl(image.second)"
                                                 class="small-image"
                                                 @click="openPreview(image.second)"
                                                 alt="Uploaded Image"
@@ -173,7 +173,7 @@
                                             <img
                                                 v-for="(image, index) in msg.imageUri"
                                                 :key="index"
-                                                :src="`http://localhost:8080/api/file/${image.second}`"
+                                                :src="imageUrl(image.second)"
                                                 class="small-image"
                                                 @click="openPreview(image.second)"
                                                 alt="Uploaded Image"
@@ -248,7 +248,7 @@
                                             <img
                                                 v-for="(image, index) in msg.imageKey"
                                                 :key="index"
-                                                :src="`http://localhost:8080/api/file/${image}`"
+                                                :src="imageUrl(image)"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -291,7 +291,7 @@
                                             <img
                                                 v-for="(image, index) in msg.imageKey"
                                                 :key="index"
-                                                :src="`http://localhost:8080/api/file/${image}`"
+                                                :src="imageUrl(image)"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -330,7 +330,7 @@
                             alt="Preview Image" 
                             class="large-image" 
                             />
-                        <img v-else :src="`http://localhost:8080/api/file/${previewImage}`" alt="Preview Image" class="large-image" />  
+                        <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image" />  
                     </div>
                 </div>
     </div>    
@@ -339,7 +339,7 @@
 import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts';
-
+import { imageUrl } from '@/js/fileScripts';
 export default {
     components: {
         ImageBox
@@ -398,6 +398,7 @@ export default {
 
     },
     methods: {
+        imageUrl,
         editMode() {
             this.isEditing = {}
         },

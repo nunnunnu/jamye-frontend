@@ -4,7 +4,7 @@
         <div v-if="groupInfo!=null" class="group-container">
             <div class="group-header">
                 <img v-if="groupInfo.imageUrl == null" src="@/assets/img/file.png" alt="Group Profile" class="group-profile-img" @click="imagePreviewOpen"/>
-                <img v-else :src="`http://localhost:8080/api/file/${groupInfo.imageUrl}`" alt="Group Profile" class="group-profile-img" @click="imagePreviewOpen"/>
+                <img v-else :src="imageUrl(groupInfo.imageUrl)" alt="Group Profile" class="group-profile-img" @click="imagePreviewOpen"/>
                 <div v-if="isPreviewOpen" class="preview">
                     <image-preview-open :imageUrl = "groupInfo.imageUrl" @closePreview = closePreview></image-preview-open>
                 </div>
@@ -23,7 +23,7 @@
                                         <input type="file" id="groupProfileImageUpload" accept="image/*" @change="previewImage" style="display: none;">
                                         <label for="groupProfileImageUpload" class="upload-label group-image">
                                             <img v-if="imageSrc != null" :src="imageSrc" alt="Image Preview" class="image-preview"/>
-                                            <img v-else-if="groupInfo != null && groupInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupInfo.imageUrl}`" class="image-preview">
+                                            <img v-else-if="groupInfo != null && groupInfo.imageUrl!=null" :src="imageUrl(groupInfo.imageUrl)" class="image-preview">
                                             <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
                                         </label>
                                     </div>
@@ -48,7 +48,7 @@
             <div class="user-list">
                 <div class="user-item" v-for="user in groupInfo.users" :key="user.userSequence">
                     <img v-if="user.imageUrl == null" src="@/assets/img/file.png" alt="User Profile" class="user-profile-img" />
-                    <img v-else :src="`http://localhost:8080/api/file/${user.imageUrl}`" alt="Group Profile" class="group-profile-img" />
+                    <img v-else :src="imageUrl(user.imageUrl)" alt="Group Profile" class="group-profile-img" />
                     <div class="user-info">
                         <span class="user-name">
                             {{ user.nickname }}
@@ -125,6 +125,7 @@ import LeaveGroup from './LeaveGroup.vue';
 import EditProfile from './EditProfile.vue';
 import { base64ToFile } from '@/js/fileScripts';
 import ImagePreviewOpen from './ImagePreviewOpen.vue';
+import { imageUrl } from '@/js/fileScripts';
 
 export default {
     name: 'groupInfo',
@@ -174,6 +175,7 @@ export default {
             })
     },
     methods: {
+        imageUrl,
         deleteGroupVote() {
             axios.delete("/api/group/"+this.seq, {
                 headers: {

@@ -12,7 +12,7 @@
                             <input type="file" id="profileImageUpload" accept="image/*" @change="previewImage" style="display: none;">
                             <label for="profileImageUpload" class="upload-label group-image">
                             <img v-if="imageSrc != null" :src="imageSrc" alt="profile Preview" class="profile-preview" />
-                            <img v-else-if="groupNickNameInfo != null && groupNickNameInfo.imageUrl!=null" :src="`http://localhost:8080/api/file/${groupNickNameInfo.imageUrl}`" class="image-preview">
+                            <img v-else-if="groupNickNameInfo != null && groupNickNameInfo.imageUrl!=null" :src="imageUrl(groupNickNameInfo.imageUrl)" class="image-preview">
                             <img v-else src="@/assets/img/file.png" class="img-thumbnail" alt="user In Group Image">
                         </label>
                         </div>
@@ -35,6 +35,7 @@
 </template>
 <script>
 import axios from '@/js/axios';
+import { imageUrl } from '@/js/fileScripts';
 export default{
     props: {
         selectGroup: {
@@ -106,7 +107,8 @@ export default{
                 alert(error.response.data.message)
             });
             this.newNickName = null
-        }
+        },
+        imageUrl
     }
 }
 </script>

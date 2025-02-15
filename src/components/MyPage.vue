@@ -42,7 +42,7 @@
                     <div class="group-info-box" v-for="group in groups" :key="group.groupSequence" >
                         <div class="group-image">
                             <img v-if="group == null || group.imageUrl == null" src="@/assets/img/file.png" class="img-thumbnail" alt="..." />
-                            <img v-else :src="`http://localhost:8080/api/file/${group.imageUrl}`" class="img-thumbnail" alt="Group Image" />
+                            <img v-else :src="imageUrl(group.imageUrl)" class="img-thumbnail" alt="Group Image" />
                         </div>
                         <div class="group-details">
                             <span class="group-name">{{ group.name }}</span>
@@ -67,6 +67,7 @@
 import axios from '@/js/axios';
 import LeaveGroup from './LeaveGroup.vue';
 import EditProfile from './EditProfile.vue';
+import { imageUrl } from '@/js/fileScripts';
 export default {
     components: {
         LeaveGroup,
@@ -97,6 +98,7 @@ export default {
         this.loadMyGroupList()
     },
     methods: {
+        imageUrl,
         logout() {
             this.$cookies.remove("accessToken")
             this.$cookies.remove("refreshToken")
