@@ -14,6 +14,7 @@ import { setLoadingCallback } from '@/js/axios'
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import axios from '@/js/axios';
+import { BASE_URL } from './js/config';
 
 export default {
   name: 'App',
@@ -64,7 +65,7 @@ export default {
       },
       connectWebSocket() {
         console.log("🔹 WebSocket 연결 시도...");
-        const socket = new SockJS('http://13.124.129.247:8080/ws');  
+        const socket = new SockJS(BASE_URL + '/ws');  
         this.stompClient = Stomp.over(socket)
         const userSeq = this.$cookies.get('sequence');
         this.stompClient.connect(
