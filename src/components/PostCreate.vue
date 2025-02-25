@@ -104,6 +104,10 @@ export default {
                 }  
                 return
             }
+            if (this.postContent && this.postContent.toString() === String.toString()) {
+                alert("게시글 내용을 입력해주세요")
+                return;
+            }
             const formdata = new FormData()
             Object.entries(this.imageMap).forEach(([key, value]) => {
                 if (value instanceof File) {

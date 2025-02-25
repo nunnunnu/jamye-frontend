@@ -20,7 +20,7 @@
                         <!-- 그룹 정보 확인 -->
                         <div class="upload-container">
                             <label for="profileImageUpload" class="upload-label">
-                                <img v-if="groupInfo.imageUrl != null" :src="groupInfo.imageUrl" alt="Image Preview" class="image-preview" />
+                                <img v-if="groupInfo.imageUrl != null" :src="imageUrl(groupInfo.imageUrl)" alt="Image Preview" class="image-preview" />
                                 <!-- <span v-else class="upload-icon">+</span> -->
                             </label>
                         </div>
@@ -67,6 +67,7 @@
 <script>
 import axios from '@/js/axios';
 import { Modal } from 'bootstrap';
+import { imageUrl } from '@/js/fileScripts';
 export default {
     data() {
         return {
@@ -82,6 +83,7 @@ export default {
         }
     },
     methods: {
+        imageUrl,
         nextOne() {
             if(this.inviteCode == '' || this.inviteCode == null || this.inviteCode == undefined) {
                 alert("그룹 명을 입력하지않으셨습니다.")
