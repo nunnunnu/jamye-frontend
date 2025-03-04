@@ -245,4 +245,9 @@ export default {
 .group-info-box {
     cursor: pointer;
 }
+
+.delete-btn {
+    color: white;
+    border-radius: 10px;
+}
 </style>
