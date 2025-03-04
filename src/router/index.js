@@ -17,7 +17,7 @@ import UserInfoEdit from '@/components/UserInfoEdit.vue'
 import EditProfile from '@/components/EditProfile.vue'
 import NotifyBox from '@/components/NotifyBox.vue'
 import ImagePreviewOpen from '@/components/ImagePreviewOpen.vue'
-import Comment from '@/components/Comment.vue'
+import CommentList from '@/components/CommentList.vue'
 const routes = [
     {
         path: "/",
@@ -119,9 +119,9 @@ const routes = [
         props: true
     },
     {
-        path: "/comment:postSeq",
-        name: "comment",
-        component: Comment,
+        path: "/comment-list:postSeq",
+        name: "comment-list",
+        component: CommentList,
         props: true
     }
 ]

@@ -338,7 +338,7 @@
                         <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image" />  
                     </div>
                 </div>
-                <comment class="comment" :postSeq= "postSeq"></comment>
+                <comment-list class="comment" :postSeq= "postSeq"></comment-list>
     </div>    
 </template>
 <script>
@@ -346,11 +346,11 @@ import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts';
 import { imageUrl } from '@/js/fileScripts';
-import Comment from './Comment.vue'
+import CommentList from './CommentList.vue'
 export default {
     components: {
         ImageBox,
-        Comment
+        CommentList
     },
     data() {
         return {
