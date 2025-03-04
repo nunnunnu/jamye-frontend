@@ -6,8 +6,9 @@
         <button v-else class="btn btn-dark notifyBox" disabled>모두 읽기</button>
         <button class="btn btn-dark notifyBox" @click="allReadNotifyDelete">읽은 쪽지 삭제</button>
             <div v-for="notify in notifyList" :key="notify.notifySeq" class="message-item">
+                <button class="close-btn" @click="deleteNotify(notify.notifySeq)">✖</button>
                 <button v-if="notify.isRead" class="btn btn-dark read-button btn-sm" disabled>읽기</button>
-                <button v-else class="btn btn-dark read-button btn-sm" @click="readNotify(notify)">읽기</button>
+                <button v-else class="btn btn-dark read-button btn-sm" @click="readNotify(notify.notifySeq)">읽기</button>
                 <div class="message-content">{{ notify.message }}</div>
                 <div class="message-date">{{ notify.createDate }}</div>
                 <div class="action-buttons">
@@ -38,12 +39,15 @@ export default {
                     }
             }).then(r => {
                 this.notifyList = r.data.data
-                console.log("??")
-                this.notifyList.forEach(element => {
-                    if(!element.isRead) {
-                        this.isNoRead = true
-                    }
-                });
+                if(this.notifyList.length == 0) {
+                    this.isNoRead = false
+                } else {
+                    this.notifyList.forEach(element => {
+                        if(!element.isRead) {
+                            this.isNoRead = true
+                        }
+                    }); 
+                }
             })
         },
         readNotify(notify) {
@@ -92,6 +96,15 @@ export default {
                 .then(() => {
                     this.getNotiftList()
                 })
+        },
+        deleteNotify(notifySeq) {
+            axios.delete("/api/user/notify/delete/" + notifySeq, {}, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                }})
+                .then(() => {
+                    this.getNotiftList()
+                })
         }
     }
 }
@@ -110,6 +123,7 @@ export default {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
+  position: relative; /* 자식의 absolute 위치를 기준으로 함 */
 }
 
 .message-content {
@@ -122,7 +136,20 @@ export default {
   color: #666;
   text-align: center;
 }
-
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #090909;
+  outline: none;
+}
+.close-btn:hover {
+  color: #333;
+}
 .action-buttons {
   display: flex;
   flex-direction: column;
