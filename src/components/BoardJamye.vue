@@ -1,6 +1,11 @@
 <template>
     <div class="b-container">
-        <h1 class="title">{{ board.title }}</h1>
+        <div v-if="isEditing">
+            <input class="title" type="text" v-model="board.title" style="width: 100%;">
+        </div>
+        <div v-else>
+            <h1 class="title">{{ board.title }}</h1>
+        </div>
         <div class="create-user">작성자: {{ board.createdUserNickName }}</div>
         <div class="editModeOpen" v-if="!isEditing && board.createdUserSequence == $cookies.get('sequence')">
             <button @click="editMode" class="btn btn-dark">수정하기</button>
@@ -35,7 +40,7 @@ export default {
     data() {
         return {
             board: {},
-            isEditing: null,
+            isEditing: false,
             previewImage: null,
             isPreviewOpen: false,
             imageMap: {},
@@ -107,6 +112,7 @@ export default {
             });
             const groupSeq = this.$cookies.get("group").groupSequence;
             const data = {
+                title: this.board.title,
                 content: tempContent
             }
 
