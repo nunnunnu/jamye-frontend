@@ -338,6 +338,7 @@
                         <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image" />  
                     </div>
                 </div>
+                <comment class="comment" :postSeq= "postSeq"></comment>
     </div>    
 </template>
 <script>
@@ -345,9 +346,11 @@ import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts';
 import { imageUrl } from '@/js/fileScripts';
+import Comment from './Comment.vue'
 export default {
     components: {
-        ImageBox
+        ImageBox,
+        Comment
     },
     data() {
         return {
@@ -1062,5 +1065,8 @@ export default {
     font-size: 12px; 
     cursor: pointer;
     transition: opacity 0.2s ease-in-out;
+}
+.card-body {
+    margin-bottom: 10px;
 }
 </style>

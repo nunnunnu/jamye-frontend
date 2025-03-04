@@ -26,16 +26,19 @@
             placeholder="게시글 내용을 입력하세요..."
             ></div>
         </div>
+        <comment class="comment" :postSeq= "postSeq"></comment>
     </div>    
 </template>
 <script>
 import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
+import Comment from './Comment.vue'
 import { base64ToFile } from '@/js/fileScripts';
 
 export default {
     components: {
-        ImageBox
+        ImageBox,
+        Comment
     },
     data() {
         return {
@@ -207,9 +210,20 @@ export default {
 .post-container-view {
     border: 1px solid #ccc;
     border-radius: 5px;
-    padding: 5px
+    padding: 5px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    height: 400px;
 }
 .post-container {
     margin-top: 10px;
+    max-height: 500px;
+    max-height: 400px;
+    overflow-y: auto;
 }
+.comment {
+    margin-top: 10px;
+}
+
 </style>

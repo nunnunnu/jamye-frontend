@@ -3,8 +3,8 @@
         <div class="title">쪽지함</div>
         <div class="descript">모든 알람은 한달 뒤 삭제됩니다</div>
         <button v-if="isNoRead" class="btn btn-dark notifyBox" @click="allNotifyRead">모두 읽기</button>
-        <button v-if="isNoRead" class="btn btn-dark" @click="allReadNotifyDelete">읽은 쪽지 삭제</button>
-        <button v-else class="btn btn-dark" disabled>모두 읽기</button>
+        <button v-else class="btn btn-dark notifyBox" disabled>모두 읽기</button>
+        <button class="btn btn-dark notifyBox" @click="allReadNotifyDelete">읽은 쪽지 삭제</button>
             <div v-for="notify in notifyList" :key="notify.notifySeq" class="message-item">
                 <button v-if="notify.isRead" class="btn btn-dark read-button btn-sm" disabled>읽기</button>
                 <button v-else class="btn btn-dark read-button btn-sm" @click="readNotify(notify)">읽기</button>
@@ -15,6 +15,7 @@
                     <button v-if="notify.postSeq != null" class="btn btn-dark post-button btn-sm" @click="goToPost(notify.groupSeq, notify.postSeq)">게시글 가기</button>
                 </div>
             </div>
+            <div v-if="notifyList.length == 0"></div>
     </div>
 </template>
 <script>

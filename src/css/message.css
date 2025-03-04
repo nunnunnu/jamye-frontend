@@ -10,6 +10,8 @@
 
 .chat-room {
     overflow: hidden;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
 .chat-room p::before,

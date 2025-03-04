@@ -17,6 +17,7 @@ import UserInfoEdit from '@/components/UserInfoEdit.vue'
 import EditProfile from '@/components/EditProfile.vue'
 import NotifyBox from '@/components/NotifyBox.vue'
 import ImagePreviewOpen from '@/components/ImagePreviewOpen.vue'
+import Comment from '@/components/Comment.vue'
 const routes = [
     {
         path: "/",
@@ -117,6 +118,12 @@ const routes = [
         component: ImagePreviewOpen,
         props: true
     },
+    {
+        path: "/comment:postSeq",
+        name: "comment",
+        component: Comment,
+        props: true
+    }
 ]
 
 const router = createRouter({
