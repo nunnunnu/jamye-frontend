@@ -1,7 +1,9 @@
 <template>
     <div class="b-container">
         <div class="title">쪽지함</div>
-        <button v-if="isNoRead" class="btn btn-dark" @click="allNotifyRead">모두 읽기</button>
+        <div class="descript">모든 알람은 한달 뒤 삭제됩니다</div>
+        <button v-if="isNoRead" class="btn btn-dark notifyBox" @click="allNotifyRead">모두 읽기</button>
+        <button v-if="isNoRead" class="btn btn-dark" @click="allReadNotifyDelete">읽은 쪽지 삭제</button>
         <button v-else class="btn btn-dark" disabled>모두 읽기</button>
             <div v-for="notify in notifyList" :key="notify.notifySeq" class="message-item">
                 <button v-if="notify.isRead" class="btn btn-dark read-button btn-sm" disabled>읽기</button>
@@ -71,7 +73,6 @@ export default {
             this.$router.push("/post" + postSeq)
         },
         allNotifyRead() {
-            console.log("!!")
             axios.post("/api/user/notify/read/all", {}, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken'),
@@ -81,6 +82,15 @@ export default {
                     this.getNotiftList()
                 })
             
+        },
+        allReadNotifyDelete() {
+            axios.delete("/api/user/notify/read/delete", {}, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                }})
+                .then(() => {
+                    this.getNotiftList()
+                })
         }
     }
 }
@@ -116,5 +126,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+.descript {
+    margin-bottom: 10px;
+}
+.notifyBox{
+    margin-right: 10px
 }
 </style>
