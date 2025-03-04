@@ -54,13 +54,13 @@ export default {
     },
     created() {
         if (!this.isLogin) {
-            alert("로그인 후 접근 가능한 페이지입니다.");
-            this.$router.go("/");
+            this.$toastr.warning('로그인 후 접속가능한 페이지입니다.');
+            this.$router.push("/login");
             return;
         }
         this.loadMyGroupList();
         if(this.groups == 0) {
-            alert("소속된 그룹이 없습니다. 그룹 생성 페이지로 이동합니다.")
+            this.$toastr.warning("소속된 그룹이 없습니다. 그룹 생성 페이지로 이동합니다.")
             this.$router.push("/add")
         }
     },

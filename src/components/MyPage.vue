@@ -90,7 +90,7 @@ export default {
     },
     created() {
         if(!this.isLogin) {
-            alert("로그인 후 접속가능한 페이지입니다.")
+            this.$toastr.warning('로그인 후 접속가능한 페이지입니다.');
             this.$router.push("/login")
             return
         }
@@ -136,7 +136,7 @@ export default {
         },
         deleteUser() {
             if(this.passwordCheck == null) {
-                alert("비밀번호를 먼저 입력해주세요")
+                this.$toastr.warning("비밀번호를 먼저 입력해주세요")
             }
             axios.post("/api/user", {
                 password: this.passwordCheck
@@ -145,14 +145,14 @@ export default {
                     Authorization: `Bearer `+this.$cookies.get('accessToken'),
                 }
             }).then(() => {
-                alert("탈퇴되었습니다.")
+                this.$toastr.success("탈퇴되었습니다.")
                 this.$cookies.keys().forEach(cookie => {
                     this.$cookies.remove(cookie);
                 });
                 this.$emit('isLoginChange', false)
                 this.$router.push("/")
             }).catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
             })
         },
         moveGroup(seq) {

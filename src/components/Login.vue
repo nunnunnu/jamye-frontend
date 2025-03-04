@@ -42,7 +42,7 @@
         },
         created() {
             if(this.$cookies.get("accessToken")!=null){
-                alert("이미 로그인되었습니다.")
+                this.$toastr.warning("이미 로그인되었습니다.")
                 this.$router.go(-1);
             }
             if(this.$cookies.get("saveId") !==null) {
@@ -54,7 +54,7 @@
         methods: {
             submitForm() {
                 if (this.id == null || this.id === undefined || this.pwd == null || this.pwd === undefined) {
-                    alert("아이디 혹은 비밀번호를 입력하지 않으셨습니다.");
+                    this.$toastr.warning("아이디 혹은 비밀번호를 입력하지 않으셨습니다.");
                 } else {
                     const param = {
                         id: this.id,
@@ -67,7 +67,7 @@
                             const refreshToken = token.refreshToken; 
 
                             if (!accessToken || !refreshToken) {
-                                alert("토큰을 받아오는 데 실패했습니다.");
+                                this.$toastr.warning("토큰을 받아오는 데 실패했습니다.");
                                 return;
                             }
 
@@ -92,11 +92,11 @@
                         })
                         .catch(error => {
                             if (error.response) {
-                                alert(error.response.data.message);
+                                this.$toastr.error(error.response.data.message);
                                 this.id = this.$cookies.get("saveId")
                                 this.pwd = null
                             } else {
-                                alert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
+                                this.$toastr.warning("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
                             }
                         });
                 }

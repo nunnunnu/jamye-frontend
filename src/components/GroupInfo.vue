@@ -155,7 +155,7 @@ export default {
     },
     created() {
         if(!this.isLogin) {
-            alert("로그인 후 접속가능한 페이지입니다.")
+            this.$toastr.warning('로그인 후 접속가능한 페이지입니다.');
             this.$router.push("/login")
             return
         }
@@ -170,7 +170,7 @@ export default {
                 this.groupNewName = this.groupInfo.name
                 this.groupDescript = this.groupInfo.description
             }).catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
                 this.$router.push("/groups")
             })
     },
@@ -184,17 +184,17 @@ export default {
             })
             .then(r => {
                 if(r.data.data) {
-                    alert("그룹이 삭제 완료되었습니다")
+                    this.$toastr.success("그룹이 삭제 완료되었습니다")
                     if(this.$cookies.get("group").groupSequence == this.seq) {
                         this.$cookies.remove("group")
                     }
                     this.$router.push("groups")
                 } else {
-                    alert("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")
+                    this.$toastr.success("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")
                 }
             })
             .catch(e=> {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
             })
         },
         getInviteCode() {
@@ -207,7 +207,7 @@ export default {
                 this.inviteCode = r.data.data    
             })
             .catch(e => {
-                alert(e.response.data.message + ": 잠시 후 다시 시도해주세요.")
+                this.$toastr.error(e.response.data.message + ": 잠시 후 다시 시도해주세요.")
             })
             
         },
@@ -239,13 +239,13 @@ export default {
             .then(r => {
                 this.groupInfo = r.data.data
             }).catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
                 this.$router.push("/groups")
             })
         },
         updateGroupInfo() {
             if(this.groupNewName == null) {
-                alert("그룹 명은 비워둘 수 없습니다.")
+                this.$toastr.warning("그룹 명은 비워둘 수 없습니다.")
             }
             const formdata = new FormData()
             const data = {

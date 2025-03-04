@@ -72,7 +72,7 @@ export default ({
     created() {
         if(this.isLogin) {
             this.$router.push("/")
-            alert("이미 로그인중입니다.")
+            this.$toastr.warning("이미 로그인중입니다.")
         }
     },
     watch: {
@@ -108,20 +108,20 @@ export default ({
     methods: {
         signup() {
             if(!this.verifcationSuccess | this.idIsDuplicate || this.emailIsDuplicate || this.passwordConfirmError) {
-                alert("모든 인증을 성공한 후 회원가입이 가능합니다.")
+                this.$toastr.warning("모든 인증을 성공한 후 회원가입이 가능합니다.")
             } else {
                 axios.post("/api/user/join", {
                     "id":this.userId,
                     "password": this.password,
                     "email":this.email
                 })
-                alert("회원가입이 완료되었습니다.")
+                this.$toastr.success("회원가입이 완료되었습니다.")
                 this.$router.push("/")
             }
         },
         idCheck(){
             if(this.userId==undefined || this.userId == null || this.userId=="" || this.userId==" "){
-                alert("아이디를 입력하지않으셨습니다")
+                this.$toastr.warning("아이디를 입력하지않으셨습니다")
             }else{
                 axios.get("/api/user/check/id/"+this.userId)
                 .then((e) => {
@@ -135,11 +135,11 @@ export default ({
         },
         emailCheck(){
             if(this.email==undefined || this.email == null || this.email=="" || this.email==" "){
-                alert("이메일을 입력하지않으셨습니다")
+                this.$toastr.warning("이메일을 입력하지않으셨습니다")
             } else if(this.emailConfirmError) {
-                alert("이메일 형식이 올바르지 않습니다.")
+                this.$toastr.warning("이메일 형식이 올바르지 않습니다.")
             } else if(this.verifcationSuccess) {
-                alert("이미 이메일 인증이 완료되었습니다.")
+                this.$toastr.warning("이미 이메일 인증이 완료되었습니다.")
             } else {
                 axios.get("/api/user/check/email/"+this.email)
                 .then((e) => {
@@ -155,11 +155,11 @@ export default ({
         },
         sendVerification() {
             if(this.verificationCode == null) {
-                alert("인증코드를 입력하지않으셨습니다.")
+                this.$toastr.warning("인증코드를 입력하지않으셨습니다.")
             } else if(this.emailConfirmError || this.emailIsDuplicate) {
-                alert("이메일 검증을 먼저 진행해주세요.")
+                this.$toastr.warning("이메일 검증을 먼저 진행해주세요.")
             } else if(this.verifcationSuccess) {
-                alert("이미 인증을 완료하셨습니다.")
+                this.$toastr.warning("이미 인증을 완료하셨습니다.")
             }else {
                 axios.post("/api/email/verify", {
                 "email": this.email,

@@ -51,7 +51,7 @@ instance.interceptors.response.use((response) => {
         router.push("/login");
       }
     } else if(error.response && error.response.data.code == 'NON_EXISTENT_USER') {
-      alert("잘못된 접근입니다. 다시 로그인해주세요")
+      this.$toastr.error("잘못된 접근입니다. 다시 로그인해주세요")
       document.cookie = encodeURIComponent("accessToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
       document.cookie = encodeURIComponent("refreshToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
       document.cookie = encodeURIComponent("id") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';

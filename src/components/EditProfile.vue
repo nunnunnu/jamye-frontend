@@ -86,7 +86,7 @@ export default{
         updateUserInGroupInfo() {
             console.log("aa")
             if(this.newNickName == null) {
-                alert("변경할 닉네임을 입력해주세요")
+                this.$toastr.warning("변경할 닉네임을 입력해주세요")
                 return
             }
             const formData = new FormData();
@@ -104,7 +104,7 @@ export default{
                 this.$emit("resetGroup")
             })
             .catch(error => {
-                alert(error.response.data.message)
+                this.$toastr.error(error.response.data.message)
             });
             this.newNickName = null
         },

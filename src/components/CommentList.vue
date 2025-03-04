@@ -54,7 +54,7 @@ export default {
         this.userSeq = this.$cookies.get('sequence');
         var group = this.$cookies.get("group")
         if(group == null) {
-            alert("그룹을 먼저 선택해주세요")
+            this.$toastr.warning("그룹을 먼저 선택해주세요")
             this.$router.push("/")
             return
         }
@@ -73,7 +73,7 @@ export default {
         },
         createComment() {
             if(this.comment == null || this.comment.trim() === '') {
-                alert("댓글을 먼저 입력해주세요")
+                this.$toastr.warning("댓글을 먼저 입력해주세요")
                 return
             }
             axios.post(`/api/comment/${this.groupSeq}/${this.postSeq}`, {

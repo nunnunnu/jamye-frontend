@@ -68,10 +68,10 @@ export default {
     created() {
         var group = this.$cookies.get("group")
         if(!this.isLogin) {
-            alert("로그인 후 게시글 작성이 가능합니다.")
+            this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
         } else if(group == null) {
-            alert("메세지를 작성할 그룹을 먼저 선택해주세요")
+            this.$toastr.warning("메세지를 작성할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
         } else {
             axios.get(`/api/post/${group.groupSequence}/${this.postSeq}`, {

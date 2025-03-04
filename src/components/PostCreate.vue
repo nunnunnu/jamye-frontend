@@ -48,10 +48,10 @@ export default {
     created() {
         var group = this.$cookies.get("group")
         if(!this.isLogin) {
-            alert("로그인 후 게시글 작성이 가능합니다.")
+            this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
         } else if(group == null) {
-            alert("게시글을 작성할 그룹을 먼저 선택해주세요")
+            this.$toastr.warning("게시글을 작성할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
         } else {
             this.groupName = group.name
@@ -97,7 +97,7 @@ export default {
         },
         createPost() {
             if(this.postTitle == null) {
-                alert("게시글 제목을 입력해주세요")
+                this.$toastr.warning("게시글 제목을 입력해주세요")
                 const title = document.getElementById("post-title")          
                 if(title) {
                     title.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -105,7 +105,7 @@ export default {
                 return
             }
             if (this.postContent && this.postContent.toString() === String.toString()) {
-                alert("게시글 내용을 입력해주세요")
+                this.$toastr.warning("게시글 내용을 입력해주세요")
                 return;
             }
             const formdata = new FormData()

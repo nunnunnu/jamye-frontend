@@ -69,14 +69,14 @@ export default {
     methods: {
         next() {
             if(this.groupName == '' || this.groupName == null || this.groupName == undefined) {
-                alert("그룹 명을 입력하지않으셨습니다.")
+                this.$toastr.warning("그룹 명을 입력하지않으셨습니다.")
                 return
             }
             this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
         },
         create() {
             if(this.nickname == '' || this.nickname == null || this.nickname == undefined) {
-                alert("닉네임을 입력하지않으셨습니다.")
+                this.$toastr.warning("닉네임을 입력하지않으셨습니다.")
                 return
             }
             
@@ -104,7 +104,7 @@ export default {
                 const modalInstance = Modal.getInstance(document.getElementById('exampleModal1'))
                 if (modalInstance) modalInstance.hide()
                 this.modalClose()
-                alert("생성 완료!");
+                this.$toastr.success("생성 완료!");
                 this.$router.push("/groups")
             })
             

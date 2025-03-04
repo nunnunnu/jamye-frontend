@@ -132,7 +132,7 @@ export default {
             });
 
             if (usedImages.length > 0) {
-                alert("선택한 이미지 중 사용 중인 이미지가 있어 삭제할 수 없습니다.");
+                this.$toastr.error("선택한 이미지 중 사용 중인 이미지가 있어 삭제할 수 없습니다.");
                 return;
             }
             this.selectedImages.forEach((key) => {

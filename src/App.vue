@@ -144,4 +144,13 @@ export default {
     transform: rotate(360deg);
   }
 }
+
+#toast-container > .toast-warning {
+  background-color: #f6ffa2 !important; /* 노란색 배경 */
+  color: #000 !important;               /* 검은색 글씨 */
+}
+#toast-container > .toast-success {
+  background-color: #cbfcd1 !important; /* 노란색 배경 */
+  color: #000 !important;               /* 검은색 글씨 */
+}
 </style>

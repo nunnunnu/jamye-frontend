@@ -327,10 +327,10 @@ export default {
     created() {
         var group = this.$cookies.get("group")
         if(!this.isLogin) {
-            alert("로그인 후 게시글 작성이 가능합니다.")
+            this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
         } else if(group == null) {
-            alert("메세지를 작성할 그룹을 먼저 선택해주세요")
+            this.$toastr.warning("메세지를 작성할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
         } else {
             this.groupName = group.name
@@ -339,7 +339,7 @@ export default {
     methods: {
         nicknameAdd() {
             if(this.nickname == null) {
-                alert("프로필 이름을 먼저 입력해주세요")
+                this.$toastr.warning("프로필 이름을 먼저 입력해주세요")
                 return
             }
             this.nicknames.push(this.nickname)
@@ -352,7 +352,7 @@ export default {
         },
         messageListGet() {
             if(this.messageImage == null) {
-                alert("메세지 변환할 이미지를 첨부해주세요")
+                this.$toastr.warning("메세지 변환할 이미지를 첨부해주세요")
                 return
             }
             const formdata = new FormData()
@@ -375,7 +375,7 @@ export default {
                 
             })
             .catch(e => {
-                alert(e.data.message)
+                this.$toastr.error(e.data.message)
             })
         },
         messageImageChange(event){
@@ -727,7 +727,7 @@ export default {
         },
         createPost() {
             if(this.postTitle == null) {
-                alert("게시글 제목을 입력해주세요")
+                this.$toastr.warning("게시글 제목을 입력해주세요")
                 const title = document.getElementById("post-title")          
                 if(title) {
                     title.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -796,7 +796,7 @@ export default {
         // 답장 대상 저장
         saveReplyTarget() {
             if(this.selectedReplyKey == null || this.selectedReplySeq == null) {
-                alert("연결할 메세지를 선택해주세요")
+                this.$toastr.warning("연결할 메세지를 선택해주세요")
                 return
             }
 

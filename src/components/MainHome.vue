@@ -140,7 +140,7 @@ export default {
         luckyDraw() {
             const group = this.$cookies.get("group")
             if(group == null) {
-                alert("잼얘를 뽑을 그룹을 먼저 선택해주세요.")
+                this.$toastr.warning("잼얘를 뽑을 그룹을 먼저 선택해주세요.")
                 return
             }
             var groupSeq = group.groupSequence
@@ -156,7 +156,7 @@ export default {
                     this.$router.push("/jamye/board" + postInfo.postSequence)
                 }
             }).catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
             })
         }
     },

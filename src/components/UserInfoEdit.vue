@@ -45,7 +45,7 @@ export default {
     },
     created() {
         if(!this.isLogin) {
-            alert("로그인 후 접속가능한 페이지입니다.")
+            this.$toastr.warning('로그인 후 접속가능한 페이지입니다.');
             this.$router.push("/login")
             return
         }
@@ -60,7 +60,7 @@ export default {
     methods: {
         passwordCheck() {
             if(this.originPassword == null) {
-                alert("비밀번호를 입력해주세요")
+                this.$toastr.warning("비밀번호를 입력해주세요")
                 return
             }
             axios.post("/api/user/password/check", {
@@ -72,13 +72,13 @@ export default {
                 this.passwordChecked = true
             })
             .catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
             })
             
         },
         changePassword() {
             if(this.newPassword == null) {
-                alert("변경할 비밀번호를 입력해주세요")
+                this.$toastr.warning("변경할 비밀번호를 입력해주세요")
                 return
             }
             axios.patch("/api/user", {
@@ -88,10 +88,10 @@ export default {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken'),
             }}).then(() => {
-                alert("비밀번호 변경 성공")
+                this.$toastr.success("비밀번호 변경 성공")
                 this.$router.push("/")
             }).catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
             })
         }
     },

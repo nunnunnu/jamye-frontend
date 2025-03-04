@@ -86,7 +86,7 @@ export default {
         imageUrl,
         nextOne() {
             if(this.inviteCode == '' || this.inviteCode == null || this.inviteCode == undefined) {
-                alert("그룹 명을 입력하지않으셨습니다.")
+                this.$toastr.warning("그룹 명을 입력하지않으셨습니다.")
                 return
             }
             axios.get("/api/group/group-info/"+this.inviteCode, {
@@ -99,7 +99,7 @@ export default {
                 this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
             })
             .catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
             })
             
         },
@@ -144,7 +144,7 @@ export default {
         },
         create() {
             if(this.nickname == null) {
-                alert("가입할 그룹에서 사용할 프로필을 작성해주세요")
+                this.$toastr.warning("가입할 그룹에서 사용할 프로필을 작성해주세요")
                 return
             }
             axios.post("/api/group/invite", {
@@ -163,7 +163,7 @@ export default {
                 
                 this.$router.push("/groups")
             }).catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
             })
         },
         nickNameCheck() {
@@ -174,7 +174,7 @@ export default {
             }).then(() => {
                 this.nickNameDupCheck = true
             }).catch(e => {
-                alert(e.response.data.message)
+                this.$toastr.error(e.response.data.message)
             })
         }
     }

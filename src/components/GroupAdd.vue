@@ -37,7 +37,7 @@ export default {
     },
     created() {
         if (!this.isLogin) {
-            alert("로그인 후 접근 가능한 페이지입니다.");
+            this.$toastr.warning("로그인 후 접근 가능한 페이지입니다.");
             this.$router.go("/");
             return;
         }
