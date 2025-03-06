@@ -1058,10 +1058,11 @@ export default {
         deleteText() {
             for(let [, value] of Object.entries(this.messageResponse)) {
                 value.message.forEach(text => {
-                    const changeText = text.message.replace(this.removeText, '')
+                    const changeText = text.message.replaceAll(this.removeText, '')
                     text.message = changeText
                 })
             }
+            this.removeText = null
         }
     }
 }
