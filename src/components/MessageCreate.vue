@@ -92,7 +92,7 @@
                         <div v-for="[key, text] in Object.entries(messageResponse)" :key="key">                                                                        
                             <!-- 내 매세지 -->
                             <div v-if="text.myMessage" class="chat-message mt-3">
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(msg)"   :id="'message-' + key + '_' + msg.seq" >
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(key, msg)"   :id="'message-' + key + '_' + msg.seq" >
                                     <div class="info-container">
                                         <div class="button-container">
                                             <button class="circle-btn add" @click="addEmptyMessage(key, msg.seq)">
@@ -121,7 +121,8 @@
                                     </div>
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key)">
                                         <template v-if="msg.isReply">
-                                            <input class="reply-header" v-model="msg.replyTo"><br />
+                                            <!-- <input class="reply-header" v-model="msg.replyTo"><br /> -->
+                                             <span>답장</span><br>
                                             <input class="reply-message" v-model="msg.replyMessage">
                                             <hr />
                                         </template>
@@ -154,7 +155,7 @@
                                             >
                                             🔗
                                             </button>
-                                            <span class="reply-header">{{ msg.replyTo }}</span><br />
+                                            <span class="reply-header">답장</span><br />
                                             <span class="reply-message">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
@@ -213,10 +214,10 @@
                                     </div>
                                 </div>
                                 
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(msg)">
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(key, msg)">
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
-                                            <input class="reply-header-them" v-model="msg.replyTo"><br />
+                                            <span>답장</span><br>
                                             <input class="reply-message-them" v-model="msg.replyMessage">
                                             <hr />
                                         </template>
@@ -234,7 +235,7 @@
                                     </p>
                                     <p v-else class="from-them">
                                         <template v-if="msg.isReply">
-                                            <span class="reply-header-them">{{ msg.replyTo }}</span>
+                                            <span class="reply-header-them">답장</span>
                                             <button 
                                             class="btn btn-sm btn-link me-2" 
                                             @click="toggleReplyMode(msg)"
@@ -284,6 +285,9 @@
                             </div>
                         </div>
                     </div>
+                    <div v-if="originMsg != null" class="return-btn-wrap">
+                        <button @click="scrollToReply" class="return-btn">원본메세지로 돌아가기</button>
+                    </div>
                 </div>
                 <div v-if="isPreviewOpen" class="image-preview-overlay" @click="closePreview">
                     <div class="image-preview-container">
@@ -328,7 +332,9 @@ export default {
             previewImage: null,   // 현재 미리보기 이미지.
             imageMap: {},
             messageResponse: {},
-            removeText: null
+            removeText: null,
+            originMsg: null,
+            returnButtonTimeout: null
         }
     },
     props: {
@@ -821,20 +827,24 @@ export default {
             this.selectedReplySeq = null;
             this.selectedReplyKey = null;
         },
-        scrollToMessage(msg) {
+        scrollToMessage(key, msg) {
             if(msg.replyToKey == undefined || msg.replyToKey == null || msg.replyToSeq == undefined || msg.replyToSeq == null) {
                 return
             }
             const targetMessageId = `message-${msg.replyToKey}_${msg.replyToSeq}`
             const targetMessage = document.getElementById(targetMessageId)          
             if(targetMessage) {
-                targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
+                targetMessage.scrollIntoView({ behavior: "auto", block: "start" })
                 targetMessage.classList.add('shake');
 
                 // 애니메이션 종료 후 클래스 제거
                 setTimeout(() => {
-                targetMessage.classList.remove('shake');
-                }, 500);
+                    targetMessage.classList.remove('shake');
+                    }, 500);
+                    this.originMsg = 'message-' + key + '_' + msg.seq
+                    this.returnButtonTimeout = setTimeout(() => {
+                        this.originMsg = null;
+                    }, 10000); // 60,000ms = 1분
             }  
             
         },
@@ -944,8 +954,23 @@ export default {
                 })
             }
             this.removeText = null
+        },
+        scrollToReply() {
+            // 답장이 있는 메시지로 부드럽게 스크롤
+            const targetMessage = document.getElementById(this.originMsg)
+                if(targetMessage) {
+                    targetMessage.scrollIntoView({ behavior: "auto", block: "start" })
+                    targetMessage.classList.add('shake');
+
+                    // 애니메이션 종료 후 클래스 제거
+                    setTimeout(() => {
+                    targetMessage.classList.remove('shake');
+                    }, 500);
+                }  
+                this.originMsg = null
+                this.returnButtonTimeout = null
         }
-    },
+    }
 }
 </script>
 <style>
@@ -1092,5 +1117,34 @@ export default {
   max-height: 70%; /* 컨테이너 높이에 맞추기 */
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.return-btn-wrap {
+  position: fixed;
+  bottom:37%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+/* 버튼 스타일 */
+.scroll-btn,
+.return-btn {
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  color: #000000;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.scroll-btn:hover,
+.return-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.chat-room {
+    height: 600px;
 }
 </style>

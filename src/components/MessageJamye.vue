@@ -141,7 +141,7 @@
                                     </div>
                                     <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key)">
                                         <template v-if="msg.isReply">
-                                            <input class="reply-header" v-model="msg.replyTo"><br />
+                                            <span>답장</span><br>
                                             <input class="reply-message" v-model="msg.replyMessage">
                                             <hr />
                                         </template>
@@ -182,7 +182,7 @@
                                             >
                                             🔗
                                             </button>
-                                            <span class="reply-header">{{ msg.replyTo }}</span><br />
+                                            <span class="reply-header">답장</span><br />
                                             <span class="reply-message">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
@@ -257,7 +257,7 @@
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + (msg.messageSeq!=null? msg.messageSeq : key + '_' + msg.seq)" @click="scrollToMessage(key, msg)">
                                     <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
-                                            <input class="reply-header-them" v-model="msg.replyTo"><br />
+                                             <span>답장</span><br>
                                             <input class="reply-message-them" v-model="msg.replyMessage">
                                             <hr />
                                         </template>
@@ -283,7 +283,7 @@
                                     </p>
                                     <p v-else class="from-them">
                                         <template v-if="msg.isReply">
-                                            <span class="reply-header-them">{{ msg.replyTo }}</span>
+                                            <span class="reply-header-them">답장</span><br>
                                             <button 
                                             class="btn btn-sm btn-link me-2" 
                                             v-if="this.isEditing != null"
@@ -894,7 +894,7 @@ export default {
             console.log(targetMessageId)
             const targetMessage = document.getElementById(targetMessageId)          
                 if(targetMessage) {
-                    targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
+                    targetMessage.scrollIntoView({ behavior: "auto", block: "start" })
                     targetMessage.classList.add('shake');
 
                     // 애니메이션 종료 후 클래스 제거
@@ -904,7 +904,7 @@ export default {
                     this.originMsg = 'message-' + (msg.messageSeq!=null? msg.messageSeq : key + '_' + msg.seq)
                     this.returnButtonTimeout = setTimeout(() => {
                         this.originMsg = null;
-                    }, 60000); // 60,000ms = 1분
+                    }, 10000); // 60,000ms = 1분
                 }  
         },
         moveSendUserUp(key) {
@@ -1077,7 +1077,7 @@ export default {
             // 답장이 있는 메시지로 부드럽게 스크롤
             const targetMessage = document.getElementById(this.originMsg)
                 if(targetMessage) {
-                    targetMessage.scrollIntoView({ behavior: "smooth", block: "start" })
+                    targetMessage.scrollIntoView({ behavior: "auto", block: "start" })
                     targetMessage.classList.add('shake');
 
                     // 애니메이션 종료 후 클래스 제거
@@ -1086,6 +1086,7 @@ export default {
                     }, 500);
                 }  
                 this.originMsg = null
+                this.returnButtonTimeout = null
         }
     }
 }
