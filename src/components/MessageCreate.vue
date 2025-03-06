@@ -67,6 +67,19 @@
                     </div>
                     <button type="button" class="btn btn-dark mb-3" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
                     <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
+                    <p class="d-inline-flex gap-1">
+                        <a class="btn btn-dark" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                            문자일괄제거
+                        </a>
+                    </p>
+                    <div class="collapse" id="collapseExample">
+                        <div class="card card-body">
+                            <div class="verification-group">
+                                <input type="text" id="removeText" v-model="removeText" class="form-control" />
+                                <button @click="deleteText" class="btn btn-dark">제거</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <button 
                     v-if="replyMode" 
@@ -314,7 +327,8 @@ export default {
             isPreviewOpen: false, // 미리보기 상태
             previewImage: null,   // 현재 미리보기 이미지.
             imageMap: {},
-            messageResponse: {}
+            messageResponse: {},
+            removeText: null
         }
     },
     props: {
@@ -921,8 +935,15 @@ export default {
                 this.messageResponse[key].sendUserSeq = this.userNameMap[nickName]
             }
             
+        },
+        deleteText() {
+            for(let [, value] of Object.entries(this.messageResponse)) {
+                value.message.forEach(text => {
+                    const changeText = text.message.replace(this.removeText, '')
+                    text.message = changeText
+                })
+            }
         }
-
     },
 }
 </script>

@@ -92,7 +92,20 @@
                 @click="saveReplyTarget">
                 답장 수정완료
             </button>
+            <p class="d-inline-flex gap-1">
+                <a class="btn btn-dark" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    문자일괄제거
+                </a>
+            </p>
             <button  @click="editModeClose" class="btn btn-dark">수정완료</button>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+                    <div class="verification-group">
+                        <input type="text" id="removeText" v-model="removeText" class="form-control" />
+                        <button @click="deleteText" class="btn btn-dark">제거</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card card-body">
                     <div class="chat-room">
@@ -373,7 +386,8 @@ export default {
             selectedReplyMessageSeq: null,
             selectedReplyKey: null,
             selectedReplySeq: null,
-            nickNameEdit: {}
+            nickNameEdit: {},
+            removeText: null
         }
     },
     props: {
@@ -1041,6 +1055,14 @@ export default {
             console.log(this.messageResponse[nextKey].message)
             this.messageResponseTempRemove(this.messageResponse)
         },
+        deleteText() {
+            for(let [, value] of Object.entries(this.messageResponse)) {
+                value.message.forEach(text => {
+                    const changeText = text.message.replace(this.removeText, '')
+                    text.message = changeText
+                })
+            }
+        }
     }
 }
 </script>
@@ -1068,5 +1090,10 @@ export default {
 }
 .card-body {
     margin-bottom: 10px;
+}
+
+.verification-group {
+  display: flex;
+  gap: 10px;
 }
 </style>
