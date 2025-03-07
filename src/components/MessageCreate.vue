@@ -121,7 +121,6 @@
                                     </div>
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key)">
                                         <template v-if="msg.isReply">
-                                            <!-- <input class="reply-header" v-model="msg.replyTo"><br /> -->
                                              <span>답장</span><br>
                                             <input class="reply-message" v-model="msg.replyMessage">
                                             <hr />

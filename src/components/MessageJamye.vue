@@ -86,12 +86,6 @@
                         </div>
                     </div>
                 </div>
-            <button 
-                v-if="replyMode" 
-                class="btn btn-dark" 
-                @click="saveReplyTarget">
-                답장 수정완료
-            </button>
             <p class="d-inline-flex gap-1">
                 <a class="btn btn-dark" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                     문자일괄제거
@@ -283,7 +277,7 @@
                                     </p>
                                     <p v-else class="from-them">
                                         <template v-if="msg.isReply">
-                                            <span class="reply-header-them">답장</span><br>
+                                            <span class="reply-header-them">답장</span>
                                             <button 
                                             class="btn btn-sm btn-link me-2" 
                                             v-if="this.isEditing != null"
@@ -342,6 +336,12 @@
                     <div v-if="originMsg != null" class="return-btn-wrapper">
                         <button @click="scrollToReply" class="return-btn">원본메세지로 돌아가기</button>
                     </div>
+                    <button 
+                        v-if="replyMode" 
+                        class="fixed-btn" 
+                        @click="saveReplyTarget">
+                        답장 연결
+                    </button>
                 </div>
                 <div v-if="isPreviewOpen" class="image-preview-overlay" @click="closePreview">
                     <div class="image-preview-container">
@@ -458,6 +458,7 @@ export default {
             )
 
             this.isEditing = null
+            this.replyMode = false
         },
         editMessage(key, seq) {
             if (!this.isEditing[key]) {
@@ -1146,5 +1147,27 @@ export default {
 .return-btn:hover {
   background-color: #e0e0e0;
 }
-
+.fixed-btn {
+    position: fixed;
+    bottom:46%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    right: 61%;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    font-size: 14px;
+}
+.fixed-btn:hover {
+    background-color: #0056b3;
+}
 </style>
