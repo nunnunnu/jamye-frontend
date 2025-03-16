@@ -868,11 +868,25 @@ export default {
             }
 
             if(this.selectedReplyMessageSeq != null) {
+                console.log(this.selectedReplyMessageSeq)
                 this.replyOriginMessage.replyMessageSeq = this.selectedReplyMessageSeq
+                for(let [, value] of Object.entries(this.messageResponse)) {
+                    const newReplyMessage = value.message.filter(
+                        (msg) => msg.messageSeq == this.selectedReplyMessageSeq
+                    );
+                    if(newReplyMessage != null && newReplyMessage != undefined && newReplyMessage.length != 0) {
+                        console.log(newReplyMessage)
+                        this.replyOriginMessage.replyMessage = newReplyMessage[0].message
+                    }
+
+                }
                 this.selectedReplyMessageSeq = null
             } else {
                 this.replyOriginMessage.replyToKey = this.selectedReplyKey
                 this.replyOriginMessage.replyToSeq = this.selectedReplySeq
+                this.replyOriginMessage.replyMessage = this.messageResponse[this.selectedReplyKey].message.filter(
+                    (msg) => msg.seq == this.selectedReplySeq
+                ).message;
                 this.replyOriginMessage.replyMessageSeq = null
                 this.selectedReplyKey = null;
                 this.selectedReplySeq = null;
