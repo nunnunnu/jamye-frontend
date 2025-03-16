@@ -16,12 +16,14 @@ app.$cookies.config("7d");
 app.mount('#app')
 
 toastr.options = {
-    positionClass: "toast-top-center", // 중앙 상단
+    positionClass: "toast-top-center" // 중앙 상단
     // closeButton: true, // 닫기 버튼 추가
     // progressBar: true, // 진행 바 표시
 };
 
 app.config.globalProperties.$toastr = toastr
+
+export const toast = toastr
 
 // Add the necessary CSS
 import 'bootstrap/dist/css/bootstrap.css'

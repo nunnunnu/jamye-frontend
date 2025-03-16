@@ -153,4 +153,9 @@ export default {
   background-color: #cbfcd1 !important; /* 노란색 배경 */
   color: #000 !important;               /* 검은색 글씨 */
 }
+#toast-container > .toast-error {
+  background-color: #fccbcb !important; /* 노란색 배경 */
+  color: #000 !important;               /* 검은색 글씨 */
+}
+
 </style>
