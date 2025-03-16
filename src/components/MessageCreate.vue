@@ -821,7 +821,9 @@ export default {
 
             this.replyOriginMessage.replyToKey = this.selectedReplyKey
             this.replyOriginMessage.replyToSeq = this.selectedReplySeq
-
+            this.replyOriginMessage.replyMessage = this.messageResponse[this.selectedReplyKey].message.filter(
+                    (msg) => msg.seq == this.selectedReplySeq
+                )[0].message;
             this.replyMode = false;
             this.selectedReplySeq = null;
             this.selectedReplyKey = null;

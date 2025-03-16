@@ -868,7 +868,6 @@ export default {
             }
 
             if(this.selectedReplyMessageSeq != null) {
-                console.log(this.selectedReplyMessageSeq)
                 this.replyOriginMessage.replyMessageSeq = this.selectedReplyMessageSeq
                 for(let [, value] of Object.entries(this.messageResponse)) {
                     const newReplyMessage = value.message.filter(
@@ -886,7 +885,7 @@ export default {
                 this.replyOriginMessage.replyToSeq = this.selectedReplySeq
                 this.replyOriginMessage.replyMessage = this.messageResponse[this.selectedReplyKey].message.filter(
                     (msg) => msg.seq == this.selectedReplySeq
-                ).message;
+                )[0].message;
                 this.replyOriginMessage.replyMessageSeq = null
                 this.selectedReplyKey = null;
                 this.selectedReplySeq = null;
