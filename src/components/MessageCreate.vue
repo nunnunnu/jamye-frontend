@@ -284,7 +284,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="originMsg != null" class="return-btn-wrap">
+                    <div v-if="originMsg != null" class="return-btn-wrapper">
                         <button @click="scrollToReply" class="return-btn">원본메세지로 돌아가기</button>
                     </div>
                 </div>
@@ -1121,11 +1121,18 @@ export default {
 }
 
 .return-btn-wrap {
-  position: fixed;
-  bottom:37%;
+    position: absolute;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  width: 50%; /* 버튼 너비 (화면 크기에 따라 조정 가능) */
+  max-width: 300px; /* 최대 너비 설정 */
+  padding: 10px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
 }
 
 /* 버튼 스타일 */

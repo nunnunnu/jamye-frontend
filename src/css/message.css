@@ -205,3 +205,17 @@ input.reply-header-them {
     font-size: 1em;
     border: none;
   }
+  .return-btn-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%; /* 버튼 너비 (화면 크기에 따라 조정 가능) */
+    max-width: 300px; /* 최대 너비 설정 */
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+}

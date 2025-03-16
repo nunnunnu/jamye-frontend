@@ -1136,14 +1136,6 @@ export default {
   gap: 10px;
 }
 
-.return-btn-wrapper {
-  position: fixed;
-  bottom:48%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-}
-
 /* 버튼 스타일 */
 .scroll-btn,
 .return-btn {
