@@ -115,8 +115,8 @@
                                     </div>
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key)">
                                         <template v-if="msg.isReply">
-                                             <span>답장</span><br>
-                                            <input class="reply-message" v-model="msg.replyMessage">
+                                            <span class="reply-header">{{ msg.replyTo }}에게 답장</span><br />
+                                            <span class="reply-message">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
                                         <input  type="text" v-model="msg.message" class="from-me">
@@ -148,7 +148,13 @@
                                             >
                                             🔗
                                             </button>
-                                            <span class="reply-header">답장</span><br />
+                                            <span v-if="userNameMap[msg.replyTo] != null">
+                                                <span class="reply-header">{{ userNameMap[msg.replyTo].nickname }}에게 답장</span>
+                                            </span>
+                                            <span v-else class="send-user">
+                                                <span class="reply-header">{{ msg.replyTo }}에게 답장</span>
+                                            </span>
+                                            <br />
                                             <span class="reply-message">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
@@ -172,7 +178,7 @@
                                     <div v-if="nickNameEdit[key]">
                                         <button v-if="userNameMap[text.sendUser] != null" class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             {{ userNameMap[text.sendUser].nickname }}
-                                            </button>
+                                        </button>
                                         <button v-else class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             {{ text.sendUser }}
                                         </button>
@@ -210,8 +216,14 @@
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(key, msg)">
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
-                                            <span>답장</span><br>
-                                            <input class="reply-message-them" v-model="msg.replyMessage">
+                                            <div v-if="userNameMap[msg.replyTo] != null">
+                                                <span class="reply-header-them">{{ userNameMap[msg.replyTo].nickname }}에게 답장</span>
+                                            </div>
+                                            <div v-else class="send-user">
+                                                <span class="reply-header-them">{{ msg.replyTo }}에게 답장</span>
+                                            </div>
+                                            <br />
+                                            <span class="reply-message-them">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
@@ -228,7 +240,7 @@
                                     </p>
                                     <p v-else class="from-them">
                                         <template v-if="msg.isReply">
-                                            <span class="reply-header-them">답장</span>
+                                            <span class="reply-header-them">{{ msg.replyTo }}에게 답장</span>
                                             <button 
                                             class="btn btn-sm btn-link me-2" 
                                             @click="toggleReplyMode(msg)"
@@ -824,6 +836,7 @@ export default {
             this.replyOriginMessage.replyMessage = this.messageResponse[this.selectedReplyKey].message.filter(
                     (msg) => msg.seq == this.selectedReplySeq
                 )[0].message;
+            this.replyOriginMessage.replyTo = this.messageResponse[this.selectedReplyKey].sendUser == null ? '나' : this.messageResponse[this.selectedReplyKey].sendUser
             this.replyMode = false;
             this.selectedReplySeq = null;
             this.selectedReplyKey = null;
@@ -941,11 +954,18 @@ export default {
         },
         editNickNameComplate(key, nickName) {
             this.nickNameEdit[key] = false
+            const originNickName = this.messageResponse[key].sendUser
+            for(let [, value] of Object.entries(this.messageResponse)) {
+                value.message.forEach(text => {
+                    if(text.replyTo == originNickName) {
+                        text.replyTo = nickName
+                    }
+                })
+            }
             this.messageResponse[key].sendUser = nickName
             if(this.userNameMap[nickName] != null) {
                 this.messageResponse[key].sendUserSeq = this.userNameMap[nickName]
             }
-            
         },
         deleteText() {
             for(let [, value] of Object.entries(this.messageResponse)) {

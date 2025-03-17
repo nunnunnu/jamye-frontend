@@ -176,7 +176,12 @@
                                             >
                                             🔗
                                             </button>
-                                            <span class="reply-header">답장</span><br />
+                                            <span v-if="nickNameMap[msg.replyNickNameSeq]">
+                                                <span class="reply-header">{{ nickNameMap[msg.replyNickNameSeq].nickName }}에게 답장</span><br />
+                                            </span>
+                                            <span v-else>
+                                                <span class="reply-header">나에게 답장</span><br />
+                                            </span>
                                             <span class="reply-message">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
@@ -277,7 +282,12 @@
                                     </p>
                                     <p v-else class="from-them">
                                         <template v-if="msg.isReply">
-                                            <span class="reply-header-them">답장</span>
+                                            <span v-if="nickNameMap[msg.replyNickNameSeq]">
+                                                <span class="reply-header-them">{{ nickNameMap[msg.replyNickNameSeq].nickName }}에게 답장</span>
+                                            </span>
+                                            <span v-else>
+                                                <span class="reply-header-them">나에게 답장</span>
+                                            </span>
                                             <button 
                                             class="btn btn-sm btn-link me-2" 
                                             v-if="this.isEditing != null"
