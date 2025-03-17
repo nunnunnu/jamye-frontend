@@ -219,3 +219,18 @@ input.reply-header-them {
     text-align: center;
     cursor: pointer;
 }
+.fixed-btn {
+    position: absolute;
+    bottom: 2%;
+    left: 7%;
+    transform: translateX(-50%);
+    width: 10%; /* 버튼 너비 (화면 크기에 따라 조정 가능) */
+    max-width: 300px; /* 최대 너비 설정 */
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #007bff;
+}

@@ -81,12 +81,6 @@
                         </div>
                     </div>
                 </div>
-                <button 
-                    v-if="replyMode" 
-                    class="btn btn-dark mt-3" 
-                    @click="saveReplyTarget">
-                    저장
-                </button>
                 <div class="card card-body">
                     <div class="chat-room">
                         <div v-for="[key, text] in Object.entries(messageResponse)" :key="key">                                                                        
@@ -287,6 +281,12 @@
                     <div v-if="originMsg != null" class="return-btn-wrapper">
                         <button @click="scrollToReply" class="return-btn">원본메세지로 돌아가기</button>
                     </div>
+                    <button 
+                        v-if="replyMode" 
+                        class="fixed-btn" 
+                        @click="saveReplyTarget">
+                        답장 연결
+                    </button>
                 </div>
                 <div v-if="isPreviewOpen" class="image-preview-overlay" @click="closePreview">
                     <div class="image-preview-container">

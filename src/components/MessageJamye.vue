@@ -393,7 +393,7 @@ export default {
             removeText: null,
             originMsg: null,
             returnButtonTimeout: null
-        }
+        }   
     },
     props: {
         postSeq: Number,
@@ -1152,27 +1152,5 @@ export default {
 .return-btn:hover {
   background-color: #e0e0e0;
 }
-.fixed-btn {
-    position: fixed;
-    bottom:46%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    right: 61%;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    font-size: 14px;
-}
-.fixed-btn:hover {
-    background-color: #0056b3;
-}
+
 </style>
