@@ -47,7 +47,7 @@
                                         <span class="remove-butto" @click="removeNickname(key)">X</span>
                                     </div>
                                 </div>
-                                <div v-for="info in this.addNickNameMap" :key="info.nickName">
+                                <div v-for="info in this.addNickNameSet" :key="info.nickName">
                                     {{ info.nickName }}
                                     <button v-if="info.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                 해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
@@ -83,9 +83,10 @@
                                         추가 완료
                                     </button>
                                 </div>
+                                <div class="des">반영하기 버튼을 클릭 시 바로 적용됩니다. </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-dark" @click="updateNickNameInfo">반영하기</button>
+                                <button type="button" class="btn btn-dark" @click="updateNickNameInfo" data-bs-dismiss="modal" aria-label="Close">반영하기</button>
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
                             </div>
                         </div>
@@ -244,6 +245,22 @@
                                                 </li>
                                             </ul>
                                         </div>
+                                        <button v-else class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                임시
+                                        </button>
+                                        <ul 
+                                                class="dropdown-menu" 
+                                                style="max-height: 200px; overflow-y: auto;"
+                                            >
+                                                <li 
+                                                    v-for="[id, value] in Object.entries(nickNameMap)" 
+                                                    :key="id"
+                                                    @click="editNickNameComplate(key, id, value)"
+                                                    style="padding: 8px; cursor: pointer;"
+                                                >
+                                                    {{ value.nickName }} <span v-if="value.userNameInGroup">| {{ value.userNameInGroup }}</span>
+                                                </li>
+                                            </ul>
                                     </div>
                                     <div v-else>
                                         <div v-if="this.nickNameMap[text.sendUserSeq] != null">
@@ -254,6 +271,9 @@
                                                 <div class="send-user">{{ this.nickNameMap[text.sendUserSeq].nickName }}</div>
                                             </div>
                                         </div>
+                                        <div v-else>
+                                                임시
+                                            </div>
                                     </div>
                                     <div class="button-container" v-if="this.isEditing != null">
                                             <button class="circle-btn up-arrow" @click="moveSendUserUp(key)"><i class="fas fa-arrow-up"></i></button>
@@ -422,7 +442,7 @@ export default {
             removeText: null,
             originMsg: null,
             returnButtonTimeout: null,
-            addNickNameMap: new Set
+            addNickNameSet: new Set
         }   
     },
     props: {
@@ -807,7 +827,7 @@ export default {
             
         },
         nickNameAddComplate() {
-            this.addNickNameMap.add({
+            this.addNickNameSet.add({
                     "nickName": this.nicknameInput,
                 })
             this.nickNameEditMod = false
@@ -834,7 +854,7 @@ export default {
         },
         addUserInGroupSet(nickName, userInGroupInfo) {
             const newSet = new Set();
-            this.addNickNameMap.forEach(add => {
+            this.addNickNameSet.forEach(add => {
                 if (add.nickName === nickName) {
                     newSet.add({
                         "nickName": nickName,
@@ -846,7 +866,7 @@ export default {
                     newSet.add(add);
                 }
             });
-            this.addNickNameMap = newSet;
+            this.addNickNameSet = newSet;
         },
         updateNickNameInfo() {
             const groupSeq = this.$cookies.get("group").groupSequence;
@@ -859,15 +879,16 @@ export default {
             axios.post(`/api/post/message/${groupSeq}/${this.postSeq}/nickName`, {
                 "updateInfo" : tempMap,
                 "deleteMessageNickNameSeqs" : Array.from(this.deleteNickNames),
-                "createInfo": Array.from(this.addNickNameMap)
+                "createInfo": Array.from(this.addNickNameSet)
             }, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
             })
             .then(r => {
-                console.log(r)
                 this.deleteNickNames = new Set
+                this.nickNameMap = r.data.data
+                this.addNickNameSet = new Set
             })
         },
         removeNickname(key) {
@@ -886,12 +907,12 @@ export default {
         removeNewNickname(nickName) {
             console.log("test")
             const newSet = new Set();
-            this.addNickNameMap.forEach(add => {
+            this.addNickNameSet.forEach(add => {
                 if (add.nickName != nickName) {
                     newSet.add(add);
                 } 
             });
-            this.addNickNameMap = newSet;
+            this.addNickNameSet = newSet;
         },
         toggleReplyMode(msg) {
             this.replyMode = !this.replyMode;
