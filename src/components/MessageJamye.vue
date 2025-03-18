@@ -47,29 +47,28 @@
                                         <span class="remove-butto" @click="removeNickname(key)">X</span>
                                     </div>
                                 </div>
-                                <div class="nickNameAdd" v-if="nickNameEditMod">
-                                    <input v-model="nicknameInput" placeholder="닉네임 입력" />
-                                    <button
-                                        class="btn btn-dark btn-sm dropdown-toggle"
-                                        type="button"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded="false"
-                                    >
-                                        {{ selectedUser?.nickname || "사용자 선택" }}
-                                    </button>
-                                    <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
-                                        <li
-                                        v-for="user in userInGroup"
-                                        :key="user.groupUserSequence"
-                                        @click="selectedUser = user"
-                                        style="padding: 8px; cursor: pointer;"
-                                        >
-                                        {{ user.nickname }}
-                                        </li>
-                                    </ul>
-                                    <button class="btn btn-dark btn-sm" @click="nickNameAddComplate">
-                                        저장
-                                    </button>
+                                <div v-for="info in this.addNickNameMap" :key="info.nickName">
+                                    {{ info.nickName }}
+                                    <button v-if="info.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
+                                                </button>
+                                                <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    {{ info.userNameInGroup }}
+                                                </button>
+                                                <ul 
+                                                    class="dropdown-menu" 
+                                                    style="max-height: 200px; overflow-y: auto;"
+                                                >
+                                                    <li 
+                                                        v-for="user in userInGroup" 
+                                                        :key="user.groupUserSequence"
+                                                        @click="addUserInGroupSet(info.nickName, user)"
+                                                        style="padding: 8px; cursor: pointer;"
+                                                    >
+                                                        {{ user.nickname }}
+                                                    </li>
+                                                </ul>
+                                        <span class="remove-butto" @click="removeNewNickname(info.nickName)">X</span>
                                 </div>
                                 <button class="btn btn-dark" @click="nickNameAdd">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
@@ -78,6 +77,12 @@
                                     </svg>
                                     닉네임 추가
                                 </button>
+                                <div class="nickNameAdd" v-if="nickNameEditMod">
+                                    <input v-model="nicknameInput" placeholder="닉네임 입력" />
+                                    <button class="btn btn-dark btn-sm" @click="nickNameAddComplate">
+                                        추가 완료
+                                    </button>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-dark" @click="updateNickNameInfo">반영하기</button>
@@ -177,7 +182,14 @@
                                             🔗
                                             </button>
                                             <span v-if="nickNameMap[msg.replyNickNameSeq]">
-                                                <span class="reply-header">{{ nickNameMap[msg.replyNickNameSeq].nickName }}에게 답장</span><br />
+                                                <span class="reply-header">
+                                                    <span v-if="nickNameMap[msg.replyNickNameSeq].userNameInGroup != null">
+                                                        {{ nickNameMap[msg.replyNickNameSeq].userNameInGroup }}
+                                                    </span>
+                                                    <span v-else>
+                                                        {{ nickNameMap[msg.replyNickNameSeq].nickName }}
+                                                    </span>
+                                                </span><br />
                                             </span>
                                             <span v-else>
                                                 <span class="reply-header">나에게 답장</span><br />
@@ -283,7 +295,14 @@
                                     <p v-else class="from-them">
                                         <template v-if="msg.isReply">
                                             <span v-if="nickNameMap[msg.replyNickNameSeq]">
-                                                <span class="reply-header-them">{{ nickNameMap[msg.replyNickNameSeq].nickName }}에게 답장</span>
+                                                <span class="reply-header-them">
+                                                    <span v-if="nickNameMap[msg.replyNickNameSeq].userNameInGroup != null">
+                                                        {{ nickNameMap[msg.replyNickNameSeq].userNameInGroup }}
+                                                    </span>
+                                                    <span v-else>
+                                                        {{ nickNameMap[msg.replyNickNameSeq].nickName }}
+                                                    </span>
+                                                    에게 답장</span>
                                             </span>
                                             <span v-else>
                                                 <span class="reply-header-them">나에게 답장</span>
@@ -402,7 +421,8 @@ export default {
             nickNameEdit: {},
             removeText: null,
             originMsg: null,
-            returnButtonTimeout: null
+            returnButtonTimeout: null,
+            addNickNameMap: new Set
         }   
     },
     props: {
@@ -787,24 +807,11 @@ export default {
             
         },
         nickNameAddComplate() {
-            const groupSeq = this.$cookies.get("group").groupSequence;
-            axios.post(`/api/post/message/${groupSeq}/${this.postSeq}/nickNameAdd?nickName=${this.nicknameInput}&userSeqInGroup=${this.selectedUser.groupUserSequence}`, {}, {
-                headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
-                }
-            })
-            .then(r => {
-                this.nickNameMap[r.data.data] = {
+            this.addNickNameMap.add({
                     "nickName": this.nicknameInput,
-                    "userSeqInGroup": this.selectedUser.groupUserSequence,
-                    "userNameInGroup": this.selectedUser.nickname,
-                    "imageUrl": this.selectedUser.imageUrl
-                }
-                this.nicknameInput = null
-                this.selectedUser = null
-            })
+                })
             this.nickNameEditMod = false
-            
+            this.nicknameInput = null
         },
         groupNickNameInfo() {
             axios.get("/api/group/users/" + this.$cookies.get("group").groupSequence, {
@@ -825,6 +832,22 @@ export default {
                 "imageUri": userInGroupInfo.imageUrl
             }
         },
+        addUserInGroupSet(nickName, userInGroupInfo) {
+            const newSet = new Set();
+            this.addNickNameMap.forEach(add => {
+                if (add.nickName === nickName) {
+                    newSet.add({
+                        "nickName": nickName,
+                        "userSeqInGroup": userInGroupInfo.groupUserSequence,
+                        "userNameInGroup": userInGroupInfo.nickname,
+                        "imageUri": userInGroupInfo.imageUrl
+                    });
+                } else {
+                    newSet.add(add);
+                }
+            });
+            this.addNickNameMap = newSet;
+        },
         updateNickNameInfo() {
             const groupSeq = this.$cookies.get("group").groupSequence;
             var tempMap = new Map
@@ -835,7 +858,8 @@ export default {
             }
             axios.post(`/api/post/message/${groupSeq}/${this.postSeq}/nickName`, {
                 "updateInfo" : tempMap,
-                "deleteMessageNickNameSeqs" : Array.from(this.deleteNickNames)
+                "deleteMessageNickNameSeqs" : Array.from(this.deleteNickNames),
+                "createInfo": Array.from(this.addNickNameMap)
             }, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
@@ -847,8 +871,27 @@ export default {
             })
         },
         removeNickname(key) {
+            console.log("test")
+            for(let [, value] of Object.entries(this.messageResponse)) {
+                console.log(value)
+                if(value.sendUserSeq == key) {
+                    
+                    this.$toastr.warning("메세지 내역이 존재하는 닉네임입니다. 삭제 전 모든 메세지를 삭제해주세요")
+                    return
+                }
+            }
             this.deleteNickNames.add(key)
             this.nickNameMap[key] = {"userNameInGroup": this.nickNameMap[key].nickName }
+        },
+        removeNewNickname(nickName) {
+            console.log("test")
+            const newSet = new Set();
+            this.addNickNameMap.forEach(add => {
+                if (add.nickName != nickName) {
+                    newSet.add(add);
+                } 
+            });
+            this.addNickNameMap = newSet;
         },
         toggleReplyMode(msg) {
             this.replyMode = !this.replyMode;
@@ -886,6 +929,7 @@ export default {
                     if(newReplyMessage != null && newReplyMessage != undefined && newReplyMessage.length != 0) {
                         console.log(newReplyMessage)
                         this.replyOriginMessage.replyMessage = newReplyMessage[0].message
+                        this.replyOriginMessage.replyNickNameSeq = value.sendUserSeq == null ? '나' : value.sendUserSeq
                     }
 
                 }
@@ -896,6 +940,7 @@ export default {
                 this.replyOriginMessage.replyMessage = this.messageResponse[this.selectedReplyKey].message.filter(
                     (msg) => msg.seq == this.selectedReplySeq
                 )[0].message;
+                this.replyOriginMessage.replyNickNameSeq = this.messageResponse[this.selectedReplyKey].sendUserSeq == null ? '나' : this.messageResponse[this.selectedReplyKey].sendUserSeq
                 this.replyOriginMessage.replyMessageSeq = null
                 this.selectedReplyKey = null;
                 this.selectedReplySeq = null;
@@ -968,9 +1013,7 @@ export default {
             this.messageResponseTempRemove(this.messageResponse)
         },
         editNickName(key) {
-            console.log("!!")
             this.nickNameEdit[key] = true
-            console.log("??")
         },
         editNickNameComplate(key, id, nickNameInfo) {
             this.nickNameEdit[key] = false
