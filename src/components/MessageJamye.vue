@@ -972,7 +972,6 @@ export default {
         },
         scrollToMessage(key, msg) {
             if(msg.replyMessageSeq == null && ((msg.replyToKey == undefined || msg.replyToKey == null) && (msg.replyToSeq == undefined || msg.replyToSeq == null))) {
-                console.log("end")
                 return
             }
             var targetMessageId = ''
@@ -1042,29 +1041,35 @@ export default {
             this.messageResponse[key].sendUserSeq = id
         },
         messageResponseTempRemove(message) {
+            console.log("message")
+            console.log(message)
             var tempMapUser = new Map
             var preUser = null
             var tempKey = 1
             for(let [id, value] of Object.entries(message)) {
+                console.log(tempKey)
+                console.log(tempMapUser)
                 if(id == 1) {
                     preUser = value.sendUserSeq
                     tempMapUser[tempKey++] = value
                     continue
                 }
-                if (value.sendUserSeq == preUser) {
-                    var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
-                        return msg.seq > max ? msg.seq : max;
-                    }, 0);
-                    value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
-                        ...msg,
-                        seq: ++maxNum,
-                    }))
+                if (value.sendUserSeq == preUser && tempKey != 1 && tempMapUser[tempKey - 1].sendUser != '임시') {
+                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
+                            return msg.seq > max ? msg.seq : max;
+                        }, 0);
+                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
+                            ...msg,
+                            seq: ++maxNum,
+                        }))
                 } else {
-                    tempMapUser[tempKey++] = value
+                    tempMapUser[tempKey++] = JSON.parse(JSON.stringify(value))
                 }
                 preUser = value.sendUserSeq
             }
+            console.log(tempMapUser)
             this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
+            console.log(this.messageResponse)
         },
         moveLeft(key, seq) {
             console.log(`start - key=${key}, seq=${seq}`)
@@ -1128,13 +1133,11 @@ export default {
                 }
             }
             console.log(JSON.stringify(tempMap))
-            this.messageResponse = tempMap
 
             const nextKey = Number(key) + 1
             removedMessage.seq = 1
             var randomUser = "임시"
             var randomkey = null
-            console.log(this.nickNameMap)
             if(this.nickNameMap != null && Object.keys(this.nickNameMap).length > 0) {
                 const firstEntry = Object.entries(this.nickNameMap)[0]; // 첫 번째 엔트리 가져오기
                 if (firstEntry) {
@@ -1146,11 +1149,11 @@ export default {
                 }
             }
             console.log(nextKey)
-            this.messageResponse[nextKey] = { sendUserSeq: randomkey, sendUser: randomUser, message: [] };
-            this.messageResponse[nextKey].message.unshift(removedMessage);
-            console.log(removedMessage)
-            console.log(this.messageResponse[nextKey].message)
-            this.messageResponseTempRemove(this.messageResponse)
+            tempMap[nextKey] = { sendUserSeq: randomkey, sendUser: randomUser, message: [] };
+            tempMap[nextKey].message.unshift(removedMessage);
+            console.log(tempMap)
+            // this.messageResponse = tempMap
+            this.messageResponseTempRemove(tempMap)
         },
         deleteText() {
             for(let [, value] of Object.entries(this.messageResponse)) {
