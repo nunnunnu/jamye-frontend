@@ -1047,14 +1047,16 @@ export default {
             var preUser = null
             var tempKey = 1
             for(let [id, value] of Object.entries(message)) {
-                console.log(tempKey)
-                console.log(tempMapUser)
+                // console.log(tempKey)
+                // console.log(JSON.stringify(tempMapUser))
                 if(id == 1) {
                     preUser = value.sendUserSeq
                     tempMapUser[tempKey++] = value
                     continue
                 }
-                if (value.sendUserSeq == preUser && tempKey != 1 && tempMapUser[tempKey - 1].sendUser != '임시') {
+                if (value.sendUserSeq == preUser && tempKey != 1 && tempMapUser[tempKey - 1].sendUser != '임시' && value.sendUser != '임시') {
+                    console.log("아니라고?")
+                    console.log(JSON.stringify(value))
                         var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
                             return msg.seq > max ? msg.seq : max;
                         }, 0);
@@ -1063,6 +1065,8 @@ export default {
                             seq: ++maxNum,
                         }))
                 } else {
+                    console.log("아마여기")
+                    console.log(JSON.stringify(value))
                     tempMapUser[tempKey++] = JSON.parse(JSON.stringify(value))
                 }
                 preUser = value.sendUserSeq
@@ -1152,7 +1156,6 @@ export default {
             tempMap[nextKey] = { sendUserSeq: randomkey, sendUser: randomUser, message: [] };
             tempMap[nextKey].message.unshift(removedMessage);
             console.log(tempMap)
-            // this.messageResponse = tempMap
             this.messageResponseTempRemove(tempMap)
         },
         deleteText() {
