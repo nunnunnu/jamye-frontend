@@ -1,6 +1,6 @@
 <template>
     <div class="b-container">
-        <h1 class="title" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록</h1>
+        <h1 class="title" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록 ({{ jamyes.length }} / {{ totalCount }})</h1>
         <div class="jamye-info-box-container" v-if="jamyes.length != 0">
             <div class="jamye-info-box" v-for="jamye in jamyes" :key="jamye.postSequenc"
                 :class="{ selectable: jamye.isViewable }"
@@ -28,7 +28,8 @@ import axios from '@/js/axios';
 export default{
     data() {
         return {
-            jamyes: {}
+            jamyes: {},
+            totalCount: 0
         }
     },
     props: {
@@ -54,8 +55,8 @@ export default{
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
                 }).then(r => {
-                    const jamyesData = r.data.data;
-
+                    const jamyesData = r.data.data.posts;
+                    this.totalCount = r.data.data.count
                     const formatDate = (dateString) => {
                         const apiTime = new Date(dateString);
                         return `${apiTime.getFullYear()}-${String(apiTime.getMonth() + 1).padStart(2, '0')}-${String(apiTime.getDate()).padStart(2, '0')} ${String(apiTime.getHours()).padStart(2, '0')}:${String(apiTime.getMinutes()).padStart(2, '0')}`;
