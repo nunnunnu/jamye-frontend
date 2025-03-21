@@ -234,3 +234,28 @@ input.reply-header-them {
     cursor: pointer;
     background-color: #007bff;
 }
+.tooltip-btn {
+    position: relative;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 5px 8px;
+    border-radius: 4px;
+    position: absolute;
+    bottom: 120%; /* 버튼 위에 위치하도록 설정 */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.tooltip-btn:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
