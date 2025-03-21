@@ -141,11 +141,21 @@
                                     </div>
                                     <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-me" @blur="saveMessage(key)">
                                         <template v-if="msg.isReply">
-                                            <span>답장</span><br>
-                                            <input class="reply-message" v-model="msg.replyMessage">
+                                            <span v-if="nickNameMap[msg.replyNickNameSeq]">
+                                                <span class="reply-header">
+                                                    <span v-if="nickNameMap[msg.replyNickNameSeq].userNameInGroup != null">
+                                                        {{ nickNameMap[msg.replyNickNameSeq].userNameInGroup }}
+                                                    </span>
+                                                    <span v-else>
+                                                        {{ nickNameMap[msg.replyNickNameSeq].nickName }}
+                                                    </span>
+                                                    에게 답장
+                                                </span><br />
+                                            </span>
+                                            <div class="reply-message">{{ msg.replyMessage }}</div>
                                             <hr />
                                         </template>
-                                        <input  type="text" v-model="msg.message" class="from-me">
+                                        <input  type="text" v-model="msg.message" class="from-me" :id="'input-' + key + '_' + msg.seq">
                                         <span class="image-gallery">
                                             <img
                                                 v-for="(image, index) in msg.imageUri"
@@ -190,6 +200,7 @@
                                                     <span v-else>
                                                         {{ nickNameMap[msg.replyNickNameSeq].nickName }}
                                                     </span>
+                                                    에게 답장
                                                 </span><br />
                                             </span>
                                             <span v-else>
@@ -288,11 +299,21 @@
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + (msg.messageSeq!=null? msg.messageSeq : key + '_' + msg.seq)" @click="scrollToMessage(key, msg)">
                                     <p v-if="this.isEditing != null && this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
-                                             <span>답장</span><br>
-                                            <input class="reply-message-them" v-model="msg.replyMessage">
+                                             <span v-if="nickNameMap[msg.replyNickNameSeq]">
+                                                <span class="reply-header-them">
+                                                    <span v-if="nickNameMap[msg.replyNickNameSeq].userNameInGroup != null">
+                                                        {{ nickNameMap[msg.replyNickNameSeq].userNameInGroup }}
+                                                    </span>
+                                                    <span v-else>
+                                                        {{ nickNameMap[msg.replyNickNameSeq].nickName }}
+                                                    </span>
+                                                    에게 답장
+                                                </span><br />
+                                            </span>
+                                            <div class="reply-message-them"> {{ msg.replyMessage }}</div>
                                             <hr />
                                         </template>
-                                        <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
+                                        <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them" :id="'input-' + key + '_' + msg.seq">
                                         <span class="image-gallery">
                                             <img
                                                 v-for="(image, index) in msg.imageKey"
@@ -322,7 +343,8 @@
                                                     <span v-else>
                                                         {{ nickNameMap[msg.replyNickNameSeq].nickName }}
                                                     </span>
-                                                    에게 답장</span>
+                                                    에게 답장
+                                                </span>
                                             </span>
                                             <span v-else>
                                                 <span class="reply-header-them">나에게 답장</span>
@@ -519,7 +541,24 @@ export default {
             } else {
                 this.isEditing[key][seq] = true; 
             }
+            const targetMessageId = `input-${key}_${seq}`
             
+            this.$nextTick(() => { // 변경됨
+                const targetMessage = document.getElementById(targetMessageId);
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    // 애니메이션 종료 후 클래스 제거
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                } else {
+                    console.warn(`Element with ID ${targetMessageId} not found`);
+                }
+            });
         },
         saveMessage(key) {
             this.isEditing[key] = false;
@@ -1055,8 +1094,6 @@ export default {
                     continue
                 }
                 if (value.sendUserSeq == preUser && tempKey != 1 && tempMapUser[tempKey - 1].sendUser != '임시' && value.sendUser != '임시') {
-                    console.log("아니라고?")
-                    console.log(JSON.stringify(value))
                         var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
                             return msg.seq > max ? msg.seq : max;
                         }, 0);
@@ -1065,8 +1102,6 @@ export default {
                             seq: ++maxNum,
                         }))
                 } else {
-                    console.log("아마여기")
-                    console.log(JSON.stringify(value))
                     tempMapUser[tempKey++] = JSON.parse(JSON.stringify(value))
                 }
                 preUser = value.sendUserSeq
@@ -1150,6 +1185,10 @@ export default {
                     randomUser = value.nickName
                     console.log("첫 번째 키:", key);
                     console.log("첫 번째 값:", value);
+
+                    this.addNickNameSet.add({
+                        "nickName": this.nicknameInput,
+                    })
                 }
             }
             console.log(nextKey)

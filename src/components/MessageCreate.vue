@@ -119,7 +119,7 @@
                                             <span class="reply-message">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
-                                        <input  type="text" v-model="msg.message" class="from-me">
+                                        <input  type="text" v-model="msg.message" class="from-me" :id="'input-' + key + '_' + msg.seq">
                                         <span class="image-gallery">
                                             <img
                                                 v-for="(image, index) in msg.imageKey"
@@ -226,7 +226,7 @@
                                             <span class="reply-message-them">{{ msg.replyMessage }}</span>
                                             <hr />
                                         </template>
-                                        <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them">
+                                        <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them" :id="'input-' + key + '_' + msg.seq">
                                         <span class="image-gallery">
                                             <img
                                                 v-for="(image, index) in msg.imageKey"
@@ -427,6 +427,24 @@ export default {
             } else {
                 this.isEditing[key][seq] = true; 
             }
+            const targetMessageId = `input-${key}_${seq}`
+            
+            this.$nextTick(() => { // 변경됨
+                const targetMessage = document.getElementById(targetMessageId);
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    // 애니메이션 종료 후 클래스 제거
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                } else {
+                    console.warn(`Element with ID ${targetMessageId} not found`);
+                }
+            });
             
         },
         saveMessage(key) {
