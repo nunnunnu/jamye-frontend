@@ -110,6 +110,9 @@
                                             <button class="circle-btn left" @click="moveLeft(key, msg.seq)">
                                                 <i class="fas fa-arrow-left"></i>
                                             </button>
+                                            <button class="circle-btn down-arrow" @click="toggleReplyMode(msg)" title="답장 연결">
+                                                <i class="fas fa-link"></i>
+                                            </button>
                                         </div>
                                         <span class="send-date">{{ text.sendDate }}</span>
                                     </div>
@@ -141,12 +144,12 @@
                                             class="form-check-input mt-1"
                                         />
                                         <template v-if="msg.isReply">
-                                            <button 
-                                            class="btn btn-sm btn-link me-2" 
-                                            @click="toggleReplyMode(msg)"
-                                            title="답장 연결"
+                                            <button v-if="this.isEditing != null"
+                                                class="btn btn-sm btn-link me-2" 
+                                                @click="removeReply(msg)"
+                                                title="답장 삭제"
                                             >
-                                            🔗
+                                            🗑️
                                             </button>
                                             <span v-if="userNameMap[msg.replyTo] != null">
                                                 <span class="reply-header">{{ userNameMap[msg.replyTo].nickname }}에게 답장</span>
@@ -241,12 +244,12 @@
                                     <p v-else class="from-them">
                                         <template v-if="msg.isReply">
                                             <span class="reply-header-them">{{ msg.replyTo }}에게 답장</span>
-                                            <button 
-                                            class="btn btn-sm btn-link me-2" 
-                                            @click="toggleReplyMode(msg)"
-                                            title="답장 연결"
+                                            <button v-if="this.isEditing != null"
+                                                class="btn btn-sm btn-link me-2" 
+                                                @click="removeReply(msg)"
+                                                title="답장 삭제"
                                             >
-                                            🔗
+                                            🗑️
                                             </button>
                                             <br />
                                             <span class="reply-message-them">{{ msg.replyMessage }}</span>
@@ -283,6 +286,9 @@
                                             <button class="circle-btn camera"  data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)"><i class="fas fa-camera"></i></button>
                                             <button class="circle-btn right" @click="moveLeft(key, msg.seq)">
                                                 <i class="fas fa-arrow-right"></i>
+                                            </button>
+                                            <button class="circle-btn down-arrow" @click="toggleReplyMode(msg)" title="답장 연결">
+                                                <i class="fas fa-link"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -852,9 +858,10 @@ export default {
             this.replyOriginMessage.replyToKey = this.selectedReplyKey
             this.replyOriginMessage.replyToSeq = this.selectedReplySeq
             this.replyOriginMessage.replyMessage = this.messageResponse[this.selectedReplyKey].message.filter(
-                    (msg) => msg.seq == this.selectedReplySeq
-                )[0].message;
+                (msg) => msg.seq == this.selectedReplySeq
+            )[0].message;
             this.replyOriginMessage.replyTo = this.messageResponse[this.selectedReplyKey].sendUser == null ? '나' : this.messageResponse[this.selectedReplyKey].sendUser
+            this.replyOriginMessage.isReply = true
             this.replyMode = false;
             this.selectedReplySeq = null;
             this.selectedReplyKey = null;
@@ -1008,6 +1015,13 @@ export default {
                 }  
                 this.originMsg = null
                 this.returnButtonTimeout = null
+        },
+        removeReply(msg) {
+            msg.isReply = false
+            msg.replyTo = null
+            msg.replyMessage = null
+            msg.replyMessageSeq = null
+            msg.replyNickNameSeq = null
         }
     }
 }

@@ -136,6 +136,9 @@
                                             <button class="circle-btn left" @click="moveLeft(key, msg.seq)">
                                                 <i class="fas fa-arrow-left"></i>
                                             </button>
+                                            <button class="circle-btn down-arrow" @click="toggleReplyMode(msg)" title="답장 연결">
+                                                <i class="fas fa-link"></i>
+                                            </button>
                                         </div>
                                         <span class="send-date">{{ text.sendDate }}</span>
                                     </div>
@@ -187,10 +190,10 @@
                                         <template v-if="msg.isReply">
                                             <button v-if="this.isEditing != null"
                                             class="btn btn-sm btn-link me-2" 
-                                            @click="toggleReplyMode(msg)"
-                                            title="답장 연결"
+                                            @click="removeReply(msg)"
+                                            title="답장 삭제"
                                             >
-                                            🔗
+                                            🗑️
                                             </button>
                                             <span v-if="nickNameMap[msg.replyNickNameSeq]">
                                                 <span class="reply-header">
@@ -349,13 +352,12 @@
                                             <span v-else>
                                                 <span class="reply-header-them">나에게 답장</span>
                                             </span>
-                                            <button 
-                                            class="btn btn-sm btn-link me-2" 
-                                            v-if="this.isEditing != null"
-                                            @click="toggleReplyMode(msg)"
-                                            title="답장 연결"
+                                            <button v-if="this.isEditing != null"
+                                                class="btn btn-sm btn-link me-2" 
+                                                @click="removeReply(msg)"
+                                                title="답장 삭제"
                                             >
-                                            🔗
+                                            🗑️
                                             </button>
                                             <br />
                                             <span class="reply-message-them">{{ msg.replyMessage }}</span>
@@ -398,6 +400,9 @@
                                             <button class="circle-btn edit" @click="editMessage(key, msg.seq)"><i class="fas fa-pencil-alt"></i></button>
                                             <button class="circle-btn delete" @click="removeMessageSeq(key, msg.seq, msg.messageSeq)"><i class="fas fa-trash"></i></button>
                                             <button class="circle-btn camera"  data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)"><i class="fas fa-camera"></i></button>
+                                            <button class="circle-btn down-arrow" @click="toggleReplyMode(msg)" title="답장 연결">
+                                                <i class="fas fa-link"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -954,7 +959,7 @@ export default {
             this.addNickNameSet = newSet;
         },
         toggleReplyMode(msg) {
-            this.replyMode = !this.replyMode;
+            this.replyMode = true
                 if (!this.replyMode) {
                     this.selectedReplyKey = null
                     this.selectedReplySeq = null; // 모드 비활성화 시 선택 초기화
@@ -1005,6 +1010,8 @@ export default {
                 this.selectedReplyKey = null;
                 this.selectedReplySeq = null;
             }
+
+            this.replyOriginMessage.isReply = true
 
             this.replyMode = false;
             
@@ -1220,6 +1227,13 @@ export default {
                 }  
                 this.originMsg = null
                 this.returnButtonTimeout = null
+        },
+        removeReply(msg) {
+            msg.isReply = false
+            msg.replyTo = null
+            msg.replyMessage = null
+            msg.replyMessageSeq = null
+            msg.replyNickNameSeq = null
         }
     }
 }
