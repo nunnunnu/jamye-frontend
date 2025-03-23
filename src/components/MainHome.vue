@@ -84,9 +84,9 @@
                             </svg>
                             <div class="device-wrapper">
                                 <div class="device" data-device="iPhoneX" data-orientation="portrait" data-color="black">
-                                    <!-- <div class="screen bg-black"> 아이폰 오류로 인한 동영상 주석처리
-                                        <video muted="muted" autoplay="" loop="" style="max-width: 100%; height: 100%"><source src="@/assets/img/demo-screen.mp4" type="video/mp4" /></video>
-                                    </div> -->
+                                    <div class="screen bg-black"> 
+                                        <video muted="muted" autoplay="" loop="" style="max-width: 100%; height: 100%"><source src="@/assets/img/demo-screen.mp4" type="video/mp4" disablePictureInPicture autoplay muted loop playsinline/></video>
+                                    </div>
                                     
                                 </div>
                             </div>
