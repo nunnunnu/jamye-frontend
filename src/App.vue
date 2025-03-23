@@ -1,15 +1,19 @@
 <template>
-  <Navbar :isLogin="isLogin" :currentGroup="currentGroup" @groupSelect="groupSelect" :unreadCount="unreadCount"></Navbar>
   <div id="app">
-    <div v-if="loading" class="loading-overlay">
-      <div class="spinner"></div>
+    <Navbar :isLogin="isLogin" :currentGroup="currentGroup" @groupSelect="groupSelect" :unreadCount="unreadCount"></Navbar>
+    <div id="content">
+      <div v-if="loading" class="loading-overlay">
+        <div class="spinner"></div>
+      </div>
+      <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" :key="currentGroup" @groupSelect="groupSelect"></router-view>
     </div>
   </div>
-  <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" :key="currentGroup" @groupSelect="groupSelect"></router-view>
+  <FooterView />
 </template>
 
 <script>
 import Navbar from './components/NavBar.vue'
+import FooterView from './components/FooterView.vue';
 import { setLoadingCallback } from '@/js/axios'
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
@@ -91,7 +95,8 @@ export default {
 
     },
   components: {
-    Navbar
+    Navbar,
+    FooterView
   }
 }
 </script>
@@ -157,5 +162,7 @@ export default {
   background-color: #fccbcb !important; /* 노란색 배경 */
   color: #000 !important;               /* 검은색 글씨 */
 }
-
+#content {
+  min-height: 80vh; /* 화면 전체 높이 유지 */
+}
 </style>
