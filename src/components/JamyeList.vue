@@ -1,22 +1,49 @@
 <template>
     <div class="b-container">
-        <h1 class="title" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록 ({{ jamyes.length }} / {{ totalCount }})</h1>
-        <div class="jamye-info-box-container" v-if="jamyes.length != 0">
-            <div class="jamye-info-box" v-for="jamye in jamyes" :key="jamye.postSequenc"
-                :class="{ selectable: jamye.isViewable }"
-                @click="movePost(jamye.postType, jamye.postSequence, jamye.isViewable)" 
-            >
-                <div class="jamye-header">
-                    <div class="jamye-type">{{ jamye.postTypeName }}</div>
-                    <div class="jamye-title">{{ jamye.title }}</div>
-                    <div class="isViewable" v-if="jamye.isViewable">{{ jamye.isViewableName }}</div>
-                </div>
-                <div class="jamye-detail">
-                    <div>작성자: {{ jamye.createdUserNickName }}</div>
-                    <div>생성일: {{ jamye.createDate }}</div>
-                    <div>수정일: {{ jamye.updateDate }}</div>
+        <h1 class="title" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록 
+        </h1>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="검색어를 입력해주세요" aria-describedby="button-addon2" v-model="keyword">
+            <button class="btn btn-outline-dark" type="button" @click="jamyeSearch">검색</button>
+        </div>
+        <div class="jamye-page" v-if="jamyes.length != 0">
+            <div class="jamye-info-box-container">
+                <div class="jamye-info-box" v-for="jamye in jamyes" :key="jamye.postSequenc"
+                    :class="{ selectable: jamye.isViewable }"
+                    @click="movePost(jamye.postType, jamye.postSequence, jamye.isViewable)" 
+                >
+                    <div class="jamye-header">
+                        <div class="jamye-type">{{ jamye.postTypeName }}</div>
+                        <div class="jamye-title">{{ jamye.title }}</div>
+                        <div class="isViewable" v-if="jamye.isViewable">{{ jamye.isViewableName }}</div>
+                    </div>
+                    <div class="jamye-detail">
+                        <div>작성자: {{ jamye.createdUserNickName }}</div>
+                        <div>생성일: {{ jamye.createDate }}</div>
+                        <div>수정일: {{ jamye.updateDate }}</div>
+                    </div>
                 </div>
             </div>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a v-if="currentPage==0" class="page-link">Previous</a>
+                    </li>
+                    <a v-if="currentPage!=0" class="page-link" @click="pageClick(currentPage-1)">Previous</a>
+                        <tr v-for="page in totalPage" :key="page">
+                            <li class="page-item">
+                                <a class="page-link" @click="pageClick(page-1)">
+                                    <font color="red" v-if="page-1==currentPage">{{ page }}</font>
+                                    <font v-if="page-1!=currentPage">{{ page }}</font>
+                                </a>
+                            </li>
+                        </tr>
+                        <li v-if="currentPage+1==totalPage" class="page-item disabled">
+                        <a class="page-link">Next</a>
+                        </li>
+                        <li v-if="currentPage+1!=totalPage" class="page-item">
+                        <a class="page-link" @click="pageClick(currentPage+1)">Next</a>
+                        </li>
+                </ul>
         </div>
         <div v-else>
                     등록된 잼얘가 없습니다.
@@ -29,7 +56,10 @@ export default{
     data() {
         return {
             jamyes: {},
-            totalCount: 0
+            totalCount: 0,
+            keyword: null,
+            currentPage: 0,
+            totalPage: 0
         }
     },
     props: {
@@ -50,13 +80,23 @@ export default{
         } else {
             this.groupName = group.name
         }
-        axios.get("/api/post/" + group.groupSequence, {
+        this.jamyeSearch()
+    },
+    methods: {
+        jamyeSearch() {
+            var group = this.$cookies.get("group")
+            axios.get(`/api/post/${group.groupSequence}?page=${this.currentPage}` 
+                + (this.keyword==null?"":`&keyword=${this.keyword}`
+                + (this.tags==null?"":`&tags=${this.tags}`
+                ))
+            , {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
                 }).then(r => {
-                    const jamyesData = r.data.data.posts;
+                    const jamyesData = r.data.data.content;
                     this.totalCount = r.data.data.count
+                    this.totalPage = r.data.data.totalPages
                     const formatDate = (dateString) => {
                         const apiTime = new Date(dateString);
                         return `${apiTime.getFullYear()}-${String(apiTime.getMonth() + 1).padStart(2, '0')}-${String(apiTime.getDate()).padStart(2, '0')} ${String(apiTime.getHours()).padStart(2, '0')}:${String(apiTime.getMinutes()).padStart(2, '0')}`;
@@ -81,8 +121,7 @@ export default{
 
                     this.jamyes = jamyesData;
                 })
-    },
-    methods: {
+        },
         movePost(type, postSeq, isViewable) {
             if(!isViewable) {
                 return
@@ -92,8 +131,12 @@ export default{
             } else if(type == "BOR") {
                 this.$router.push("/jamye/board" + postSeq)
             }
-            
-        }
+        },
+        pageClick(page){
+                this.currentPage=page
+                this.jamyeSearch()
+            },
+
     }
     
 }
@@ -101,6 +144,7 @@ export default{
 <style>
 .jamye-info-box-container {
     max-height: 800px;
+    min-height: 500px;
     overflow-y: auto;
     padding-right: 10px;
 }
