@@ -55,10 +55,14 @@
                                         </div>
                                         <router-link class="btn btn-dark custom-btn" :to="{name:'jamyeList'}">잼얘 목록</router-link>
                                 </div>
-                                <div v-if="currentGroup == null" class="mt-3 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-dark custom-btn" disabled>뽑기</button>
-                                    <button type="button" class="btn btn-dark custom-btn" disabled>잼얘 넣기</button>
-                                    <button class="btn btn-dark custom-btn" disabled>잼얘 목록</button>
+                                <div v-if="currentGroup == null" class="mt-3 d-flex justify-content-between tooltip-btn">
+                                    <button type="button" class="btn btn-dark custom-btn tooltip-btn" disabled>뽑기
+                                    </button>
+                                    <button type="button" class="btn btn-dark custom-btn tooltip-btn" disabled>잼얘 넣기
+                                    </button>
+                                    <button class="btn btn-dark custom-btn tooltip-btn" disabled>잼얘 목록
+                                    </button>
+                                    <span class="tooltip-text">그룹을 먼저 선택해주세요</span>
                                 </div>
                             </div>
                         </div>
@@ -85,7 +89,18 @@
                             <div class="device-wrapper">
                                 <div class="device" data-device="iPhoneX" data-orientation="portrait" data-color="black">
                                     <div class="screen bg-black"> 
-                                        <video muted="muted" autoplay="" loop="" style="max-width: 100%; height: 100%"><source src="@/assets/img/demo-screen.mp4" type="video/mp4" disablePictureInPicture autoplay muted loop playsinline/></video>
+                                        <video 
+                                            muted 
+                                            autoplay 
+                                            loop 
+                                            playsinline 
+                                            disablePictureInPicture 
+                                            controlsList="nodownload nofullscreen noremoteplayback" 
+                                            style="max-width: 100%; height: 100%;" 
+                                            oncontextmenu="return false;"
+                                        >
+                                            <source src="@/assets/img/demo-screen.mp4" type="video/mp4" />
+                                        </video>
                                     </div>
                                     
                                 </div>
