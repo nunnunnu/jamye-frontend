@@ -6,6 +6,20 @@
             <input type="text" class="form-control" placeholder="검색어를 입력해주세요" aria-describedby="button-addon2" v-model="keyword">
             <button class="btn btn-outline-dark" type="button" @click="jamyeSearch">검색</button>
         </div>
+        <div class="input-group mb-3">
+            <div v-for="(item, index) in items" :key="index" class="form-check">
+                <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    :id="'checkbox-' + index" 
+                    :value="item.value" 
+                    v-model="types"
+                />
+                <label class="form-check-label" :for="'checkbox-' + index">
+                    {{ item.label }}
+                </label>
+                </div>
+        </div>
         <div class="jamye-page" v-if="jamyes.length != 0">
             <div class="jamye-info-box-container">
                 <div class="jamye-info-box" v-for="jamye in jamyes" :key="jamye.postSequenc"
@@ -26,22 +40,30 @@
             </div>
                 <ul class="pagination justify-content-center">
                     <li class="page-item disabled">
-                        <a v-if="currentPage==0" class="page-link">Previous</a>
+                        <a v-if="currentPage==0" class="page-link">
+                            <font aria-hidden="true" color="black">&laquo;</font>
+                        </a>
                     </li>
-                    <a v-if="currentPage!=0" class="page-link" @click="pageClick(currentPage-1)">Previous</a>
+                    <a v-if="currentPage!=0" class="page-link" @click="pageClick(currentPage-1)">
+                        <font color="black" aria-hidden="true" >&laquo;</font>
+                    </a>
                         <tr v-for="page in totalPage" :key="page">
                             <li class="page-item">
                                 <a class="page-link" @click="pageClick(page-1)">
                                     <font color="red" v-if="page-1==currentPage">{{ page }}</font>
-                                    <font v-if="page-1!=currentPage">{{ page }}</font>
+                                    <font color="black" v-if="page-1!=currentPage">{{ page }}</font>
                                 </a>
                             </li>
                         </tr>
                         <li v-if="currentPage+1==totalPage" class="page-item disabled">
-                        <a class="page-link">Next</a>
+                        <a class="page-link">
+                            <font color="black" aria-hidden="true">&raquo;</font>
+                        </a>
                         </li>
                         <li v-if="currentPage+1!=totalPage" class="page-item">
-                        <a class="page-link" @click="pageClick(currentPage+1)">Next</a>
+                        <a class="page-link" @click="pageClick(currentPage+1)">
+                            <font color="black" aria-hidden="true">&raquo;</font>   
+                        </a>
                         </li>
                 </ul>
         </div>
@@ -59,13 +81,26 @@ export default{
             totalCount: 0,
             keyword: null,
             currentPage: 0,
-            totalPage: 0
+            totalPage: 0,
+            types: new Set,
+            items: [
+                { label: "포스트", value: "BOR" },
+                { label: "메세지", value: "MSG" }
+            ]
         }
     },
     props: {
         isLogin: {
             type: Boolean,
             required: true
+        }
+    },
+    watch: {
+        types: {
+            handler() {
+                this.jamyeSearch();
+            },
+            deep: true // Set 내부 변경도 감지
         }
     },
     created() {
@@ -80,15 +115,17 @@ export default{
         } else {
             this.groupName = group.name
         }
-        this.jamyeSearch()
+        this.jamyeList()
     },
     methods: {
-        jamyeSearch() {
+        jamyeList() {
+            console.log(this.types.size)
+            console.log(this.types == null || this.types.size == 0)
             var group = this.$cookies.get("group")
             axios.get(`/api/post/${group.groupSequence}?page=${this.currentPage}` 
-                + (this.keyword==null?"":`&keyword=${this.keyword}`
-                + (this.tags==null?"":`&tags=${this.tags}`
-                ))
+                + (this.keyword==null?"":`&keyword=${this.keyword}`)
+                + (this.tags == null || this.tags.isEmpty() ? "" : `&tags=${Array.from(this.tags).join(", ")}`)
+                + (this.types == null || this.types.size == 0 ? "" : `&types=${Array.from(this.types).join(", ")}`)
             , {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
@@ -122,6 +159,11 @@ export default{
                     this.jamyes = jamyesData;
                 })
         },
+        jamyeSearch() {
+            console.log(this.types)
+            this.currentPage = 0
+            this.jamyeList()
+        },
         movePost(type, postSeq, isViewable) {
             if(!isViewable) {
                 return
@@ -134,7 +176,7 @@ export default{
         },
         pageClick(page){
                 this.currentPage=page
-                this.jamyeSearch()
+                this.jamyeList()
             },
 
     }
@@ -209,5 +251,11 @@ export default{
     font-size: 15px;
     display: flex;
     gap: 10px
+}
+.pagination {
+    color: black;
+}
+.form-check {
+    margin-right: 10px;
 }
 </style>
