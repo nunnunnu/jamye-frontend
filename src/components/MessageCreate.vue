@@ -80,7 +80,43 @@
                             </div>
                         </div>
                     </div>
+                    <button @click="toggleInput" class="btn btn-dark">
+                        {{ isInputVisible ? "입력완료" : "태그 추가" }}
+                    </button>
+                    <div class="hashtag-container">
+                        <div v-if="isInputVisible" class="input-container">
+                        <div class="input-group mb-3">
+                            <input
+                                v-model="searchTerm"
+                                @input="fetchHashtags"
+                                placeholder="태그를 입력하세요"
+                                class="tag-input form-control"
+                                id="tagInput"
+                            />
+                            <button class="btn btn-dark" @click="addTextTag">추가</button>
+                        </div>
+                            <ul v-if="searchResults.length" class="search-results">
+                                <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
+                                #{{ tag.tagName }}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="tag-list">
+                            <div
+                                v-for="(tag, index) in selectedTags"
+                                :key="index"
+                                class="tag-item"
+                                @mouseover="hoverIndex = index"
+                                @mouseleave="hoverIndex = -1"
+                            >
+                                # {{ tag.tagName }}
+                                <span v-if="hoverIndex === index" @click="removeTag(index)" class="remove-tag">×</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="card card-body">
                     <div class="chat-room">
                         <div v-for="[key, text] in Object.entries(messageResponse)" :key="key">                                                                        
@@ -394,7 +430,12 @@ export default {
             messageResponse: {},
             removeText: null,
             originMsg: null,
-            returnButtonTimeout: null
+            returnButtonTimeout: null,
+            isInputVisible: false,
+            searchTerm: "",
+            searchResults: [],
+            selectedTags: [],
+            hoverIndex: -1
         }
     },
     props: {
@@ -858,6 +899,7 @@ export default {
                 }
             }
             formdata.append('nickNameMap', JSON.stringify(nickNameMap))
+            formdata.append('tags', JSON.stringify(this.selectedTags))
             
                 axios.post("/api/post/message", formdata, {
                     headers: {
@@ -1065,12 +1107,93 @@ export default {
             msg.replyMessage = null
             msg.replyMessageSeq = null
             msg.replyNickNameSeq = null
+        },
+        toggleInput() {
+            this.isInputVisible = !this.isInputVisible;
+            if (!this.isInputVisible) {
+                const duplicateCheck = this.selectedTags.filter(it => it.tagName == this.searchTerm)
+                if(this.searchTerm.trim() && duplicateCheck.length == 0) {
+                    this.selectedTags.push({
+                        tagName: this.searchTerm
+                    })
+                }
+                this.searchTerm = "";
+                this.searchResults = [];
+            } else {
+                this.$nextTick(() => { 
+                const targetMessage = document.getElementById("tagInput");
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                }
+            });
+            }
+        },
+        addTextTag() {
+            const duplicateCheck = this.selectedTags.filter(it => it.tagName == this.searchTerm)
+            if(this.searchTerm.trim() && duplicateCheck.length == 0) {
+                this.selectedTags.push({
+                    tagName: this.searchTerm
+                })
+                this.searchTerm = ""
+            } else if(duplicateCheck.length != 0) {
+                this.$toastr.warning("이미 등록된 태그입니다")
+            } else {
+                this.$toastr.warning("추가할 태그를 입력해주세요")
+            }
+            this.$nextTick(() => { 
+                const targetMessage = document.getElementById("tagInput");
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                    }
+                })
+        },
+        async fetchHashtags() {
+            if (!this.searchTerm.trim()) {
+                this.searchResults = [];
+                return;
+            }
+
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            axios.get(`/api/post/tag/${groupSeq}?keyword=${this.searchTerm}`, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(r => {
+                this.searchResults = r.data.data
+            })   
+                
+        },
+        addTag(tag) {
+            const duplicateCheck = this.selectedTags.filter(it => it.tagName == tag.tagName)
+            if (duplicateCheck.length == 0) {
+                this.selectedTags.push(tag);
+            }
+            this.searchTerm = "";
+            this.searchResults = [];
+        },
+        removeTag(index) {
+            this.selectedTags.splice(index, 1);
         }
     }
 }
 </script>
 <style>
 @import url("/src/css/message.css");
+@import url("/src/css/tag.css");
 
 .nicknames-container {
     display: flex;

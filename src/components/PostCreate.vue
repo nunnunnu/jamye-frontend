@@ -21,24 +21,24 @@
                 />
                 <button class="btn btn-dark" @click="addTextTag">추가</button>
             </div>
-            <ul v-if="searchResults.length" class="search-results">
-                <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
-                #{{ tag.tagName }}
-                </li>
-            </ul>
+                <ul v-if="searchResults.length" class="search-results">
+                    <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
+                    #{{ tag.tagName }}
+                    </li>
+                </ul>
             </div>
 
             <div class="tag-list">
-            <div
-                v-for="(tag, index) in selectedTags"
-                :key="index"
-                class="tag-item"
-                @mouseover="hoverIndex = index"
-                @mouseleave="hoverIndex = -1"
-            >
-                # {{ tag.tagName }}
-                <span v-if="hoverIndex === index" @click="removeTag(index)" class="remove-tag">×</span>
-            </div>
+                <div
+                    v-for="(tag, index) in selectedTags"
+                    :key="index"
+                    class="tag-item"
+                    @mouseover="hoverIndex = index"
+                    @mouseleave="hoverIndex = -1"
+                >
+                    # {{ tag.tagName }}
+                    <span v-if="hoverIndex === index" @click="removeTag(index)" class="remove-tag">×</span>
+                </div>
             </div>
         </div>
         <div class="post-container">
@@ -191,7 +191,8 @@ export default {
         toggleInput() {
             this.isInputVisible = !this.isInputVisible;
             if (!this.isInputVisible) {
-                if(this.searchTerm.trim() && !this.selectedTags.includes(this.searchTerm)) {
+                const duplicateCheck = this.selectedTags.filter(it => it.tagName == this.searchTerm)
+                if(this.searchTerm.trim() && duplicateCheck.length == 0) {
                     this.selectedTags.push({
                         tagName: this.searchTerm
                     })
@@ -215,11 +216,14 @@ export default {
             }
         },
         addTextTag() {
-            if(this.searchTerm.trim() && !this.selectedTags.includes(this.searchTerm)) {
+            const duplicateCheck = this.selectedTags.filter(it => it.tagName == this.searchTerm)
+            if(this.searchTerm.trim() && duplicateCheck.length == 0) {
                 this.selectedTags.push({
                     tagName: this.searchTerm
                 })
                 this.searchTerm = ""
+            } else if(duplicateCheck.length != 0) {
+                this.$toastr.warning("이미 등록된 태그입니다")
             } else {
                 this.$toastr.warning("추가할 태그를 입력해주세요")
             }
@@ -254,7 +258,8 @@ export default {
                 
         },
         addTag(tag) {
-            if (!this.selectedTags.includes(tag)) {
+            const duplicateCheck = this.selectedTags.filter(it => it.tagName == tag.tagName)
+            if (duplicateCheck.length == 0) {
                 this.selectedTags.push(tag);
             }
             this.searchTerm = "";
@@ -267,6 +272,7 @@ export default {
 }
 </script>
 <style>
+@import url("/src/css/tag.css");
 .btn-imgbox {
     margin-top: 5px;
 }
@@ -288,63 +294,5 @@ export default {
   font-size: 16px;
 }
 
-.hashtag-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.tag-button {
-  padding: 8px 12px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-}
-.input-container {
-  position: relative;
-}
-.tag-input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.search-results {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  position: absolute;
-  width: 100%;
-  background: white;
-  border: 1px solid #ccc;
-  max-height: 150px;
-  overflow-y: auto;
-  z-index: 1000;
-}
-.search-results li {
-  padding: 8px;
-  cursor: pointer;
-}
-.search-results li:hover {
-  background: #f1f1f1;
-}
-.tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.tag-item {
-  background: #e0e0e0;
-  padding: 6px 12px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-}
-.remove-tag {
-  cursor: pointer;
-  font-weight: bold;
-}
+
 </style>
