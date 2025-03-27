@@ -7,19 +7,23 @@
         <button type="button" class="btn btn-dark mb-3 btn-imgbox" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
         <button @click="toggleInput" class="btn btn-dark">
             {{ isInputVisible ? "입력완료" : "태그 추가" }}
-            </button>
+        </button>
         <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
         <div class="hashtag-container">
             <div v-if="isInputVisible" class="input-container">
-            <input
-                v-model="searchTerm"
-                @input="fetchHashtags"
-                placeholder="태그를 입력하세요"
-                class="tag-input"
-            />
+            <div class="input-group mb-3">
+                <input
+                    v-model="searchTerm"
+                    @input="fetchHashtags"
+                    placeholder="태그를 입력하세요"
+                    class="tag-input form-control"
+                    id="tagInput"
+                />
+                <button class="btn btn-dark" @click="addTextTag">추가</button>
+            </div>
             <ul v-if="searchResults.length" class="search-results">
                 <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
-                #{{ tag }}
+                #{{ tag.tagName }}
                 </li>
             </ul>
             </div>
@@ -32,7 +36,7 @@
                 @mouseover="hoverIndex = index"
                 @mouseleave="hoverIndex = -1"
             >
-                # {{ tag }}
+                # {{ tag.tagName }}
                 <span v-if="hoverIndex === index" @click="removeTag(index)" class="remove-tag">×</span>
             </div>
             </div>
@@ -166,7 +170,8 @@ export default {
                 groupSeq: groupSeq,
                 content: {
                     content: content
-                }
+                },
+                tags: this.selectedTags
             };
 
             formdata.append('data', JSON.stringify(data));
@@ -187,11 +192,50 @@ export default {
             this.isInputVisible = !this.isInputVisible;
             if (!this.isInputVisible) {
                 if(this.searchTerm.trim() && !this.selectedTags.includes(this.searchTerm)) {
-                    this.selectedTags.push(this.searchTerm)
+                    this.selectedTags.push({
+                        tagName: this.searchTerm
+                    })
                 }
                 this.searchTerm = "";
                 this.searchResults = [];
+            } else {
+                this.$nextTick(() => { 
+                const targetMessage = document.getElementById("tagInput");
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                }
+            });
             }
+        },
+        addTextTag() {
+            if(this.searchTerm.trim() && !this.selectedTags.includes(this.searchTerm)) {
+                this.selectedTags.push({
+                    tagName: this.searchTerm
+                })
+                this.searchTerm = ""
+            } else {
+                this.$toastr.warning("추가할 태그를 입력해주세요")
+            }
+            this.$nextTick(() => { 
+                const targetMessage = document.getElementById("tagInput");
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                    }
+                })
         },
         async fetchHashtags() {
             if (!this.searchTerm.trim()) {
