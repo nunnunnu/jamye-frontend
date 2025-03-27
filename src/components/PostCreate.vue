@@ -5,7 +5,38 @@
             <input type="text" class="form-control" name="post-title" id="post-title" v-model="postTitle" placeholder="게시글 제목">
         </div>
         <button type="button" class="btn btn-dark mb-3 btn-imgbox" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+        <button @click="toggleInput" class="btn btn-dark">
+            {{ isInputVisible ? "입력완료" : "태그 추가" }}
+            </button>
         <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
+        <div class="hashtag-container">
+            <div v-if="isInputVisible" class="input-container">
+            <input
+                v-model="searchTerm"
+                @input="fetchHashtags"
+                placeholder="태그를 입력하세요"
+                class="tag-input"
+            />
+            <ul v-if="searchResults.length" class="search-results">
+                <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
+                #{{ tag }}
+                </li>
+            </ul>
+            </div>
+
+            <div class="tag-list">
+            <div
+                v-for="(tag, index) in selectedTags"
+                :key="index"
+                class="tag-item"
+                @mouseover="hoverIndex = index"
+                @mouseleave="hoverIndex = -1"
+            >
+                # {{ tag }}
+                <span v-if="hoverIndex === index" @click="removeTag(index)" class="remove-tag">×</span>
+            </div>
+            </div>
+        </div>
         <div class="post-container">
             <div
             id = "content"
@@ -35,7 +66,12 @@ export default {
             previewImage: null,   // 현재 미리보기 이미지.
             imageMap: {},
             cursorPosition: null,
-            postContent: String
+            postContent: String,
+            isInputVisible: false,
+            searchTerm: "",
+            searchResults: [],
+            selectedTags: [],
+            hoverIndex: -1
         }
     },
     props: {
@@ -147,6 +183,42 @@ export default {
         handleImageMapUpdate(imageUidMap) {
             this.imageMap = imageUidMap
         },
+        toggleInput() {
+            this.isInputVisible = !this.isInputVisible;
+            if (!this.isInputVisible) {
+                if(this.searchTerm.trim() && !this.selectedTags.includes(this.searchTerm)) {
+                    this.selectedTags.push(this.searchTerm)
+                }
+                this.searchTerm = "";
+                this.searchResults = [];
+            }
+        },
+        async fetchHashtags() {
+            if (!this.searchTerm.trim()) {
+                this.searchResults = [];
+                return;
+            }
+
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            axios.get(`/api/post/tag/${groupSeq}?keyword=${this.searchTerm}`, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(r => {
+                this.searchResults = r.data.data
+            })   
+                
+        },
+        addTag(tag) {
+            if (!this.selectedTags.includes(tag)) {
+                this.selectedTags.push(tag);
+            }
+            this.searchTerm = "";
+            this.searchResults = [];
+        },
+        removeTag(index) {
+            this.selectedTags.splice(index, 1);
+        }
   }
 }
 </script>
@@ -170,5 +242,65 @@ export default {
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
+}
+
+.hashtag-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tag-button {
+  padding: 8px 12px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.input-container {
+  position: relative;
+}
+.tag-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.search-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+.search-results li {
+  padding: 8px;
+  cursor: pointer;
+}
+.search-results li:hover {
+  background: #f1f1f1;
+}
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag-item {
+  background: #e0e0e0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+.remove-tag {
+  cursor: pointer;
+  font-weight: bold;
 }
 </style>
