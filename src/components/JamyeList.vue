@@ -31,6 +31,16 @@
                         <div class="jamye-title">{{ jamye.title }}</div>
                         <div class="isViewable" v-if="jamye.isViewable">{{ jamye.isViewableName }}</div>
                     </div>
+                    <div class="tag-list">
+                        <div
+                            v-for="tag in jamye.tags" :key="tag.tagPostConnectionSeq"
+                            class="tag-item"
+                            @mouseover="hoverIndex = index"
+                            @mouseleave="hoverIndex = -1"
+                        >
+                            # {{ tag.tagName }}
+                        </div>
+                    </div>
                     <div class="jamye-detail">
                         <div>작성자: {{ jamye.createdUserNickName }}</div>
                         <div>생성일: {{ jamye.createDate }}</div>
@@ -184,6 +194,7 @@ export default{
 }
 </script>
 <style>
+@import url("/src/css/tag.css");
 .jamye-info-box-container {
     max-height: 800px;
     min-height: 500px;
@@ -197,7 +208,7 @@ export default{
     margin-left: 5px;
     background-color: #ffffff;
     border-radius: 20px;
-    height: 90px;
+    height: auto;
     outline-style: solid;
     outline-color: #d7d7d7;
     overflow: hidden;
@@ -247,7 +258,7 @@ export default{
 }
 .jamye-detail {
     margin-left: 15px;
-    margin-top: 10px;
+    margin-bottom: 5px;
     font-size: 15px;
     display: flex;
     gap: 10px
@@ -257,5 +268,21 @@ export default{
 }
 .form-check {
     margin-right: 10px;
+}
+
+.tag-item {
+  background: #e0e0e0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  font-size: 10px;
+}
+
+.tag-list {
+    margin-left: 15px;
+    margin-top: 5px;
 }
 </style>
