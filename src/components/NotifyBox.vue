@@ -2,6 +2,7 @@
     <div class="b-container">
         <div class="title">쪽지함</div>
         <div class="descript">모든 알람은 한달 뒤 삭제됩니다</div>
+        <button class="btn btn-dark notifyBox" @click="discordLogin">쪽지함 디스코드 연동</button>
         <button v-if="isNoRead" class="btn btn-dark notifyBox" @click="allNotifyRead">모두 읽기</button>
         <button v-else class="btn btn-dark notifyBox" disabled>모두 읽기</button>
         <button class="btn btn-dark notifyBox" @click="allReadNotifyDelete">읽은 쪽지 삭제</button>
@@ -105,6 +106,19 @@ export default {
                 .then(() => {
                     this.getNotiftList()
                 })
+        },
+        async discordLogin() {
+            const authUrl = "https://discord.com/oauth2/authorize"
+
+                const clientId = "1355801367297523763";
+                const response_type = "code"
+                const redirect_uri = "http://localhost:8081/oauth/redirect"
+                const scope = "identify"
+                
+                const url = `${authUrl}?client_id=${clientId}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}`;
+
+                window.location.href=url
+            
         }
     }
 }

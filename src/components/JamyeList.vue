@@ -18,7 +18,18 @@
                 <label class="form-check-label" :for="'checkbox-' + index">
                     {{ item.label }}
                 </label>
-                </div>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <div class="tag-list" v-for="tag in tags" :key="tag.tagSeq">
+                <button 
+                    class="btn btn-sm tag-item-btn" 
+                    :class="{ 'btn-danger': isSelected(tag.tagSeq), 'btn-secondary': !isSelected(tag.tagSeq) }"
+                    @click="toggleTag(tag.tagSeq)"
+                >
+                    #{{ tag.tagName }}
+                </button>
+            </div>
         </div>
         <div class="jamye-page" v-if="jamyes.length != 0">
             <div class="jamye-info-box-container">
@@ -96,7 +107,9 @@ export default{
             items: [
                 { label: "포스트", value: "BOR" },
                 { label: "메세지", value: "MSG" }
-            ]
+            ],
+            tags: [],
+            selectedTags: []
         }
     },
     props: {
@@ -110,7 +123,13 @@ export default{
             handler() {
                 this.jamyeSearch();
             },
-            deep: true // Set 내부 변경도 감지
+            deep: true
+        },
+        selectedTags: {
+            handler() {
+                this.jamyeSearch();
+            },
+            deep: true 
         }
     },
     created() {
@@ -126,15 +145,14 @@ export default{
             this.groupName = group.name
         }
         this.jamyeList()
+        this.tagList()
     },
     methods: {
         jamyeList() {
-            console.log(this.types.size)
-            console.log(this.types == null || this.types.size == 0)
             var group = this.$cookies.get("group")
             axios.get(`/api/post/${group.groupSequence}?page=${this.currentPage}` 
                 + (this.keyword==null?"":`&keyword=${this.keyword}`)
-                + (this.tags == null || this.tags.isEmpty() ? "" : `&tags=${Array.from(this.tags).join(", ")}`)
+                + (this.selectedTags == null || this.selectedTags.size == 0 ? "" : `&tagSeqs=${Array.from(this.selectedTags).join(", ")}`)
                 + (this.types == null || this.types.size == 0 ? "" : `&types=${Array.from(this.types).join(", ")}`)
             , {
                     headers: {
@@ -185,10 +203,30 @@ export default{
             }
         },
         pageClick(page){
-                this.currentPage=page
-                this.jamyeList()
-            },
-
+            this.currentPage=page
+            this.jamyeList()
+        },
+        tagList() {
+            var group = this.$cookies.get("group")
+            axios.get("/api/post/tag/" + group.groupSequence, {
+                    headers: {
+                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    }
+            }).then(r => {
+                this.tags = r.data.data
+            })
+        },
+        isSelected(tagSeq) {
+            return this.selectedTags.includes(tagSeq);
+        },
+        toggleTag(tagSeq) {
+            const index = this.selectedTags.indexOf(tagSeq);
+            if (index === -1) {
+                this.selectedTags.push(tagSeq); // 선택 (Long 값 추가)
+            } else {
+                this.selectedTags.splice(index, 1); // 해제
+            }
+        },
     }
     
 }
@@ -271,14 +309,13 @@ export default{
 }
 
 .tag-item {
-  background: #e0e0e0;
-  padding: 6px 12px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  position: relative;
   font-size: 10px;
+}
+
+.tag-item-btn {
+  font-size: 15px;
+  margin-left: 5px;
+  border-radius: 20px !important;
 }
 
 .tag-list {

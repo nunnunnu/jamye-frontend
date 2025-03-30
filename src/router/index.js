@@ -18,6 +18,7 @@ import EditProfile from '@/components/EditProfile.vue'
 import NotifyBox from '@/components/NotifyBox.vue'
 import ImagePreviewOpen from '@/components/ImagePreviewOpen.vue'
 import CommentList from '@/components/CommentList.vue'
+import DiscordLogin from '@/components/DiscordLogin.vue'
 const routes = [
     {
         path: "/",
@@ -123,6 +124,11 @@ const routes = [
         name: "comment-list",
         component: CommentList,
         props: true
+    },
+    {
+        path: "/oauth/redirect",
+        name: "discordLogin",
+        component: DiscordLogin
     }
 ]
 
