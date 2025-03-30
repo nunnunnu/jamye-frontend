@@ -22,6 +22,7 @@
 </template>
 <script>
 import axios from '@/js/axios';
+import { redirect_uri } from '@/js/config';
 export default {
     data() {
         return {
@@ -112,7 +113,7 @@ export default {
 
                 const clientId = "1355801367297523763";
                 const response_type = "code"
-                const redirect_uri = "http://localhost:8081/oauth/redirect"
+                
                 const scope = "identify"
                 
                 const url = `${authUrl}?client_id=${clientId}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}`;

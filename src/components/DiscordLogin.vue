@@ -21,8 +21,8 @@
             })
                 .then((r)=>{
                     console.log(r)
-                    this.$router.push("/notify-box")
                 })
+                this.$router.push("/notify-box")
             },
             methods:{
             }
