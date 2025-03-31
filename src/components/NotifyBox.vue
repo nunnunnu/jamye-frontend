@@ -2,7 +2,9 @@
     <div class="b-container">
         <div class="title">쪽지함</div>
         <div class="descript">모든 알람은 한달 뒤 삭제됩니다</div>
-        <button class="btn btn-dark notifyBox" @click="discordLogin">쪽지함 디스코드 연동</button>
+        <button class="btn btn-dark notifyBox " @click="discordLogin">디스코드 연동
+            <span class="tooltip-text">디스코드 연동시 jamye bot이 알림을 전송해 드립니다.</span>
+        </button>
         <button v-if="isNoRead" class="btn btn-dark notifyBox" @click="allNotifyRead">모두 읽기</button>
         <button v-else class="btn btn-dark notifyBox" disabled>모두 읽기</button>
         <button class="btn btn-dark notifyBox" @click="allReadNotifyDelete">읽은 쪽지 삭제</button>

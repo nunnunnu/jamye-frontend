@@ -4,7 +4,6 @@
     </template>
     <script>
         import axios from '@/js/axios'
-        // import Cookies from 'js-cookie'
         export default {
             name: 'discordLogin',
             created(){
