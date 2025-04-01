@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/js/config';
+import { IMAGE_URL } from '@/js/config';
 
 export function base64ToFile(base64String) {
     const byteString = atob(base64String.split(',')[1]);
@@ -21,5 +21,5 @@ export function base64ToFile(base64String) {
 }
 
 export function imageUrl(url) {
-    return `${BASE_URL}/api/file/${url}`;
+    return `${IMAGE_URL}/${url}`;
 }
