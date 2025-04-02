@@ -86,6 +86,7 @@ export default {
                 this.postContent = this.content
             }).catch(() => {
                 this.$toastr.error("잘못된 게시글 번호입니다. 운영자에게 문의해주세요")
+                this.$router("/jamye-list")
             })
         }
 

@@ -540,6 +540,9 @@ export default {
                 this.message = r.data.data
                 this.messageResponse = r.data.data.content.message
                 this.nickNameMap = r.data.data.content.nickName
+            }).catch(() => {
+                this.$toastr.error("잘못된 게시글 번호입니다. 운영자에게 문의해주세요")
+                this.$router("/jamye-list")
             })
         }
 
