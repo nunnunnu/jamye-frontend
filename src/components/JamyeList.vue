@@ -1,6 +1,6 @@
 <template>
     <div class="b-container">
-        <h1 class="title" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록 
+        <h1 class="title" id="jamye-create1">{{ groupName }} 가챠 잼얘 목록 ({{ totalElements }}/{{ allPostCount }})
         </h1>
         <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="검색어를 입력해주세요" aria-describedby="button-addon2" v-model="keyword">
@@ -107,7 +107,9 @@ export default{
                 { label: "메세지", value: "MSG" }
             ],
             tags: [],
-            selectedTags: []
+            selectedTags: [],
+            totalElements: 0,
+            allPostCount: 0
         }
     },
     props: {
@@ -159,6 +161,7 @@ export default{
                 }).then(r => {
                     const jamyesData = r.data.data.content;
                     this.totalCount = r.data.data.count
+                    this.totalElements = r.data.data.totalElements
                     this.totalPage = r.data.data.totalPages
                     const formatDate = (dateString) => {
                         const apiTime = new Date(dateString);
@@ -183,6 +186,14 @@ export default{
                     });
 
                     this.jamyes = jamyesData;
+                })
+
+                axios.get(`/api/group/${group.groupSequence}/all-post/count`, {
+                    headers: {
+                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    }
+                }).then(r => {
+                    this.allPostCount = r.data.data
                 })
         },
         jamyeSearch() {
@@ -314,6 +325,7 @@ export default{
   font-size: 15px;
   margin-left: 5px;
   border-radius: 20px !important;
+  background: #e0e0e0;
 }
 
 .tag-list {
