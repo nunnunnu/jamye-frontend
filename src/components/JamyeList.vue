@@ -59,34 +59,32 @@
                     </div>
                 </div>
             </div>
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a v-if="currentPage==0" class="page-link">
-                            <font aria-hidden="true" color="black">&laquo;</font>
-                        </a>
-                    </li>
-                    <a v-if="currentPage!=0" class="page-link" @click="pageClick(currentPage-1)">
-                        <font color="black" aria-hidden="true" >&laquo;</font>
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: currentPage == 0 }">
+                    <a class="page-link" v-if="currentPage == 0">
+                        <font aria-hidden="true" color="black">&laquo;</font>
                     </a>
-                        <tr v-for="page in totalPage" :key="page">
-                            <li class="page-item">
-                                <a class="page-link" @click="pageClick(page-1)">
-                                    <font color="red" v-if="page-1==currentPage">{{ page }}</font>
-                                    <font color="black" v-if="page-1!=currentPage">{{ page }}</font>
-                                </a>
-                            </li>
-                        </tr>
-                        <li v-if="currentPage+1==totalPage" class="page-item disabled">
-                        <a class="page-link">
-                            <font color="black" aria-hidden="true">&raquo;</font>
-                        </a>
-                        </li>
-                        <li v-if="currentPage+1!=totalPage" class="page-item">
-                        <a class="page-link" @click="pageClick(currentPage+1)">
-                            <font color="black" aria-hidden="true">&raquo;</font>   
-                        </a>
-                        </li>
-                </ul>
+                    <a class="page-link" v-else @click="pageClick(currentPage - 1)">
+                        <font color="black" aria-hidden="true">&laquo;</font>
+                    </a>
+                </li>
+                
+                <li v-for="page in totalPage" :key="page" class="page-item">
+                    <a class="page-link" @click="pageClick(page - 1)">
+                        <font v-if="page - 1 == currentPage" color="red">{{ page }}</font>
+                        <font v-else color="black">{{ page }}</font>
+                    </a>
+                </li>
+                
+                <li class="page-item" :class="{ disabled: currentPage + 1 == totalPage }">
+                    <a class="page-link" v-if="currentPage + 1 == totalPage">
+                        <font color="black" aria-hidden="true">&raquo;</font>
+                    </a>
+                    <a class="page-link" v-else @click="pageClick(currentPage + 1)">
+                        <font color="black" aria-hidden="true">&raquo;</font>
+                    </a>
+                </li>
+            </ul>
         </div>
         <div v-else>
                     등록된 잼얘가 없습니다.
