@@ -8,7 +8,7 @@
         </div>
         <div class="create-user">작성자: {{ message.createdUserNickName }}</div>
         <div class="editModeOpen" v-if="isEditing == null && message.createdUserSequence == $cookies.get('sequence')">
-            <button @click="editMode" class="btn btn-dark">수정하기</button>
+            <button @click="editMode" class="btn btn-dark">수정</button>
             <button @click="deletePost" class="btn btn-dark">삭제</button>
         </div>
         <div class="editMode" v-if="isEditing != null && message.createdUserSequence == $cookies.get('sequence')">

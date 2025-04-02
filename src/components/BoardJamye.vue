@@ -8,7 +8,8 @@
         </div>
         <div class="create-user">작성자: {{ board.createdUserNickName }}</div>
         <div class="editModeOpen" v-if="!isEditing && board.createdUserSequence == $cookies.get('sequence')">
-            <button @click="editMode" class="btn btn-dark">수정하기</button>
+            <button @click="editMode" class="btn btn-dark">수정</button>
+            <button @click="deletePost" class="btn btn-dark">삭제</button>
         </div>
         <div v-else-if="isEditing && board.createdUserSequence == $cookies.get('sequence')">
             <button type="button" class="btn btn-dark btn-imgbox" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
@@ -181,6 +182,16 @@ export default {
             selection.addRange(range);
 
             textarea.focus();
+        },
+        deletePost() {
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            axios.delete(`/api/post/${groupSeq}/${this.postSeq}`, {
+              headers: {
+                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              }
+          }).then( () => {
+                this.$router.push("/jamye-list")
+          }) 
         }
     }
 }
