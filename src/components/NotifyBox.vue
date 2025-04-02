@@ -11,7 +11,7 @@
             <div v-for="notify in notifyList" :key="notify.notifySeq" class="message-item">
                 <button class="close-btn" @click="deleteNotify(notify.notifySeq)">✖</button>
                 <button v-if="notify.isRead" class="btn btn-dark read-button btn-sm" disabled>읽기</button>
-                <button v-else class="btn btn-dark read-button btn-sm" @click="readNotify(notify.notifySeq)">읽기</button>
+                <button v-else class="btn btn-dark read-button btn-sm" @click="readNotify(notify)">읽기</button>
                 <div class="message-content">{{ notify.message }}</div>
                 <div class="message-date">{{ notify.createDate }}</div>
                 <div class="action-buttons">
