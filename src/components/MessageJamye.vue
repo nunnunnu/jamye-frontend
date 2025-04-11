@@ -473,7 +473,7 @@
                         <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image" />  
                     </div>
                 </div>
-                <comment-list class="comment" :postSeq= "postSeq"></comment-list>
+                <comment-list v-if="message.postSequence != null" class="comment" :postSeq= "postSeq"></comment-list>
     </div>    
 </template>
 <script>
@@ -542,7 +542,7 @@ export default {
                 this.nickNameMap = r.data.data.content.nickName
             }).catch(() => {
                 this.$toastr.error("잘못된 게시글 번호입니다. 운영자에게 문의해주세요")
-                this.$router("/jamye-list")
+                this.$router.push("/jamye-list")
             })
         }
 

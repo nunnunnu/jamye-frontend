@@ -27,7 +27,7 @@
             placeholder="게시글 내용을 입력하세요..."
             ></div>
         </div>
-        <comment-list class="comment" :postSeq= "postSeq"></comment-list>
+        <comment-list v-if="board.postSequence != null" class="comment" :postSeq= "postSeq"></comment-list>
     </div>    
 </template>
 <script>
@@ -85,8 +85,8 @@ export default {
                 this.content = r.data.data.content.content
                 this.postContent = this.content
             }).catch(() => {
-                this.$toastr.error("잘못된 게시글 번호입니다. 운영자에게 문의해주세요")
-                this.$router("/jamye-list")
+                this.$toastr.error("잘못된 게시글 번호입니다.")
+                this.$router.push("/jamye-list")
             })
         }
 
