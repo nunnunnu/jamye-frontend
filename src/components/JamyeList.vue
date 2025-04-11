@@ -30,6 +30,9 @@
                     #{{ tag.tagName }}
                 </button>
             </div>
+            <div v-if="!tagLast">
+                <button class="btn btn-sm btn-dark" @click="tagNextPage">더보기</button>
+            </div>
         </div>
         <div class="jamye-page" v-if="jamyes.length != 0">
             <div class="jamye-info-box-container">
@@ -101,12 +104,14 @@ export default{
             keyword: null,
             currentPage: 0,
             totalPage: 0,
+            tagPage: 0,
+            tagLast: true,
             types: new Set,
             items: [
                 { label: "포스트", value: "BOR" },
                 { label: "메세지", value: "MSG" }
             ],
-            tags: [],
+            tags: new Set,
             selectedTags: [],
             totalElements: 0,
             allPostCount: 0
@@ -215,14 +220,20 @@ export default{
             this.currentPage=page
             this.jamyeList()
         },
+        tagNextPage() {
+            this.tagPage = this.tagPage + 1
+            this.tagList()
+        },  
         tagList() {
             var group = this.$cookies.get("group")
-            axios.get("/api/post/tag/" + group.groupSequence, {
+            axios.get(`/api/post/tag/${group.groupSequence}?page=${this.tagPage}`, {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
             }).then(r => {
-                this.tags = r.data.data
+                r.data.data.content.forEach(item => this.tags.add(item))
+                this.tagLast = r.data.data.last
+                
             })
         },
         isSelected(tagSeq) {
