@@ -54,8 +54,6 @@ instance.interceptors.response.use((response) => {
         error.config.headers['Authorization'] = `Bearer ${refreshResponse.data.data.accessToken}`
         return instance.request(error.config)
       } catch (refreshError) {
-        console.log("됐나?")
-        console.log(refreshError.response.data.code)
         if(refreshError.response.data.code == 'NON_EXISTENT_USER') {
           toast.error("잘못된 접근입니다. 다시 로그인해주세요")
         } else if(refreshError.response.data.code == 'SESSION_EXPIRED') {
@@ -71,6 +69,8 @@ instance.interceptors.response.use((response) => {
         router.push("/login");
         return
       }
+    } else {
+      toast.error("알수없는 오류입니다. 운영자에게 문의해주세요.")
     }
       
     if (activeRequests === 0 && loadingCallback) loadingCallback(false); 

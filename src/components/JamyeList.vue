@@ -31,7 +31,7 @@
                 </button>
             </div>
             <div v-if="!tagLast">
-                <button class="btn btn-sm btn-dark" @click="tagNextPage">더보기</button>
+                <button class="btn btn-sm tag-more-btn" @click="tagNextPage">더보기</button>
             </div>
         </div>
         <div class="jamye-page" v-if="jamyes.length != 0">
@@ -336,7 +336,13 @@ export default{
   font-size: 15px;
   margin-left: 5px;
   border-radius: 20px !important;
-  background: #e0e0e0;
+  background-color: #6c757d;
+}
+.tag-more-btn {
+    background-color: #8a9096 !important;
+    color: white !important;
+    margin-top: 3px;
+    margin-left: 15px;
 }
 
 .tag-list {
