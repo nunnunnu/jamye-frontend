@@ -1173,7 +1173,7 @@ export default {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
             }).then(r => {
-                this.searchResults = r.data.data
+                this.searchResults = r.data.data.content
             })   
                 
         },

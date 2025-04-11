@@ -69,7 +69,7 @@ export default {
             isPreviewOpen: false, // 미리보기 상태
             previewImage: null,   // 현재 미리보기 이미지.
             imageMap: {},
-            cursorPosition: null,
+            cursorPosition: Range,
             postContent: String,
             isInputVisible: false,
             searchTerm: "",
@@ -253,7 +253,7 @@ export default {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
             }).then(r => {
-                this.searchResults = r.data.data
+                this.searchResults = r.data.data.content
             })   
                 
         },
