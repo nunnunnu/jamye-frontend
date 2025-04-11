@@ -78,6 +78,9 @@ export default {
                 } else {
                     this.$router.push("/jamye/board" + postInfo.postSequence)
                 }
+            }).catch(() => {
+                this.$toastr.error("이미 삭제된 게시글입니다.")
+                this.$router.push("/notify-box")
             })
             this.$router.push("/post" + postSeq)
         },
