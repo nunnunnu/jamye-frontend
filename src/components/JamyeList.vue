@@ -155,8 +155,9 @@ export default{
     methods: {
         jamyeList() {
             var group = this.$cookies.get("group")
+            const safeParam = encodeURIComponent(this.keyword);
             axios.get(`/api/post/${group.groupSequence}?page=${this.currentPage}` 
-                + (this.keyword==null?"":`&keyword=${this.keyword}`)
+                + (this.keyword==null?"":`&keyword=${safeParam}`)
                 + (this.selectedTags == null || this.selectedTags.size == 0 ? "" : `&tagSeqs=${Array.from(this.selectedTags).join(", ")}`)
                 + (this.types == null || this.types.size == 0 ? "" : `&types=${Array.from(this.types).join(", ")}`)
             , {

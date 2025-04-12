@@ -1168,7 +1168,8 @@ export default {
             }
 
             const groupSeq = this.$cookies.get("group").groupSequence;
-            axios.get(`/api/post/tag/${groupSeq}?keyword=${this.searchTerm}`, {
+            const safeParam = encodeURIComponent(this.searchTerm);
+            axios.get(`/api/post/tag/${groupSeq}?keyword=${safeParam}`, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }

@@ -287,6 +287,7 @@ export default {
                         this.originMsg = null
                         this.returnButtonTimeout = null
                 }
+                this.searchResults = [];
             });
             }
         },
@@ -322,8 +323,9 @@ export default {
                 return;
             }
 
+            const safeParam = encodeURIComponent(this.searchTerm);
             const groupSeq = this.$cookies.get("group").groupSequence;
-            axios.get(`/api/post/tag/${groupSeq}?keyword=${this.searchTerm}`, {
+            axios.get(`/api/post/tag/${groupSeq}?keyword=${safeParam}`, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
