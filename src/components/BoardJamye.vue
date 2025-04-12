@@ -29,24 +29,24 @@
             </button>
             <button @click="editModeComplate" class="btn btn-dark btn-area">수정완료</button>
             <div class="hashtag-container">
-            <div v-if="isInputVisible" class="input-container">
-            <div class="input-group mb-3">
-                <input
-                    v-model="searchTerm"
-                    @input="fetchHashtags"
-                    placeholder="태그를 입력하세요"
-                    class="tag-input form-control"
-                    id="tagInput"
-                />
-                <button class="btn btn-dark" @click="addTextTag">추가</button>
+                <div v-if="isInputVisible" class="input-container">
+                    <div class="input-group mb-3">
+                        <input
+                            v-model="searchTerm"
+                            @input="fetchHashtags"
+                            placeholder="태그를 입력하세요"
+                            class="tag-input form-control"
+                            id="tagInput"
+                        />
+                        <button class="btn btn-dark" @click="addTextTag">추가</button>
+                    </div>
+                    <ul v-if="searchResults.length" class="search-results">
+                        <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
+                        #{{ tag.tagName }}
+                        </li>
+                    </ul>
+                </div>
             </div>
-                <ul v-if="searchResults.length" class="search-results">
-                    <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
-                    #{{ tag.tagName }}
-                    </li>
-                </ul>
-            </div>
-        </div>
             <div class="tag-list">
                 <div
                     v-for="(tag, index) in tags"
@@ -109,7 +109,7 @@ export default {
             content: "",
             cursorPosition: null,
             postContent: String,
-            tags: {},
+            tags: [],
             hoverIndex: -1,
             deleteTagSeqs: new Set,
             isInputVisible: false,
@@ -260,7 +260,6 @@ export default {
         },
         removeTag(index) {
             const tag = this.tags.splice(index, 1)[0]
-            console.log(tag)
             this.deleteTagSeqs.add(tag.tagPostConnectionSeq)
         },
         toggleInput() {
@@ -316,6 +315,7 @@ export default {
                         this.returnButtonTimeout = null
                     }
                 })
+            this.searchResults = []
         },
         async fetchHashtags() {
             if (!this.searchTerm.trim()) {
@@ -384,9 +384,6 @@ export default {
 }
 .comment {
     margin-top: 10px;
-}
-.btn-area {
-    margin-right: 5px;
 }
 .input-group  {
     margin-top: 10px;

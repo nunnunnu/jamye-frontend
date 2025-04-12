@@ -8,103 +8,157 @@
         </div>
         <div class="create-user">작성자: {{ message.createdUserNickName }}</div>
         <div class="editModeOpen" v-if="isEditing == null && message.createdUserSequence == $cookies.get('sequence')">
-            <button @click="editMode" class="btn btn-dark">수정</button>
-            <button @click="deletePost" class="btn btn-dark">삭제</button>
+            <button @click="editMode" class="btn btn-dark btn-area">수정</button>
+            <button @click="deletePost" class="btn btn-dark btn-area">삭제</button>
+            <div class="tag-list">
+            <div
+                v-for="tag in tags" :key="tag.tagPostConnectionSeq"
+                class="tag-item"
+                @mouseover="hoverIndex = index"
+                @mouseleave="hoverIndex = -1"
+            >
+                # {{ tag.tagName }}
+            </div>
+        </div>
         </div>
         <div class="editMode" v-if="isEditing != null && message.createdUserSequence == $cookies.get('sequence')">
-            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+            <button type="button" class="btn btn-dark btn-area btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
+                <span style="font-size: 10px;">이미지 보관함</span>
+            </button>
                 <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
-                <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#nickNameMapping" @click="groupNickNameInfo()">닉네임</button>
-                    <div class="modal fade" id="nickNameMapping" tabindex="-1" aria-labelledby="nickNameMapping" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="nickNameMapping">닉네임</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                            <div class="modal-body">
-                                <div v-for="[key, value] in Object.entries(this.nickNameMap)" :key = key>
-                                    <div v-if="value != null && value.nickName != null">
-                                        {{ value.nickName }} : 
-                                        <button v-if="value.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
-                                                </button>
-                                                <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    {{ value.userNameInGroup }}
-                                                </button>
-                                                <ul 
-                                                    class="dropdown-menu" 
-                                                    style="max-height: 200px; overflow-y: auto;"
+            <button class="btn btn-dark btn-area btn-sm" data-bs-toggle="modal" data-bs-target="#nickNameMapping" @click="groupNickNameInfo()">닉네임</button>
+                <div class="modal fade" id="nickNameMapping" tabindex="-1" aria-labelledby="nickNameMapping" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="nickNameMapping">닉네임</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                        <div class="modal-body">
+                            <div v-for="[key, value] in Object.entries(this.nickNameMap)" :key = key>
+                                <div v-if="value != null && value.nickName != null">
+                                    {{ value.nickName }} : 
+                                    <button v-if="value.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
+                                            </button>
+                                            <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                {{ value.userNameInGroup }}
+                                            </button>
+                                            <ul 
+                                                class="dropdown-menu" 
+                                                style="max-height: 200px; overflow-y: auto;"
+                                            >
+                                                <li 
+                                                    v-for="user in userInGroup" 
+                                                    :key="user.groupUserSequence"
+                                                    @click="userInGroupSet(key, user)"
+                                                    style="padding: 8px; cursor: pointer;"
                                                 >
-                                                    <li 
-                                                        v-for="user in userInGroup" 
-                                                        :key="user.groupUserSequence"
-                                                        @click="userInGroupSet(key, user)"
-                                                        style="padding: 8px; cursor: pointer;"
-                                                    >
-                                                        {{ user.nickname }}
-                                                    </li>
-                                                </ul>
-                                        <span class="remove-butto" @click="removeNickname(key)">X</span>
-                                    </div>
+                                                    {{ user.nickname }}
+                                                </li>
+                                            </ul>
+                                    <span class="remove-butto" @click="removeNickname(key)">X</span>
                                 </div>
-                                <div v-for="info in this.addNickNameSet" :key="info.nickName">
-                                    {{ info.nickName }}
-                                    <button v-if="info.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
-                                                </button>
-                                                <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    {{ info.userNameInGroup }}
-                                                </button>
-                                                <ul 
-                                                    class="dropdown-menu" 
-                                                    style="max-height: 200px; overflow-y: auto;"
+                            </div>
+                            <div v-for="info in this.addNickNameSet" :key="info.nickName">
+                                {{ info.nickName }}
+                                <button v-if="info.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
+                                            </button>
+                                            <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                {{ info.userNameInGroup }}
+                                            </button>
+                                            <ul 
+                                                class="dropdown-menu" 
+                                                style="max-height: 200px; overflow-y: auto;"
+                                            >
+                                                <li 
+                                                    v-for="user in userInGroup" 
+                                                    :key="user.groupUserSequence"
+                                                    @click="addUserInGroupSet(info.nickName, user)"
+                                                    style="padding: 8px; cursor: pointer;"
                                                 >
-                                                    <li 
-                                                        v-for="user in userInGroup" 
-                                                        :key="user.groupUserSequence"
-                                                        @click="addUserInGroupSet(info.nickName, user)"
-                                                        style="padding: 8px; cursor: pointer;"
-                                                    >
-                                                        {{ user.nickname }}
-                                                    </li>
-                                                </ul>
-                                        <span class="remove-butto" @click="removeNewNickname(info.nickName)">X</span>
-                                </div>
-                                <button class="btn btn-dark" @click="nickNameAdd">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
-                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
-                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                                    </svg>
-                                    닉네임 추가
+                                                    {{ user.nickname }}
+                                                </li>
+                                            </ul>
+                                    <span class="remove-butto" @click="removeNewNickname(info.nickName)">X</span>
+                            </div>
+                            <button class="btn btn-dark" @click="nickNameAdd">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
+                                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                                </svg>
+                                닉네임 추가
+                            </button>
+                            <div class="nickNameAdd" v-if="nickNameEditMod">
+                                <input v-model="nicknameInput" placeholder="닉네임 입력" />
+                                <button class="btn btn-dark btn-sm" @click="nickNameAddComplate">
+                                    추가 완료
                                 </button>
-                                <div class="nickNameAdd" v-if="nickNameEditMod">
-                                    <input v-model="nicknameInput" placeholder="닉네임 입력" />
-                                    <button class="btn btn-dark btn-sm" @click="nickNameAddComplate">
-                                        추가 완료
-                                    </button>
-                                </div>
-                                <div class="des">반영하기 버튼을 클릭 시 바로 적용됩니다. </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-dark" @click="updateNickNameInfo" data-bs-dismiss="modal" aria-label="Close">반영하기</button>
-                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
-                            </div>
+                            <div class="des">반영하기 버튼을 클릭 시 바로 적용됩니다. </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-dark" @click="updateNickNameInfo" data-bs-dismiss="modal" aria-label="Close">반영하기</button>
+                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
                         </div>
                     </div>
                 </div>
+            </div>
             <p class="d-inline-flex gap-1">
-                <a class="btn btn-dark" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                    문자일괄제거
+                <a class="btn btn-dark btn-area btn-sm" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    <span style="font-size: 10px;">문자일괄제거</span>
                 </a>
             </p>
-            <button  @click="editModeClose" class="btn btn-dark">수정완료</button>
+            <button @click="toggleInput" class="btn btn-dark btn-area btn-sm">
+                {{ isInputVisible ? "입력완료" : "태그 추가" }}
+            </button>
+            <button  @click="editModeClose" class="btn btn-dark btn-area btn-sm">수정완료</button>
             <div class="collapse" id="collapseExample">
                 <div class="card card-body">
                     <div class="verification-group">
                         <input type="text" id="removeText" v-model="removeText" class="form-control" />
                         <button @click="deleteText" class="btn btn-dark">제거</button>
                     </div>
+                </div>
+            </div>
+            <div class="hashtag-container">
+                <div v-if="isInputVisible" class="input-container">
+                    <div class="input-group mb-3">
+                        <input
+                            v-model="searchTerm"
+                            @input="fetchHashtags"
+                            placeholder="태그를 입력하세요"
+                            class="tag-input form-control"
+                            id="tagInput"
+                        />
+                        <button class="btn btn-dark" @click="addTextTag">추가</button>
+                    </div>
+                    <ul v-if="searchResults.length" class="search-results">
+                        <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
+                        #{{ tag.tagName }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tag-list">
+                <div
+                    v-for="(tag, index) in tags"
+                    :key="tag.tagPostConnectionSeq"
+                    class="tag-item d-flex align-items-center justify-content-between px-2"
+                    @mouseover="hoverIndex = index"
+                    @mouseleave="hoverIndex = -1"
+                    style="margin: 4px;"
+                >
+                    <span># {{ tag.tagName }}</span>
+                    <span
+                    v-if="hoverIndex === index"
+                    class="text-danger fw-bold ms-2"
+                    style="cursor: pointer;"
+                    @click="removeTag(index)"
+                    >
+                    ×
+                    </span>
                 </div>
             </div>
         </div>
@@ -512,7 +566,13 @@ export default {
             removeText: null,
             originMsg: null,
             returnButtonTimeout: null,
-            addNickNameSet: new Set
+            addNickNameSet: new Set,
+            tags: [],
+            hoverIndex: -1,
+            deleteTagSeqs: new Set,
+            isInputVisible: false,
+            searchTerm: "",
+            searchResults: [],
         }   
     },
     props: {
@@ -540,6 +600,7 @@ export default {
                 this.message = r.data.data
                 this.messageResponse = r.data.data.content.message
                 this.nickNameMap = r.data.data.content.nickName
+                this.tags = r.data.data.tags
             }).catch(() => {
                 this.$toastr.error("잘못된 게시글 번호입니다. 운영자에게 문의해주세요")
                 this.$router.push("/jamye-list")
@@ -566,7 +627,9 @@ export default {
                 title: this.message.title,
                 message: this.messageResponse,
                 nickName: this.nickNameMap,
-                deleteMessage: Array.from(this.deleteSeqs)
+                deleteMessage: Array.from(this.deleteSeqs),
+                tagDisconnected: Array.from(this.deleteTagSeqs),
+                tags: this.tags.filter(it => it.tagPostConnectionSeq == null)
             }
 
             formdata.append('data', JSON.stringify(data));
@@ -1290,6 +1353,90 @@ export default {
           }).then( () => {
                 this.$router.push("/jamye-list")
           }) 
+        },
+        removeTag(index) {
+            const tag = this.tags.splice(index, 1)[0]
+            this.deleteTagSeqs.add(tag.tagPostConnectionSeq)
+        },
+        toggleInput() {
+            this.isInputVisible = !this.isInputVisible;
+            if (!this.isInputVisible) {
+                const duplicateCheck = this.tags.filter(it => it.tagName == this.searchTerm)
+                if(this.searchTerm.trim() && duplicateCheck.length == 0) {
+                    this.tags.push({
+                        tagName: this.searchTerm
+                    })
+                }
+                this.searchTerm = "";
+                this.searchResults = [];
+            } else {
+                this.$nextTick(() => { 
+                const targetMessage = document.getElementById("tagInput");
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                }
+                this.searchResults = [];
+            });
+            }
+        },
+        addTextTag() {
+            const duplicateCheck = this.tags.filter(it => it.tagName == this.searchTerm)
+            if(this.searchTerm.trim() && duplicateCheck.length == 0) {
+                this.tags.push({
+                    tagName: this.searchTerm
+                })
+                this.searchTerm = ""
+            } else if(duplicateCheck.length != 0) {
+                this.$toastr.warning("이미 등록된 태그입니다")
+            } else {
+                this.$toastr.warning("추가할 태그를 입력해주세요")
+            }
+            this.$nextTick(() => { 
+                const targetMessage = document.getElementById("tagInput");
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                    }
+                })
+            this.searchResults = []
+        },
+        async fetchHashtags() {
+            if (!this.searchTerm.trim()) {
+                this.searchResults = [];
+                return;
+            }
+
+            const safeParam = encodeURIComponent(this.searchTerm);
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            axios.get(`/api/post/tag/${groupSeq}?keyword=${safeParam}`, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(r => {
+                this.searchResults = r.data.data.content
+            })   
+                
+        },
+        addTag(tag) {
+            const duplicateCheck = this.tags.filter(it => it.tagName == tag.tagName)
+            if (duplicateCheck.length == 0) {
+                this.tags.push(tag);
+            }
+            this.searchTerm = "";
+            this.searchResults = [];
         }
     }
 }
@@ -1342,4 +1489,11 @@ export default {
   background-color: #e0e0e0;
 }
 
+a.btn-area {
+  display: inline-block;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  line-height: 1.5;
+  vertical-align: middle;
+}
 </style>

@@ -165,4 +165,7 @@ export default {
 #content {
   min-height: 80vh; /* 화면 전체 높이 유지 */
 }
+.btn-area {
+    margin-right: 5px;
+}
 </style>
