@@ -1,8 +1,6 @@
 .hashtag-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 5px;
 }
 .tag-button {
   padding: 8px 12px;
@@ -47,11 +45,10 @@
 }
 .tag-item {
   background: #e0e0e0;
-  padding: 6px 12px;
+  padding: 3px 10px;
   border-radius: 20px;
   display: flex;
   align-items: center;
-  gap: 4px;
   position: relative;
 }
 .remove-tag {

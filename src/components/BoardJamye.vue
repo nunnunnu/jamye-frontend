@@ -8,13 +8,65 @@
         </div>
         <div class="create-user">작성자: {{ board.createdUserNickName }}</div>
         <div class="editModeOpen" v-if="!isEditing && board.createdUserSequence == $cookies.get('sequence')">
-            <button @click="editMode" class="btn btn-dark">수정</button>
-            <button @click="deletePost" class="btn btn-dark">삭제</button>
+            <button @click="editMode" class="btn btn-dark btn-area">수정</button>
+            <button @click="deletePost" class="btn btn-dark btn-area">삭제</button>
+            <div class="tag-list">
+                <div
+                    v-for="tag in tags" :key="tag.tagPostConnectionSeq"
+                    class="tag-item"
+                    @mouseover="hoverIndex = index"
+                    @mouseleave="hoverIndex = -1"
+                >
+                    # {{ tag.tagName }}
+                </div>
+            </div>
         </div>
         <div v-else-if="isEditing && board.createdUserSequence == $cookies.get('sequence')">
-            <button type="button" class="btn btn-dark btn-imgbox" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
-        <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
-            <button @click="editModeComplate" class="btn btn-dark">수정완료</button>
+            <button type="button" class="btn btn-dark btn-area" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+            <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
+            <button @click="toggleInput" class="btn btn-dark btn-area">
+                {{ isInputVisible ? "입력완료" : "태그 추가" }}
+            </button>
+            <button @click="editModeComplate" class="btn btn-dark btn-area">수정완료</button>
+            <div class="hashtag-container">
+            <div v-if="isInputVisible" class="input-container">
+            <div class="input-group mb-3">
+                <input
+                    v-model="searchTerm"
+                    @input="fetchHashtags"
+                    placeholder="태그를 입력하세요"
+                    class="tag-input form-control"
+                    id="tagInput"
+                />
+                <button class="btn btn-dark" @click="addTextTag">추가</button>
+            </div>
+                <ul v-if="searchResults.length" class="search-results">
+                    <li v-for="(tag, index) in searchResults" :key="index" @click="addTag(tag)">
+                    #{{ tag.tagName }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+            <div class="tag-list">
+                <div
+                    v-for="(tag, index) in tags"
+                    :key="tag.tagPostConnectionSeq"
+                    class="tag-item d-flex align-items-center justify-content-between px-2"
+                    @mouseover="hoverIndex = index"
+                    @mouseleave="hoverIndex = -1"
+                    style="margin: 4px;"
+                >
+                    <span># {{ tag.tagName }}</span>
+                    <span
+                    v-if="hoverIndex === index"
+                    class="text-danger fw-bold ms-2"
+                    style="cursor: pointer;"
+                    @click="removeTag(index)"
+                    >
+                    ×
+                    </span>
+                </div>
+            </div>
         </div>
         <div v-if="!isEditing" v-html="content" class="post-container-view"></div>
         <div v-else class="post-container">
@@ -56,7 +108,13 @@ export default {
             selectedUser: null,
             content: "",
             cursorPosition: null,
-            postContent: String
+            postContent: String,
+            tags: {},
+            hoverIndex: -1,
+            deleteTagSeqs: new Set,
+            isInputVisible: false,
+            searchTerm: "",
+            searchResults: [],
         }
     },
     props: {
@@ -84,6 +142,7 @@ export default {
                 this.board = r.data.data
                 this.content = r.data.data.content.content
                 this.postContent = this.content
+                this.tags = r.data.data.tags
             }).catch(() => {
                 this.$toastr.error("잘못된 게시글 번호입니다.")
                 this.$router.push("/jamye-list")
@@ -120,7 +179,10 @@ export default {
             const groupSeq = this.$cookies.get("group").groupSequence;
             const data = {
                 title: this.board.title,
-                content: tempContent
+                content: tempContent,
+                tagDisconnected: Array.from(this.deleteTagSeqs),
+                tags: this.tags.filter(it => it.tagPostConnectionSeq == null)
+
             }
 
             formdata.append('data', JSON.stringify(data));
@@ -195,6 +257,88 @@ export default {
           }).then( () => {
                 this.$router.push("/jamye-list")
           }) 
+        },
+        removeTag(index) {
+            const tag = this.tags.splice(index, 1)[0]
+            console.log(tag)
+            this.deleteTagSeqs.add(tag.tagPostConnectionSeq)
+        },
+        toggleInput() {
+            this.isInputVisible = !this.isInputVisible;
+            if (!this.isInputVisible) {
+                const duplicateCheck = this.tags.filter(it => it.tagName == this.searchTerm)
+                if(this.searchTerm.trim() && duplicateCheck.length == 0) {
+                    this.tags.push({
+                        tagName: this.searchTerm
+                    })
+                }
+                this.searchTerm = "";
+                this.searchResults = [];
+            } else {
+                this.$nextTick(() => { 
+                const targetMessage = document.getElementById("tagInput");
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                }
+            });
+            }
+        },
+        addTextTag() {
+            const duplicateCheck = this.tags.filter(it => it.tagName == this.searchTerm)
+            if(this.searchTerm.trim() && duplicateCheck.length == 0) {
+                this.tags.push({
+                    tagName: this.searchTerm
+                })
+                this.searchTerm = ""
+            } else if(duplicateCheck.length != 0) {
+                this.$toastr.warning("이미 등록된 태그입니다")
+            } else {
+                this.$toastr.warning("추가할 태그를 입력해주세요")
+            }
+            this.$nextTick(() => { 
+                const targetMessage = document.getElementById("tagInput");
+                if (targetMessage) {
+                    targetMessage.focus();
+                    targetMessage.classList.add('input-focus'); 
+
+                    setTimeout(() => {
+                        targetMessage.classList.remove('input-focus');
+                    }, 500);
+                        this.originMsg = null
+                        this.returnButtonTimeout = null
+                    }
+                })
+        },
+        async fetchHashtags() {
+            if (!this.searchTerm.trim()) {
+                this.searchResults = [];
+                return;
+            }
+
+            const groupSeq = this.$cookies.get("group").groupSequence;
+            axios.get(`/api/post/tag/${groupSeq}?keyword=${this.searchTerm}`, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(r => {
+                this.searchResults = r.data.data.content
+            })   
+                
+        },
+        addTag(tag) {
+            const duplicateCheck = this.tags.filter(it => it.tagName == tag.tagName)
+            if (duplicateCheck.length == 0) {
+                this.tags.push(tag);
+            }
+            this.searchTerm = "";
+            this.searchResults = [];
         }
     }
 }
@@ -239,5 +383,10 @@ export default {
 .comment {
     margin-top: 10px;
 }
-
+.btn-area {
+    margin-right: 5px;
+}
+.input-group  {
+    margin-top: 10px;
+}
 </style>
