@@ -69,7 +69,7 @@ instance.interceptors.response.use((response) => {
         router.push("/login");
         return
       }
-    } else {
+    } else if(error.response.status >= 500){
       toast.error("알수없는 오류입니다. 운영자에게 문의해주세요.")
     }
       

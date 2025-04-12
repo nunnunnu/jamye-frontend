@@ -100,7 +100,6 @@ export default{
     data() {
         return {
             jamyes: {},
-            totalCount: 0,
             keyword: null,
             currentPage: 0,
             totalPage: 0,
@@ -166,8 +165,6 @@ export default{
                     }
                 }).then(r => {
                     const jamyesData = r.data.data.content;
-                    this.totalCount = r.data.data.count
-                    this.totalElements = r.data.data.totalElements
                     this.totalPage = r.data.data.totalPages
                     const formatDate = (dateString) => {
                         const apiTime = new Date(dateString);
@@ -199,7 +196,8 @@ export default{
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
                 }).then(r => {
-                    this.allPostCount = r.data.data
+                    this.allPostCount = r.data.data.totalCount
+                    this.totalElements = r.data.data.haveCount
                 })
         },
         jamyeSearch() {
