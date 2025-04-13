@@ -100,6 +100,7 @@ export default {
     methods: {
         imageUrl,
         logout() {
+            this.$emit('handleLogout');
             this.$cookies.remove("accessToken")
             this.$cookies.remove("refreshToken")
             this.$cookies.remove("id")
@@ -151,6 +152,12 @@ export default {
                 });
                 this.$emit('isLoginChange', false)
                 this.$router.push("/")
+                if (this.stompClient && this.stompClient.connected) {
+                    this.stompClient.disconnect(() => {
+                        console.log("🔌 WebSocket 연결 해제 완료");
+                        this.connected = false;
+                    });
+                }
             }).catch(e => {
                 this.$toastr.error(e.response.data.message)
             })

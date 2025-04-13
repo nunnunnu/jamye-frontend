@@ -61,44 +61,45 @@
                         password: this.pwd
                     };
                     axios.post('/api/user/login', param)
-                        .then(response => {
-                            const token = response.data.data.token;
-                            const accessToken = token.accessToken; 
-                            const refreshToken = token.refreshToken; 
-
-                            if (!accessToken || !refreshToken) {
-                                this.$toastr.warning("토큰을 받아오는 데 실패했습니다.");
-                                return;
-                            }
-
-                            this.$cookies.set('accessToken', accessToken);
-                            this.$cookies.set('refreshToken', refreshToken);
-                            this.$cookies.set('id', response.data.data.id);
-                            this.$cookies.set('sequence', response.data.data.sequence);
-                            if(this.idSave) {
-                                this.$cookies.set("saveId", response.data.data.id)
-                            } else {
-                                this.$cookies.remove("saveId")
-                            }
-                            this.$emit("isLoginChange", true)
-                            this.id = null
+                    .then(response => {
+                        const token = response.data.data.token;
+                        const accessToken = token.accessToken; 
+                        const refreshToken = token.refreshToken; 
+                        
+                        if (!accessToken || !refreshToken) {
+                            this.$toastr.warning("토큰을 받아오는 데 실패했습니다.");
+                            return;
+                        }
+                        
+                        this.$cookies.set('accessToken', accessToken);
+                        this.$cookies.set('refreshToken', refreshToken);
+                        this.$cookies.set('id', response.data.data.id);
+                        this.$cookies.set('sequence', response.data.data.sequence);
+                        console.log("?")
+                        if(this.idSave) {
+                            this.$cookies.set("saveId", response.data.data.id)
+                        } else {
+                            this.$cookies.remove("saveId")
+                        }
+                        this.$emit("isLoginChange", true)
+                        this.id = null
+                        this.pwd = null
+                        if (this.$cookies.get('beforePage') != null) {
+                            this.$cookies.remove('beforePage');
+                            this.$router.push("/");
+                        } else {
+                            this.$router.go(-1);
+                        }
+                    })
+                    .catch(error => {
+                        if (error.response) {
+                            this.$toastr.error(error.response.data.message);
+                            this.id = this.$cookies.get("saveId")
                             this.pwd = null
-                            if (this.$cookies.get('beforePage') != null) {
-                                this.$cookies.remove('beforePage');
-                                this.$router.push("/");
-                            } else {
-                                this.$router.go(-1);
-                            }
-                        })
-                        .catch(error => {
-                            if (error.response) {
-                                this.$toastr.error(error.response.data.message);
-                                this.id = this.$cookies.get("saveId")
-                                this.pwd = null
-                            } else {
-                                this.$toastr.warning("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
-                            }
-                        });
+                        } else {
+                            this.$toastr.warning("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
+                        }
+                    });
                 }
             },
             join() {

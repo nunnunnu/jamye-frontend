@@ -5,7 +5,7 @@
       <div v-if="loading" class="loading-overlay">
         <div class="spinner"></div>
       </div>
-      <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" :key="currentGroup" @groupSelect="groupSelect"></router-view>
+      <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" :key="currentGroup" @groupSelect="groupSelect" @handleLogout="handleLogout" @connectWebSocket="connectWebSocket"></router-view>
     </div>
   </div>
   <FooterView />
@@ -29,6 +29,20 @@ export default {
             loading: false,
             unreadCount: 0
         }
+    },
+    watch: {
+      isLogin(newVal) {
+        if (newVal) {
+          this.connectWebSocket()
+        } else {
+          if (this.stompClient && this.stompClient.connected) {
+            this.stompClient.disconnect(() => {
+              console.log("🔌 WebSocket 연결 해제 완료")
+              this.connected = false
+            })
+          }
+        }
+      }
     },
     created() {
         this.isLogin = this.$cookies.get('accessToken') !== null;
@@ -91,8 +105,16 @@ export default {
         );
 
         this.stompClient.activate();  
-    }
-
+      },
+      handleLogout() {
+          if (this.stompClient && this.stompClient.connected) {
+              this.stompClient.disconnect(() => {
+                  console.log("🔌 WebSocket 연결 해제 완료");
+                  this.connected = false;
+                  this.unreadCount = 0
+              });
+          }
+      }
     },
   components: {
     Navbar,
