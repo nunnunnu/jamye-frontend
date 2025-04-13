@@ -189,6 +189,9 @@ export default{
                     });
 
                     this.jamyes = jamyesData;
+                }).catch(e => {
+                    this.$toastr.warning(e.response.data.message)
+                    this.$router.push("/")
                 })
 
                 axios.get(`/api/group/${group.groupSequence}/all-post/count`, {
@@ -198,6 +201,9 @@ export default{
                 }).then(r => {
                     this.allPostCount = r.data.data.totalCount
                     this.totalElements = r.data.data.haveCount
+                }).catch(e => {
+                    this.$toastr.warning(e.response.data.message)
+                    this.$router.push("/")
                 })
         },
         jamyeSearch() {
@@ -233,7 +239,10 @@ export default{
                 r.data.data.content.forEach(item => this.tags.add(item))
                 this.tagLast = r.data.data.last
                 
-            })
+            }).catch(e => {
+                    this.$toastr.warning(e.response.data.message)
+                    this.$router.push("/")
+                })
         },
         isSelected(tagSeq) {
             return this.selectedTags.includes(tagSeq);
