@@ -1172,12 +1172,13 @@ export default {
 
             const groupSeq = this.$cookies.get("group").groupSequence;
             const safeParam = encodeURIComponent(this.searchTerm);
-            axios.get(`/api/post/tag/${groupSeq}?keyword=${safeParam}`, {
+            axios.get(`/api/post/tag/all/${groupSeq}?keyword=${safeParam}`, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
-                }
+                },
+                skipLoading: true 
             }).then(r => {
-                this.searchResults = r.data.data.content
+                this.searchResults = r.data.data
             })   
                 
         },
