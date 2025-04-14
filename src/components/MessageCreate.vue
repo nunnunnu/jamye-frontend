@@ -65,13 +65,18 @@
                             <button type="submit" class="btn btn-dark mb-3" @click="messageListGet">메세지 변환</button>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-dark mb-3" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
-                    <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
-                    <p class="d-inline-flex gap-1">
-                        <a class="btn btn-dark" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                            문자일괄제거
-                        </a>
-                    </p>
+                    <div>
+                        <button type="button" class="btn btn-dark btn-area" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+                        <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
+                        <button @click="toggleInput" class="btn btn-dark btn-area">
+                            {{ isInputVisible ? "입력완료" : "태그 추가" }}
+                        </button>
+                        <p class="d-inline-flex gap-1">
+                            <a class="btn btn-dark btn-area " data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                문자일괄제거
+                            </a>
+                        </p>
+                    </div>
                     <div class="collapse" id="collapseExample">
                         <div class="card card-body">
                             <div class="verification-group">
@@ -80,9 +85,7 @@
                             </div>
                         </div>
                     </div>
-                    <button @click="toggleInput" class="btn btn-dark">
-                        {{ isInputVisible ? "입력완료" : "태그 추가" }}
-                    </button>
+                    
                     <div class="hashtag-container">
                         <div v-if="isInputVisible" class="input-container">
                         <div class="input-group mb-3">
@@ -1373,5 +1376,9 @@ export default {
 
 .chat-room {
     height: 600px;
+}
+.btn-area {
+    padding-top: 3px !important; 
+    padding-bottom: 8px !important;
 }
 </style>

@@ -4,10 +4,12 @@
         <div class="form-group">
             <input type="text" class="form-control" name="post-title" id="post-title" v-model="postTitle" placeholder="게시글 제목">
         </div>
-        <button type="button" class="btn btn-dark mb-3 btn-imgbox" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
-        <button @click="toggleInput" class="btn btn-dark">
-            {{ isInputVisible ? "입력완료" : "태그 추가" }}
-        </button>
+        <div class="btn-post">
+            <button type="button" class="btn btn-dark btn-imgbox btn-area" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+            <button @click="toggleInput" class="btn btn-dark btn-area">
+                {{ isInputVisible ? "입력완료" : "태그 추가" }}
+            </button>
+        </div>
         <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
         <div class="hashtag-container">
             <div v-if="isInputVisible" class="input-container">
@@ -274,7 +276,7 @@ export default {
 </script>
 <style>
 @import url("/src/css/tag.css");
-.btn-imgbox {
+.btn-post {
     margin-top: 5px;
 }
 .post-container {
