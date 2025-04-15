@@ -200,4 +200,5 @@ export default {
 .socialLogin {
     margin-bottom: 5px;
 }
+
 </style>

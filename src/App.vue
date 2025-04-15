@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <Navbar :isLogin="isLogin" :currentGroup="currentGroup" @groupSelect="groupSelect" :unreadCount="unreadCount"></Navbar>
+    <VoteStatusBar v-if="isLogin && this.deleteVote != null && Object.keys(this.deleteVote).length > 0" :isLogin="isLogin" :deleteVote="deleteVote"></VoteStatusBar>
     <div id="content">
       <div v-if="loading" class="loading-overlay">
         <div class="spinner"></div>
@@ -19,6 +20,7 @@ import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import axios from '@/js/axios';
 import { BASE_URL } from './js/config';
+import VoteStatusBar from './components/VoteStatusBar.vue';
 
 export default {
   name: 'App',
@@ -27,13 +29,16 @@ export default {
             isLogin: null,
             currentGroup: null,
             loading: false,
-            unreadCount: 0
+            unreadCount: 0,
+            deleteVote: {}
         }
     },
     watch: {
       isLogin(newVal) {
         if (newVal) {
+          console.log("1차 테스트")
           this.connectWebSocket()
+          this.socketRead()
         } else {
           if (this.stompClient && this.stompClient.connected) {
             this.stompClient.disconnect(() => {
@@ -48,17 +53,8 @@ export default {
         this.isLogin = this.$cookies.get('accessToken') !== null;
         this.currentGroup = this.$cookies.get("group")
         if(this,this.isLogin) {
-          axios.get('/api/user/no-read', {
-              headers: {
-              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
-              }
-          })
-          .then(response => {
-              this.unreadCount = response.data.data;
-          })
-          .catch(error => {
-              console.error('안 읽은 쪽지 수 가져오기 실패:', error);
-          });
+          this.socketRead()
+
         }
         setLoadingCallback((isLoading) => {
             this.loading = isLoading;
@@ -75,6 +71,32 @@ export default {
       }
     },
     methods: {
+      socketRead() {
+        axios.get('/api/user/no-read', {
+              headers: {
+              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              }
+          })
+          .then(response => {
+              this.unreadCount = response.data.data;
+          })
+          .catch(error => {
+              console.error('안 읽은 쪽지 수 가져오기 실패:', error);
+          });
+          axios.get('/api/group/all/delete-vote-info', {
+              headers: {
+              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              }
+          })
+          .then(r => {
+              this.deleteVote = r.data.data
+              
+              console.log("deleteVote"+ JSON.stringify(this.deleteVote))
+          })
+          .catch(error => {
+              console.error('안 읽은 쪽지 수 가져오기 실패:', error);
+          });
+      },
       isLoginChange(isLoginChange) {
         this.isLogin = isLoginChange
       },
@@ -92,8 +114,14 @@ export default {
             try {
               this.connected = true;
               this.stompClient.subscribe(`/alarm/receive/${userSeq}`, (message) => {
+                  console.log("unreadCount")
                   const data = JSON.parse(message.body);
                   this.unreadCount = data;
+              });
+              this.stompClient.subscribe(`/alarm/group/delete/${userSeq}`, (message) => {
+                console.log("groupDelete")
+                  const data = JSON.parse(message.body);
+                  this.deleteVote = data.data
               });
             } catch (error) {
               console.error("❌ WebSocket 연결 처리 중 오류 발생:", error);
@@ -112,13 +140,15 @@ export default {
                   console.log("🔌 WebSocket 연결 해제 완료");
                   this.connected = false;
                   this.unreadCount = 0
+                  this.deleteVote = {}
               });
           }
       }
     },
   components: {
     Navbar,
-    FooterView
+    FooterView,
+    VoteStatusBar
   }
 }
 </script>
