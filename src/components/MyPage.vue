@@ -4,8 +4,9 @@
         <div class="user-info-box">
             <div class="user-id">
                 <span v-if="userInfo.loginType == 'NORMAL'">{{ userInfo.id }}</span>
-                <div v-else-if="userInfo.loginType == 'KAKAO'">
-                    <img class="loginImage" src="@/assets/img/kakao_icon.png" width="20px">
+                <div v-else>
+                    <img v-if="userInfo.loginType == 'KAKAO'" class="loginImage" src="@/assets/img/kakao_icon.png" width="20px">
+                    <img v-else-if="userInfo.loginType == 'GOOGLE'" class="loginImage" src="@/assets/img/google_icon.svg" width="20px">
                     <span>{{ userInfo.email }}</span>
                 </div>
             </div>
@@ -273,4 +274,6 @@ export default {
 .loginImage {
     margin-right: 5px;
 }
+
+
 </style>

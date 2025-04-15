@@ -27,7 +27,8 @@
             <span class="clickable-text join" @click="join">회원 가입</span>
         </div>
         <div>
-            <img @click="loginWithKakao" class="clickable" src="@/assets/img/kakao_login_medium_wide.png" style="width: 100%" height="75px">
+            <img class="socialLogin clickable" @click="loginWithKakao" src="@/assets/img/kakao_login_medium_wide.png" style="width: 100%" height="75px">
+            <div class="socialLogin" id="googleBtn">Google Login</div>
         </div>
 
     </div>
@@ -55,6 +56,21 @@ export default {
                 this.id = this.$cookies.get("saveId")
             }
             
+        },
+        mounted() {
+            axios.get("/oauth/google/client-id"
+            ).then(response => {
+                const clientId = response.data.data
+                window.google.accounts.id.initialize({
+                    client_id: clientId,
+                    callback: this.handleCredentialResponse
+                })
+                window.google.accounts.id.renderButton(
+                    document.getElementById("googleBtn"),
+                    { theme: "outline", size: "large" }
+                )}).catch(() => {
+                    this.$toastr.error("현재 구글 로그인을 사용할 수 없습니다.")
+                })
         },
         methods: {
             submitForm() {
@@ -126,6 +142,32 @@ export default {
 
                 
 
+            },
+            async handleCredentialResponse(response) {
+                const token = response.credential
+
+                axios.post("/oauth/google", { token }).then(response => {
+                    const token = response.data.data.token;
+                    const accessToken = token.accessToken; 
+                    const refreshToken = token.refreshToken; 
+                    
+                    if (!accessToken || !refreshToken) {
+                        this.$toastr.warning("토큰을 받아오는 데 실패했습니다.");
+                        return;
+                    }
+                    
+                    this.$cookies.set('accessToken', accessToken);
+                    this.$cookies.set('refreshToken', refreshToken);
+                    this.$cookies.set('id', response.data.data.id);
+                    this.$cookies.set('sequence', response.data.data.sequence);
+                    this.$emit("isLoginChange", true)
+                    setTimeout(() => {
+                        this.$router.push("/");
+                    }, 0)
+                }).catch(() => {
+                    this.$toastr.error("구글 로그인에 실패하였습니다. 운영자에게 문의해주세요.")
+                    this.$router.push("/")
+                })
             }
         }
     }
@@ -147,5 +189,8 @@ export default {
     margin-top: 20px; /* 위쪽 여백을 추가 */
     text-align: center;
     width: 100%; /* 중앙 정렬을 위한 전체 너비 */
+}
+.socialLogin {
+    margin-bottom: 5px;
 }
 </style>
