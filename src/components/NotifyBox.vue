@@ -116,14 +116,15 @@ export default {
         async discordLogin() {
             const authUrl = "https://discord.com/oauth2/authorize"
 
-                const clientId = "1355801367297523763";
                 const response_type = "code"
                 
                 const scope = "identify"
-                
-                const url = `${authUrl}?client_id=${clientId}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}`;
+                axios.get("/discord/client-id").then(r => {
+                    const url = `${authUrl}?client_id=${r.data.data}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}`;
 
-                window.location.href=url
+                    window.location.href=url
+                }).catch(() => this.$toastr.error("현재 디스코드 연동을 사용할 수 없습니다. 운영자에게 문의해주세요."))
+                
             
         }
     }

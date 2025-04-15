@@ -26,11 +26,16 @@
         <div class="d-flex align-items-center">
             <span class="clickable-text join" @click="join">회원 가입</span>
         </div>
+        <div>
+            <img @click="loginWithKakao" class="clickable" src="@/assets/img/kakao_login_medium_wide.png" style="width: 100%" height="75px">
+        </div>
+
     </div>
 </template>
 <script>
-    import axios from 'axios'
-    export default {
+import { redirectBaseUrl } from '@/js/config';
+import axios from 'axios'
+export default {
         name: 'loginPage',
         data() {
             return {
@@ -75,7 +80,6 @@
                         this.$cookies.set('refreshToken', refreshToken);
                         this.$cookies.set('id', response.data.data.id);
                         this.$cookies.set('sequence', response.data.data.sequence);
-                        console.log("?")
                         if(this.idSave) {
                             this.$cookies.set("saveId", response.data.data.id)
                         } else {
@@ -104,6 +108,24 @@
             },
             join() {
                 this.$router.push("/join")
+            },
+            loginWithKakao() {
+
+                const authUrl = "https://kauth.kakao.com/oauth/authorize";
+                const responseType = "code";
+                const state = "kakao";
+                const redirectUrl = redirectBaseUrl + "/oauth/kakao"
+
+                axios.get("/oauth/kakao/client-id").then(r => {
+                    const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
+
+                    window.location.href=url
+                }).catch(() => {
+                    this.$toastr.error("현재 카카오 로그인을 사용할 수 없습니다. 운영자에게 문의해주세요.")
+                })
+
+                
+
             }
         }
     }

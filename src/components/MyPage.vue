@@ -2,8 +2,14 @@
     <div class="b-container">
         <h2 class="title"> 사용자 정보 </h2><br>
         <div class="user-info-box">
-            <span class="user-id">{{ id }}</span>
-            <router-link class="edit-btn" :to="{name:'userInfoEdit'}">회원정보 수정</router-link>
+            <div class="user-id">
+                <span v-if="userInfo.loginType == 'NORMAL'">{{ userInfo.id }}</span>
+                <div v-else-if="userInfo.loginType == 'KAKAO'">
+                    <img class="loginImage" src="@/assets/img/kakao_icon.png" width="20px">
+                    <span>{{ userInfo.email }}</span>
+                </div>
+            </div>
+            <router-link v-if="userInfo.loginType == 'NORMAL'" class="edit-btn" :to="{name:'userInfoEdit'}">회원정보 수정</router-link>
         </div>
         <div class="mt-3 d-flex justify-content-between">
             <div class="custom-btn"><button class="btn btn-dark btn-sm btn-block text-danger" data-bs-toggle="modal" data-bs-target="#deleteUser">회원탈퇴</button></div>
@@ -75,11 +81,11 @@ export default {
     },
     data() {
         return {
-            id: null,
             groups: null,
             selectGroup: {},
             groupNickNameInfo: {},
-            passwordCheck: null
+            passwordCheck: null,
+            userInfo: {}
         }
     },
     props: {
@@ -94,7 +100,14 @@ export default {
             this.$router.push("/login")
             return
         }
-        this.id = this.$cookies.get("id")
+        this.userSeq = this.$cookies.get("sequence")
+        axios.get("/api/user", {
+            headers: {
+                Authorization: `Bearer `+this.$cookies.get('accessToken'),
+            }
+        }).then(r => {
+            this.userInfo = r.data.data
+        })
         this.loadMyGroupList()
     },
     methods: {
@@ -256,5 +269,8 @@ export default {
 .delete-btn {
     color: white;
     border-radius: 10px;
+}
+.loginImage {
+    margin-right: 5px;
 }
 </style>

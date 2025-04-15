@@ -19,6 +19,7 @@ import NotifyBox from '@/components/NotifyBox.vue'
 import ImagePreviewOpen from '@/components/ImagePreviewOpen.vue'
 import CommentList from '@/components/CommentList.vue'
 import DiscordLogin from '@/components/DiscordLogin.vue'
+import KakaoLogin from '@/components/KakaoLogin.vue'
 const routes = [
     {
         path: "/",
@@ -129,6 +130,11 @@ const routes = [
         path: "/oauth/redirect",
         name: "discordLogin",
         component: DiscordLogin
+    },
+    {
+        path: "/oauth/kakao",
+        name: "kakaoLogin",
+        component: KakaoLogin,
     }
 ]
 
