@@ -28,7 +28,7 @@
         </div>
         <div>
             <img class="socialLogin clickable" @click="loginWithKakao" src="@/assets/img/kakao_login_medium_wide.png" style="width: 100%" height="75px">
-            <div class="socialLogin" id="googleBtn">Google Login</div>
+            <div class="socialLogin" id="googleBtn" style="width: 100%; display: block;">Google Login</div>
         </div>
 
     </div>
@@ -68,9 +68,16 @@ export default {
                 window.google.accounts.id.renderButton(
                     document.getElementById("googleBtn"),
                     { theme: "outline", size: "large" }
-                )}).catch(() => {
-                    this.$toastr.error("현재 구글 로그인을 사용할 수 없습니다.")
-                })
+                )
+                setTimeout(() => {
+                    const iframe = document.querySelector('#googleBtn iframe')
+                        if (iframe) {
+                            iframe.style.width = '100%'
+                        }
+                    }, 1000)
+            }).catch(() => {
+                this.$toastr.error("현재 구글 로그인을 사용할 수 없습니다.")
+            })
         },
         methods: {
             submitForm() {
