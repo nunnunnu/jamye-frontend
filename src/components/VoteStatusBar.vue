@@ -39,7 +39,7 @@
     created() {
       this.votes = Object.values(this.deleteVote).map(vote => ({
         ...vote,
-        remainingTime: this.calculateRemainingTime(vote.endDateTime)  // 남은 시간 초기화
+        remainingTime: this.calculateRemainingTime(vote.endDateAsLocalDateTime)  // 남은 시간 초기화
       }));
       this.startInterval();
     },
@@ -67,7 +67,7 @@
             }
             this.intervalId = setInterval(() => {
             this.votes.forEach((vote, index) => {
-                const remainingTime = this.calculateRemainingTime(vote.endDateTime);
+                const remainingTime = this.calculateRemainingTime(vote.endDateAsLocalDateTime);
                 if (remainingTime !== vote.remainingTime) {
                 this.votes[index].remainingTime = remainingTime; // 남은 시간 업데이트
                 }
