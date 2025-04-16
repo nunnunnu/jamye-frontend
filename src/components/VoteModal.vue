@@ -16,12 +16,14 @@
                 <button
                     class="btn btn-danger me-2"
                     data-bs-dismiss="modal"
+                    @click="voteAdd('AGREE')"
                 >
                     삭제 동의
                 </button>
                 <button
                     class="btn btn-primary"
                     data-bs-dismiss="modal"
+                    @click="voteAdd('DISAGREE')"
                 >
                     삭제 비동의
                 </button>
@@ -31,3 +33,29 @@
         </div>
     </div>
 </template>
+<script>
+import axios from '@/js/axios'
+export default {
+    props: {
+        vote: {
+            type: Object,
+            require: true
+        },
+        groupSeq: {
+            type: Number,
+            require: true
+        }
+    },
+    methods: {
+        voteAdd(voteType) {
+            axios.post(`/api/group/vote/${voteType}/${this.groupSeq}`,  {
+                headers: {
+                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+            }}).then(
+                this.$toastr.success("그룹 삭제 투표가 완료되었습니다.")
+            ).catch(this.$toastr.error("그룹 삭제 투표에 참가할 수 없습니다."))
+
+        }
+    }
+}
+</script>
