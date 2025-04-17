@@ -114,12 +114,18 @@ export default {
     methods: {
         imageUrl,
         logout() {
+            axios.post("/api/user/logout", {}, {
+              headers: {
+                Authorization: `Bearer ${this.$cookies.get('accessToken')}`,
+                refreshToken: this.$cookies.get("refreshToken")
+              },
+            })
             this.$emit('handleLogout');
             this.$cookies.remove("accessToken")
             this.$cookies.remove("refreshToken")
             this.$cookies.remove("id")
             this.$cookies.remove("sequence")
-            this.$cookies.remove("group")
+            this.$cookies.remove("groupSeq")
             this.$router.push("/")
             this.$emit("groupSelect", null)
             this.$emit('isLoginChange', false)

@@ -192,7 +192,9 @@ export default {
     },
     created() {
         const groupSeq = this.$cookies.get("groupSeq")
-        this.getGroupInfo(groupSeq)
+        if(groupSeq != null) {
+            this.getGroupInfo(groupSeq)
+        }
     }
 }
 
