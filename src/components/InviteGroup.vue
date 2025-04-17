@@ -12,7 +12,7 @@
                     <template v-if="step === 1">
                         <!-- 초대코드 입력 화면 -->
                         <div class="form-group">
-                            <input type="text" id="groupName" class="group-name form-control" placeholder=" " v-model="inviteCode" />
+                            <input type="text" id="groupName" class="group-name form-control" placeholder="ㅑㅜ" v-model="inviteCodeCopy" />
                             <label for="groupName" class="placeholder-label">초대코드<span class="required">*</span></label>
                         </div> 
                     </template>
@@ -42,9 +42,9 @@
                             </label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="nickname" />
+                            <input type="text" id="nickname" class="nickname group-name form-control" placeholder="닉네임" v-model="nickname" />
                             <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
-                            <button class="btn btn-dark" @click="nickNameCheck">중복 체크</button>
+                            <button class="btn btn-dark btn-dup" @click="nickNameCheck">중복 체크</button>
                         </div>
                     </template>
                 </div>
@@ -78,18 +78,24 @@ export default {
             step: 1,
             profileimageSrc: null,
             groupInfo: null,
-            inviteCode: null,
-            nickNameDupCheck : false
+            nickNameDupCheck : false,
+            inviteCodeCopy: this.inviteCode
+        }
+    },
+    props: {
+        inviteCode: {
+            type: String,
+            require: false
         }
     },
     methods: {
         imageUrl,
         nextOne() {
-            if(this.inviteCode == '' || this.inviteCode == null || this.inviteCode == undefined) {
+            if(this.inviteCodeCopy == '' || this.inviteCodeCopy == null || this.inviteCodeCopy == undefined) {
                 this.$toastr.warning("그룹 명을 입력하지않으셨습니다.")
                 return
             }
-            axios.get("/api/group/group-info/"+this.inviteCode, {
+            axios.get("/api/group/group-info/"+this.inviteCodeCopy, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
@@ -109,7 +115,7 @@ export default {
         },
         back() {            
             this.step = 1;
-            this.inviteCode = null
+            this.inviteCodeCopy = null
             this.groupInfo = null
 
         },
@@ -149,7 +155,7 @@ export default {
             }
             axios.post("/api/group/invite", {
                 "groupSequence": this.groupInfo.groupSequence,
-                "inviteCode": this.inviteCode,
+                "inviteCode": this.inviteCodeCopy,
                 "nickName": this.nickname,
                 "profileImageUrl": this.profileimageSrc
             }, {
@@ -249,7 +255,7 @@ export default {
 .placeholder-label3 {
     position: absolute;
     left: 30px;
-    top: 80%; /* 중앙 정렬 */
+    top: -65%;
     transform: translateY(-50%);
     color: gray; /* 그룹 명 색상 변경 */
     pointer-events: none; /* 클릭 방지 */
@@ -273,5 +279,8 @@ export default {
 }
 input::placeholder {
     color: transparent; /* 기본 placeholder 숨기기 */
+}
+.btn-dup{
+    margin-top: 5px;
 }
 </style>

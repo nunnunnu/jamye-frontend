@@ -8,11 +8,10 @@
                     <i class="bi-list"></i>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav ms-auto me-4 my-3 my-lg-0">
-                        <li class="nav-item"><a class="nav-link me-lg-3" @click="groups">그룹 정보</a></li>
-                        <!-- <li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li> -->
-                    </ul>
                     <div v-if="isLogin">
+                        <button type="button" class="btn position-relative" @click="groups">
+                            그룹 정보
+                        </button>
                         <button type="button" class="btn position-relative" @click="notify">
                             쪽지함
                             <span v-if="unreadCount > 0" class="badge position-absolute">{{ unreadCount }}</span>

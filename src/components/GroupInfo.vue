@@ -70,7 +70,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div style="display: flex; align-items: center;">
                         <input class="invite-code" type="text" v-model="inviteCode" disabled>
+                        <button class="btn btn-light" @click="copyInviteCode" style="margin-left: 8px;">복사</button>
+                        <button class="btn btn-light" @click="shareInviteCode">공유</button>
+                    </div>
                         <div>발급된 초대코드는 한시간 후 만료됩니다.</div>
                 </div>
                 <div class="modal-footer">
@@ -144,6 +148,7 @@ import EditProfile from './EditProfile.vue';
 import { base64ToFile } from '@/js/fileScripts';
 import ImagePreviewOpen from './ImagePreviewOpen.vue';
 import { imageUrl } from '@/js/fileScripts';
+import { redirectBaseUrl } from '@/js/config';
 
 export default {
     name: 'groupInfo',
@@ -309,6 +314,26 @@ export default {
         },
         closePreview() {
             this.isPreviewOpen = false
+        },
+        copyInviteCode() {
+            navigator.clipboard.writeText(this.inviteCode)
+            .then(() => {
+                this.$toastr.success('초대 코드가 복사되었습니다');
+            })
+            .catch(() => {
+                this.$toastr.error('복사 실패')
+            });
+        },
+        shareInviteCode() {
+            if (navigator.share) {
+            navigator.share({
+                title: '초대 코드 공유',
+                text: `이 링크로 들어와서 그룹에 참여하세요!\n초대 코드: ${this.inviteCode}`,
+                url: redirectBaseUrl + "/add?inviteCode=" + this.inviteCode
+            })
+            } else {
+                this.$toastr.error("공유 기능을 지원하지 않는 브라우저입니다.")
+            }
         }
     }
 }
