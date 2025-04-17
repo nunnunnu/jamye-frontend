@@ -143,6 +143,7 @@ export default {
         groupSelect(group) {
             this.$emit("groupSelect", group)
             this.$cookies.set("groupSeq", group.groupSequence)
+            this.getGroupInfo(group.groupSequence)
         },
         groupList() {
             axios.get("/api/group/list", {
@@ -172,6 +173,15 @@ export default {
             }).catch(e => {
                 this.$toastr.error(e.response.data.message)
             })
+        },
+        getGroupInfo(groupSeq) {
+            this.currentGroup = axios.get("/api/group/name/" + groupSeq, {
+              headers: {
+              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              }
+          }).then(r => {
+            this.currentGroup = r.data.data
+          }) 
         }
     },
     props: {
@@ -182,13 +192,7 @@ export default {
     },
     created() {
         const groupSeq = this.$cookies.get("groupSeq")
-        this.currentGroup = axios.get("/api/group/name/" + groupSeq, {
-              headers: {
-              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
-              }
-          }).then(r => {
-            this.currentGroup = r.data.data
-          }) 
+        this.getGroupInfo(groupSeq)
     }
 }
 
