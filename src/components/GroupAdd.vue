@@ -40,7 +40,7 @@ export default {
     created() {
         if (!this.isLogin) {
             this.$toastr.warning("로그인 후 접근 가능한 페이지입니다.");
-            this.$router.go("/");
+            this.$router.push("/login");
             return;
         }
         const inviteCode = this.$route.query.inviteCode

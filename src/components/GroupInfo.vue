@@ -325,9 +325,13 @@ export default {
             });
         },
         shareInviteCode() {
+            if(this.inviteCode == null) {
+                this.$toastr.warning("초대코드 생성중입니다.")
+                return
+            }
             if (navigator.share) {
             navigator.share({
-                title: '초대 코드 공유',
+                title: '[잼얘 가챠 초대 코드 공유]',
                 text: `이 링크로 들어와서 그룹에 참여하세요!\n초대 코드: ${this.inviteCode}`,
                 url: redirectBaseUrl + "/add?inviteCode=" + this.inviteCode
             })
