@@ -82,24 +82,42 @@
         <button v-if="groupInfo.isMaster" class="btn btn-dark btn-block group-btn" @click="isGroupDeletionVoteInProgress" data-bs-toggle="modal" data-bs-target="#deleteVoteModal">그룹 삭제 투표 진행</button>
         <div class="modal fade" id="deleteVoteModal" tabindex="-1" aria-labelledby="deleteVoteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content" v-if="voteInfo != null">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="deleteVoteModalLabel">그룹 삭제 투표 개시</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    그룹 삭제 투표가 진행됩니다.<br>
-                    그룹 내 회원이 과반수 이상이 찬성한다면 즉시 삭제됩니다.<br>
-                    과반수가 동의하지 않았다면 삭제는 무산됩니다.<br>
-                    일주일 내로 투표가 재 진행된다면 2차 투표가 시작됩니다.<br>
-                    2차 투표에서도 과반수가 동의하지 않는다면 재투표에서 그룹 삭제에 동의한 인원은 그룹에서 탈퇴됩니다(작성한 잼얘도 함께 삭제됩니다)
-                    <br>
-                    <div v-if="voteInfo != null">
-                        <div v-if="voteInfo.isNowVoting">
-                            <span v-if="voteInfo.hasRevoted">현재 2차 투표 진행 중 입니다.</span>
-                            <span v-else>현재 1차 투표 진행 중 입니다.</span>
-                            동의 인원 : {{ voteInfo.agreeUserSeqs.length }}
-                            비동의 인원 : {{ voteInfo.disagreeUserSeqs.length }}
+                <div class="modal-body deleteVote-des">
+                    <div v-if="voteInfo.deleteVote == null">
+                        <div v-if="voteInfo.isWaitingDeleteReVoted">
+                            1차 삭제 투표에서 과반수 동의를 얻지못해 2차투표 대기중인 그룹입니다.
+                            <span style="color: red">1. 2차 투표는 투표 결과에 상관없이 삭제에 동의한 인원은 모두 자동 탈퇴처리됩니다.</span><br>
+                            2. 과반수가 동의하지 않았다면 삭제는 무산되지만 삭제에 동의한 인원은 모두 탈퇴되며, 작성한 잼얘와 댓글도 모두 삭제됩니다.<br>요
+                            3. 삭제 투표를 진행하는 그룹 마스터는 즉시 삭제 동의로 투표한 것으로 간주되며 투표 종료시 그룹에서 탈퇴됩니다.<br>
+                            4. 삭제 투표가 진행중인 그룹에는 신규 회원 가입이 불가능합니다.<br>
+                            5. 삭제 투표 인원은 그룹 가입 후 7일 이상 된 회원을 기준으로 합니다.
+                            6. 탈퇴된 그룹 마스터 권한은 가입한지 가장 오래된 회원에게 자동 양도됩니다.<br>
+                            7. 투표 과반수 동의 달성 시 남은 기간은 무시되며 즉시 그룹 삭제가 진행됩니다.<br>
+                            8. 그룹의 회원이 2명 이하라면 그룹은 자동 삭제됩니다.<br>
+                        </div>
+                        <div v-else>
+                            그룹 삭제 투표가 진행됩니다. <span style="color: red">삭제투표는 취소할 수 없으니 신중한 결정바랍니다.</span><br>
+                            1. 그룹 내 회원이 과반수 이상이 삭제에 찬성한다면 그룹과 그룹의 모든 잼얘, 댓글이 삭제됩니다.<br>
+                            2. 과반수가 동의하지 않았다면 삭제는 무산됩니다.<br>
+                            3. 삭제 투표를 진행하는 그룹 마스터는 즉시 삭제 동의로 투표한 것으로 간주됩니다.<br>
+                            4. 삭제 투표가 진행중인 그룹에는 신규 회원 가입이 불가능합니다.<br>
+                            5. 삭제 투표 인원은 그룹 가입 후 7일 이상 된 회원을 기준으로 합니다.<br>
+                            6. 투표 과반수 동의 달성 시 남은 기간은 무시되며 즉시 그룹 삭제가 진행됩니다.<br>
+                            7. 그룹의 회원이 2명 이하라면 그룹은 자동 삭제됩니다.<br>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div v-if="voteInfo.deleteVote.isNowVoting">
+                            <span style="color: red" v-if="voteInfo.deleteVote.hasRevoted">현재 2차 투표 진행 중 입니다.</span>
+                            <span style="color: red" v-else>현재 1차 투표 진행 중 입니다.</span>
+                            <br>
+                            동의 인원 : {{ voteInfo.deleteVote.agreeUserSeqs.length }}
+                            비동의 인원 : {{ voteInfo.deleteVote.disagreeUserSeqs.length }}
                         </div>
                         <div v-else-if="voteInfo.isWaitingDeleteReVoted">
                             1차 투표에서 과반수의 삭제 승인을 얻지못해 2차 투표 대기중입니다.
@@ -109,7 +127,7 @@
                     </div>                    
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close" @click="deleteGroupVote">삭제</button>
+                    <button type="button" v-if="voteInfo.deleteVote == null" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close" @click="deleteGroupVote">삭제</button>
                     <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
                 </div>
             </div>
@@ -185,10 +203,11 @@ export default {
             .then(r => {
                 if(r.data.data) {
                     this.$toastr.success("그룹이 삭제 완료되었습니다")
+                    this.$router.push("/groups")
+                    this.voteInfo = null
                     if(this.$cookies.get("group").groupSequence == this.seq) {
                         this.$cookies.remove("group")
                     }
-                    this.$router.push("groups")
                 } else {
                     this.$toastr.success("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")
                 }
@@ -390,5 +409,8 @@ edit-button {
 }
 .nickName {
     margin-bottom: 10px;
+}
+.deleteVote-des {
+    text-align: left;
 }
 </style>

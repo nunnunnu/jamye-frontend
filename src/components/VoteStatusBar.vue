@@ -8,7 +8,7 @@
         <div v-for="(vote, voteId) in votes" :key="voteId" class="vote-item">
           <span class="title">{{ vote.groupName }}그룹 투표 진행 현황 - </span>
           <span class="timer">⏱ {{ formatRemainingTime(vote.remainingTime) }}</span>
-          <span class="timer">[현재 동의 인원 : {{ vote.deleteVote.agreeUserSeqs.length + vote.deleteVote.disagreeUserSeqs.length }}/{{ vote.deleteVote.standardVoteCount }}]</span>
+          <span class="timer">[현재 투표 참여 인원 : {{ vote.deleteVote.agreeUserSeqs.length + vote.deleteVote.disagreeUserSeqs.length }}/{{ vote.deleteVote.standardVoteCount }}]</span>
           <span v-if="!vote.alreadyVoteCheck">
                 <button class="btn btn-dark btn-sm btn-vote" data-bs-toggle="modal" data-bs-target="#voteModal">투표하기</button>
                 <VoteModal :vote="vote" :groupSeq="vote.groupSeq"></VoteModal>
