@@ -210,7 +210,7 @@ export default {
                     this.$toastr.success("그룹이 삭제 완료되었습니다")
                     this.$router.push("/groups")
                     this.voteInfo = null
-                    if(this.$cookies.get("group").groupSequence == this.seq) {
+                    if(this.$cookies.get("groupSeq") == this.seq) {
                         this.$cookies.remove("group")
                     }
                 } else {

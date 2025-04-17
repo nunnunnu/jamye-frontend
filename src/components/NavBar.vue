@@ -46,9 +46,6 @@ export default {
             type: Boolean,
             required: true
         },
-        currentGroup: {
-            require: false
-        },
         unreadCount: {
             type: Number
         },

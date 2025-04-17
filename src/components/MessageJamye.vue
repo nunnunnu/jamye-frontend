@@ -573,6 +573,7 @@ export default {
             isInputVisible: false,
             searchTerm: "",
             searchResults: [],
+            groupSeq: null
         }   
     },
     props: {
@@ -583,15 +584,15 @@ export default {
         }
     },
     created() {
-        var group = this.$cookies.get("group")
+        this.groupSeq = this.$cookies.get("groupSeq")
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
-        } else if(group == null) {
+        } else if(this.groupSeq == null) {
             this.$toastr.warning("메세지를 작성할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
         } else {
-            axios.get(`/api/post/${group.groupSequence}/${this.postSeq}`, {
+            axios.get(`/api/post/${this.groupSeq}/${this.postSeq}`, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
@@ -622,7 +623,6 @@ export default {
                     formdata.append(key, base64ToFile(value));
                 }
             });
-            const groupSeq = this.$cookies.get("group").groupSequence;
             const data = {
                 title: this.message.title,
                 message: this.messageResponse,
@@ -633,7 +633,7 @@ export default {
             }
 
             formdata.append('data', JSON.stringify(data));
-            axios.post(`/api/post/message/${groupSeq}/${this.postSeq}`,
+            axios.post(`/api/post/message/${this.groupSeq}/${this.postSeq}`,
             formdata
             ,
                 {
@@ -987,7 +987,7 @@ export default {
             this.nicknameInput = null
         },
         groupNickNameInfo() {
-            axios.get("/api/group/users/" + this.$cookies.get("group").groupSequence, {
+            axios.get("/api/group/users/" + this.groupSeq, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
@@ -1022,14 +1022,13 @@ export default {
             this.addNickNameSet = newSet;
         },
         updateNickNameInfo() {
-            const groupSeq = this.$cookies.get("group").groupSequence;
             var tempMap = new Map
             for(let [id, value] of Object.entries(this.nickNameMap)) {
                 if(value.nickName != null) {
                     tempMap[id] = value
                 }
             }
-            axios.post(`/api/post/message/${groupSeq}/${this.postSeq}/nickName`, {
+            axios.post(`/api/post/message/${this.groupSeq}/${this.postSeq}/nickName`, {
                 "updateInfo" : tempMap,
                 "deleteMessageNickNameSeqs" : Array.from(this.deleteNickNames),
                 "createInfo": Array.from(this.addNickNameSet)
@@ -1345,8 +1344,7 @@ export default {
             msg.replyNickNameSeq = null
         },
         deletePost() {
-            const groupSeq = this.$cookies.get("group").groupSequence;
-            axios.delete(`/api/post/${groupSeq}/${this.postSeq}`, {
+            axios.delete(`/api/post/${this.groupSeq}/${this.postSeq}`, {
               headers: {
                 Authorization: `Bearer ${this.$cookies.get('accessToken')}`
               }
@@ -1420,8 +1418,7 @@ export default {
             }
 
             const safeParam = encodeURIComponent(this.searchTerm);
-            const groupSeq = this.$cookies.get("group").groupSequence;
-            axios.get(`/api/post/tag/all/${groupSeq}?keyword=${safeParam}`, {
+            axios.get(`/api/post/tag/all/${this.groupSeq}?keyword=${safeParam}`, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 },

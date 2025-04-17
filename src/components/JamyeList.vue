@@ -113,7 +113,8 @@ export default{
             tags: new Set,
             selectedTags: [],
             totalElements: 0,
-            allPostCount: 0
+            allPostCount: 0,
+            groupSeq: null
         }
     },
     props: {
@@ -137,25 +138,30 @@ export default{
         }
     },
     created() {
-        var group = this.$cookies.get("group")
+        this.groupSeq = this.$cookies.get("groupSeq")
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 조회 가능합니다.")
             this.$router.push("/login")
-        } else if(group == null) {
+        } else if(this.groupSeq == null) {
             this.$toastr.warning("잼얘를 조회할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
             return
         } else {
-            this.groupName = group.name
+            axios.get("/api/group/name/" + this.groupSeq, {
+              headers: {
+              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              }
+          }).then(r => {
+            this.groupName = r.data.data.name
+          }) 
         }
         this.jamyeList()
         this.tagList()
     },
     methods: {
         jamyeList() {
-            var group = this.$cookies.get("group")
             const safeParam = encodeURIComponent(this.keyword);
-            axios.get(`/api/post/${group.groupSequence}?page=${this.currentPage}` 
+            axios.get(`/api/post/${this.groupSeq}?page=${this.currentPage}` 
                 + (this.keyword==null?"":`&keyword=${safeParam}`)
                 + (this.selectedTags == null || this.selectedTags.size == 0 ? "" : `&tagSeqs=${Array.from(this.selectedTags).join(", ")}`)
                 + (this.types == null || this.types.size == 0 ? "" : `&types=${Array.from(this.types).join(", ")}`)
@@ -194,7 +200,7 @@ export default{
                     this.$router.push("/")
                 })
 
-                axios.get(`/api/group/${group.groupSequence}/all-post/count`, {
+                axios.get(`/api/group/${this.groupSeq}/all-post/count`, {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
@@ -230,8 +236,7 @@ export default{
             this.tagList()
         },  
         tagList() {
-            var group = this.$cookies.get("group")
-            axios.get(`/api/post/tag/${group.groupSequence}?page=${this.tagPage}`, {
+            axios.get(`/api/post/tag/${this.groupSeq}?page=${this.tagPage}`, {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }

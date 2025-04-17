@@ -47,18 +47,17 @@ export default {
             comments: {},
             comment: null,
             userSeq: null,
-            isEditingSeq: null
+            isEditingSeq: null,
         }
     },
     created() {
         this.userSeq = this.$cookies.get('sequence');
-        var group = this.$cookies.get("group")
-        if(group == null) {
+        this.groupSeq = this.$cookies.get("groupSeq")
+        if(this.groupSeq == null) {
             this.$toastr.warning("그룹을 먼저 선택해주세요")
             this.$router.push("/")
             return
         }
-        this.groupSeq = group.groupSequence
         this.getCommentList()
     },
     methods: {

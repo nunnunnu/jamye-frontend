@@ -77,7 +77,8 @@ export default {
             searchTerm: "",
             searchResults: [],
             selectedTags: [],
-            hoverIndex: -1
+            hoverIndex: -1,
+            groupSeq: null
         }
     },
     props: {
@@ -88,15 +89,21 @@ export default {
         }
     },
     created() {
-        var group = this.$cookies.get("group")
+        this.groupSeq = this.$cookies.get("groupSeq")
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
-        } else if(group == null) {
+        } else if(this.groupSeq == null) {
             this.$toastr.warning("게시글을 작성할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
         } else {
-            this.groupName = group.name
+            axios.get("/api/group/name/" + this.groupSeq, {
+              headers: {
+              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              }
+          }).then(r => {
+            this.groupName = r.data.data.name
+          })
         }
     },
     methods: {
@@ -166,10 +173,9 @@ export default {
                 }
                 return match;
             });
-            const groupSeq = this.$cookies.get("group").groupSequence;
             const data = {
                 title: this.postTitle,
-                groupSeq: groupSeq,
+                groupSeq: this.groupSeq,
                 content: {
                     content: content
                 },
@@ -249,9 +255,8 @@ export default {
                 return;
             }
 
-            const groupSeq = this.$cookies.get("group").groupSequence;
             const safeParam = encodeURIComponent(this.searchTerm);
-            axios.get(`/api/post/tag/all/${groupSeq}?keyword=${safeParam}`, {
+            axios.get(`/api/post/tag/all/${this.groupSeq}?keyword=${safeParam}`, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 },

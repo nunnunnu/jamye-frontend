@@ -142,7 +142,7 @@ export default {
         },
         groupSelect(group) {
             this.$emit("groupSelect", group)
-            this.$cookies.set("group", group)
+            this.$cookies.set("groupSeq", group.groupSequence)
         },
         groupList() {
             axios.get("/api/group/list", {
@@ -154,13 +154,11 @@ export default {
             })
         },
         luckyDraw() {
-            const group = this.$cookies.get("group")
-            if(group == null) {
+            if(this.currentGroup == null) {
                 this.$toastr.warning("잼얘를 뽑을 그룹을 먼저 선택해주세요.")
                 return
             }
-            var groupSeq = group.groupSequence
-            axios.get("/api/post/lucky-draw/" + groupSeq, {
+            axios.get("/api/post/lucky-draw/" + this.currentGroup.groupSequence, {
                 headers: {
                     Authorization: `Bearer `+this.$cookies.get('accessToken')
                 }
@@ -183,7 +181,14 @@ export default {
         }
     },
     created() {
-        this.currentGroup = this.$cookies.get("group")
+        const groupSeq = this.$cookies.get("groupSeq")
+        this.currentGroup = axios.get("/api/group/name/" + groupSeq, {
+              headers: {
+              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              }
+          }).then(r => {
+            this.currentGroup = r.data.data
+          }) 
     }
 }
 

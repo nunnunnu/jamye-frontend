@@ -1,12 +1,12 @@
 <template>
   <div id="app">
-    <Navbar :isLogin="isLogin" :currentGroup="currentGroup" @groupSelect="groupSelect" :unreadCount="unreadCount"></Navbar>
+    <Navbar :isLogin="isLogin" @groupSelect="groupSelect" :unreadCount="unreadCount"></Navbar>
     <VoteStatusBar v-if="isLogin && this.deleteVote != null && Object.keys(this.deleteVote).length > 0" :isLogin="isLogin" :deleteVote="deleteVote"></VoteStatusBar>
     <div id="content">
       <div v-if="loading" class="loading-overlay">
         <div class="spinner"></div>
       </div>
-      <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" :key="currentGroup" @groupSelect="groupSelect" @handleLogout="handleLogout" @connectWebSocket="connectWebSocket"></router-view>
+      <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" @groupSelect="groupSelect" @handleLogout="handleLogout" @connectWebSocket="connectWebSocket"></router-view>
     </div>
   </div>
   <FooterView />
@@ -27,7 +27,6 @@ export default {
   data() {
         return {
             isLogin: null,
-            currentGroup: null,
             loading: false,
             unreadCount: 0,
             deleteVote: {}
@@ -51,7 +50,6 @@ export default {
     },
     created() {
         this.isLogin = this.$cookies.get('accessToken') !== null;
-        this.currentGroup = this.$cookies.get("group")
         if(this,this.isLogin) {
           this.socketRead()
 
