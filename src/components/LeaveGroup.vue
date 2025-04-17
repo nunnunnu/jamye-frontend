@@ -45,7 +45,7 @@ export default {
                 }
             }).then(() => {
                 if(this.$cookies.get("groupSeq") == this.group.groupSequence) {
-                    this.$cookies.remove("group")
+                    this.$cookies.remove("groupSeq")
                 }
                 const modalInstance = Modal.getInstance(document.getElementById('leaveGroup'))
                 if (modalInstance) modalInstance.hide()

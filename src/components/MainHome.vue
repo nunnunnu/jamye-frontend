@@ -175,12 +175,14 @@ export default {
             })
         },
         getGroupInfo(groupSeq) {
-            this.currentGroup = axios.get("/api/group/name/" + groupSeq, {
+            axios.get("/api/group/name/" + groupSeq, {
               headers: {
               Authorization: `Bearer ${this.$cookies.get('accessToken')}`
               }
           }).then(r => {
-            this.currentGroup = r.data.data
+                this.currentGroup = r.data.data
+          }).catch(() => {
+            this.$cookies.remove("groupSeq")
           }) 
         }
     },

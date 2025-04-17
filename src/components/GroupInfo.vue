@@ -211,7 +211,7 @@ export default {
                     this.$router.push("/groups")
                     this.voteInfo = null
                     if(this.$cookies.get("groupSeq") == this.seq) {
-                        this.$cookies.remove("group")
+                        this.$cookies.remove("groupSeq")
                     }
                 } else {
                     this.$toastr.success("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")

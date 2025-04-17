@@ -39,7 +39,7 @@ instance.interceptors.response.use((response) => {
           document.cookie = encodeURIComponent("refreshToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
           document.cookie = encodeURIComponent("id") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
           document.cookie = encodeURIComponent("sequence") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-          document.cookie = encodeURIComponent("group") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
+          document.cookie = encodeURIComponent("groupSeq") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
           
           router.push("/login");
           return
@@ -65,7 +65,7 @@ instance.interceptors.response.use((response) => {
         document.cookie = encodeURIComponent("refreshToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
         document.cookie = encodeURIComponent("id") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
         document.cookie = encodeURIComponent("sequence") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-        document.cookie = encodeURIComponent("group") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
+        document.cookie = encodeURIComponent("groupSeq") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
         
         router.push("/login");
         return
