@@ -146,7 +146,7 @@ import axios from '@/js/axios';
 import LeaveGroup from './LeaveGroup.vue';
 import EditProfile from './EditProfile.vue';
 import { base64ToFile } from '@/js/fileScripts';
-import ImagePreviewOpen from './ImagePreviewOpen.vue';
+import ImagePreviewOpen from '../ImagePreviewOpen.vue';
 import { imageUrl } from '@/js/fileScripts';
 import { redirectBaseUrl } from '@/js/config';
 

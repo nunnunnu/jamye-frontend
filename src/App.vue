@@ -20,7 +20,7 @@ import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import axios from '@/js/axios';
 import { BASE_URL } from './js/config';
-import VoteStatusBar from './components/VoteStatusBar.vue';
+import VoteStatusBar from './components/group/VoteStatusBar.vue';
 
 export default {
   name: 'App',

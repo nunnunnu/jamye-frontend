@@ -72,8 +72,8 @@
 </template>
 <script>
 import axios from '@/js/axios';
-import LeaveGroup from './LeaveGroup.vue';
-import EditProfile from './EditProfile.vue';
+import LeaveGroup from '../group/LeaveGroup.vue';
+import EditProfile from '../group/EditProfile.vue';
 import { imageUrl } from '@/js/fileScripts';
 export default {
     components: {
@@ -194,7 +194,7 @@ export default {
 }
 </script>
 <style scoped>
-@import url("../css/group-box.css");
+@import url(/src/css/group-box.css);
 .user-info-box {
   display: flex;
   justify-content: space-between;
