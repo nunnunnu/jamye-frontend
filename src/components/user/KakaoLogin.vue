@@ -11,15 +11,20 @@ export default {
 
         // code 파라미터 추출
         const code = searchParams.get('code');
+        const state = searchParams.get('state');
 
+
+        this.$toastr.success(state)
         if(code == null || code == undefined) {
             this.$toastr.error("정상적인 접근이 아닙니다")
             this.$router.push("/")
             return
         }
+        console.log("카카오 인증코드 정상 수신")
 
         axios.get("/oauth/kakao/callback?code="+code)
         .then((response)=>{
+            console.log("kakao callback api 호출")
             const token = response.data.data.token;
             const accessToken = token.accessToken; 
             const refreshToken = token.refreshToken; 
@@ -35,8 +40,14 @@ export default {
             this.$cookies.set('sequence', response.data.data.sequence);
             this.$emit("isLoginChange", true)
             setTimeout(() => {
-                this.$router.push("/");
+                if (state == 'app') {
+                        window.cordova.InAppBrowser.close();
+                } else {
+                    console.log("kakao redirect 웹 ver")
+                    this.$router.push("/");
+                }
             }, 0)
+            this.$toastr.success("카카오 로그인 성공")
         }).catch(() => {
             this.$toastr.error("카카오 로그인에 실패하였습니다. 운영자에게 문의해주세요.")
             this.$router.push("/")

@@ -138,13 +138,22 @@ export default {
 
                 const authUrl = "https://kauth.kakao.com/oauth/authorize";
                 const responseType = "code";
-                const state = "kakao";
                 const redirectUrl = redirectBaseUrl + "/oauth/kakao"
 
                 axios.get("/oauth/kakao/client-id").then(r => {
-                    const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
-
-                    window.location.href=url
+                    if (typeof window.cordova !== 'undefined') {
+                        const state = 'app';
+                        const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
+                        document.addEventListener('deviceready', function() {
+                            console.log("코도바 앱 ver");
+                            window.cordova.InAppBrowser.open(url, "_blank", "location=no,fullscreen=yes");
+                        }, false);
+                    } else {
+                        const state = "web";
+                        const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
+                        console.log("웹 ver");
+                        window.location.href=url
+                    }
                 }).catch(e => {
                     this.$toastr.error("현재 카카오 로그인을 사용할 수 없습니다. 운영자에게 문의해주세요.")
                     this.$toastr.error(e.response.data.message)
