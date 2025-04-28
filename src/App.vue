@@ -127,6 +127,7 @@ export default {
           },
           (error) => {
             console.error("❌ WebSocket 연결 실패:", error);
+            console.error("BASEURL:", BASE_URL);
           }
         );
 

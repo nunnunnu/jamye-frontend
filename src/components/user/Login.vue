@@ -87,7 +87,8 @@ export default {
                     const param = {
                         id: this.id,
                         password: this.pwd
-                    };
+                    }
+                    console.log("무ㅓ지?")
                     axios.post('/api/user/login', param)
                     .then(response => {
                         const token = response.data.data.token;
@@ -124,6 +125,7 @@ export default {
                             this.id = this.$cookies.get("saveId")
                             this.pwd = null
                         } else {
+                            console.log("login error:", JSON.stringify(error));
                             this.$toastr.warning("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
                         }
                     });
@@ -143,8 +145,9 @@ export default {
                     const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
 
                     window.location.href=url
-                }).catch(() => {
+                }).catch(e => {
                     this.$toastr.error("현재 카카오 로그인을 사용할 수 없습니다. 운영자에게 문의해주세요.")
+                    this.$toastr.error(e.response.data.message)
                 })
 
                 
@@ -171,7 +174,8 @@ export default {
                     setTimeout(() => {
                         this.$router.push("/");
                     }, 0)
-                }).catch(() => {
+                }).catch(e => {
+                    this.$toastr.error(e.response.data.message)
                     this.$toastr.error("구글 로그인에 실패하였습니다. 운영자에게 문의해주세요.")
                     this.$router.push("/")
                 })

@@ -197,6 +197,12 @@ export default {
         if(groupSeq != null) {
             this.getGroupInfo(groupSeq)
         }
+        axios.get("/").then(r => {
+            console.log("응답 데이터:", r)
+            console.log("접속테스트 성공:", r.data)
+        }).catch(e => {
+            console.log("접속테스트 성공:", e)
+        })
     }
 }
 
