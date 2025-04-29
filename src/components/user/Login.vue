@@ -27,8 +27,8 @@
             <span class="clickable-text join" @click="join">회원 가입</span>
         </div>
         <div>
-            <img class="socialLogin clickable" @click="loginWithKakao" src="@/assets/img/kakao_login_medium_wide.png" style="width: 100%" height="75px">
-            <div class="socialLogin" id="googleBtn" style="width: 100%; display: block;">Google Login</div>
+            <img class="socialLogin clickable" @click="loginWithKakao" src="@/assets/img/kakao_login_medium_wide.png" style="width: 100%" height="60px">
+            <!-- <div class="socialLogin" id="googleBtn" style="width: 100%; display: block;">Google Login</div> -->
         </div>
 
     </div>
@@ -58,26 +58,26 @@ export default {
             
         },
         mounted() {
-            axios.get("/oauth/google/client-id"
-            ).then(response => {
-                const clientId = response.data.data
-                window.google.accounts.id.initialize({
-                    client_id: clientId,
-                    callback: this.handleCredentialResponse
-                })
-                window.google.accounts.id.renderButton(
-                    document.getElementById("googleBtn"),
-                    { theme: "outline", size: "large" }
-                )
-                setTimeout(() => {
-                    const iframe = document.querySelector('#googleBtn iframe')
-                        if (iframe) {
-                            iframe.style.width = '100%'
-                        }
-                    }, 1000)
-            }).catch(() => {
-                this.$toastr.error("현재 구글 로그인을 사용할 수 없습니다.")
-            })
+            // axios.get("/oauth/google/client-id")
+            // .then(response => {
+            //     const clientId = response.data.data
+            //     setTimeout(() => {
+            //         window.google.accounts.id.initialize({
+            //             client_id: clientId,
+            //             callback: this.handleCredentialResponse
+            //         })
+            //         window.google.accounts.id.renderButton(
+            //             document.getElementById("googleBtn"),
+            //             { theme: "outline", size: "large" }
+            //         )
+            //         const iframe = document.querySelector('#googleBtn iframe')
+            //             if (iframe) {
+            //                 iframe.style.width = '100%'
+            //             }
+            //     }, 500); // 0.5초 지연 후 실행
+            // }).catch(e => {
+            //     this.$toastr.error("현재 구글 로그인을 사용할 수 없습니다.")
+            // })
         },
         methods: {
             submitForm() {
@@ -158,9 +158,6 @@ export default {
                     this.$toastr.error("현재 카카오 로그인을 사용할 수 없습니다. 운영자에게 문의해주세요.")
                     this.$toastr.error(e.response.data.message)
                 })
-
-                
-
             },
             async handleCredentialResponse(response) {
                 const token = response.credential
@@ -184,7 +181,7 @@ export default {
                         this.$router.push("/");
                     }, 0)
                 }).catch(e => {
-                    this.$toastr.error(e.response.data.message)
+                    console.log(JSON.stringify(e))
                     this.$toastr.error("구글 로그인에 실패하였습니다. 운영자에게 문의해주세요.")
                     this.$router.push("/")
                 })
