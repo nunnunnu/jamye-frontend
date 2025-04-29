@@ -138,7 +138,12 @@ const routes = [
     }
 ]
 
-const isCordova = window.location.protocol === 'file:'
+var isCordova = null
+if (typeof window.cordova !== 'undefined') {
+    isCordova = true
+} else {
+    isCordova = false
+}
 
 const router = createRouter({
     history: isCordova ? createWebHashHistory() : createWebHistory(),
