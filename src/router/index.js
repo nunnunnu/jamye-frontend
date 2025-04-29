@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import MainHome from "../components/MainHome.vue"
 import Login from "../components/user/Login.vue"
 import MyPage from "../components/user/MyPage.vue"
@@ -138,10 +138,12 @@ const routes = [
     }
 ]
 
+const isCordova = window.location.protocol === 'file:'
 
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: isCordova ? createWebHashHistory() : createWebHistory(),
     routes
-  })
+})
+  
   
   export default router

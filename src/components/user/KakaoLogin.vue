@@ -13,8 +13,6 @@ export default {
         const code = searchParams.get('code');
         const state = searchParams.get('state');
 
-
-        this.$toastr.success(state)
         if(code == null || code == undefined) {
             this.$toastr.error("정상적인 접근이 아닙니다")
             this.$router.push("/")
