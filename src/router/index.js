@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import MainHome from "../components/MainHome.vue"
 import Login from "../components/user/Login.vue"
 import MyPage from "../components/user/MyPage.vue"
@@ -138,15 +138,8 @@ const routes = [
     }
 ]
 
-var isCordova = null
-if (typeof window.cordova !== 'undefined') {
-    isCordova = true
-} else {
-    isCordova = false
-}
-
 const router = createRouter({
-    history: isCordova ? createWebHashHistory() : createWebHistory(),
+    history: createWebHistory(),
     routes
 })
   

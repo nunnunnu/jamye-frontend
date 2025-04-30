@@ -84,7 +84,6 @@ export default{
             }
         },
         updateUserInGroupInfo() {
-            console.log("aa")
             if(this.newNickName == null) {
                 this.$toastr.warning("변경할 닉네임을 입력해주세요")
                 return

@@ -21,6 +21,7 @@ import { Stomp } from '@stomp/stompjs';
 import axios from '@/js/axios';
 import { BASE_URL } from './js/config';
 import VoteStatusBar from './components/group/VoteStatusBar.vue';
+import { cordovaSetFcmToken } from './js/cordova-fcm'
 
 export default {
   name: 'App',
@@ -38,6 +39,10 @@ export default {
           console.log("1차 테스트")
           this.connectWebSocket()
           this.socketRead()
+          console.log("1차 테스트 - firebase")
+          const accessToken = this.$cookies.get('accessToken')
+          console.log("accessToken : " + accessToken)
+          cordovaSetFcmToken(accessToken)
         } else {
           if (this.stompClient && this.stompClient.connected) {
             this.stompClient.disconnect(() => {

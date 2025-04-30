@@ -5,7 +5,7 @@ import { toast } from '@/main';
 
 let activeRequests = 0;
 let loadingCallback = null;
-console.log(BASE_URL)
+console.log("BASE_URL:"+BASE_URL)
 const instance = axios.create({
   baseURL: BASE_URL
 });
@@ -16,7 +16,7 @@ export const setLoadingCallback = (callback) => {
 
 instance.interceptors.request.use((config) => {
   activeRequests++;
-  console.log(config.skipLoading)
+  console.log("skipLoading:"+config.skipLoading)
   if (loadingCallback && !config.skipLoading) loadingCallback(true); // 로딩 시작
   return config;
 }, (error) => {
@@ -29,7 +29,7 @@ instance.interceptors.response.use((response) => {
   return response;
 }, async (error) => {
     activeRequests--;
-    console.log(error.response)
+    console.log("error:"+JSON.stringify(error.response))
     if (error.response && error.response.status === 403) {
       const match = document.cookie.match('(^|;) ?refreshToken=([^;]*)(;|$)');
       const refreshToken = match ? match[2] : null;
