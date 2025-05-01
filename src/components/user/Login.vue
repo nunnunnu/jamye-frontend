@@ -147,7 +147,12 @@ export default {
                         document.addEventListener('deviceready', function() {
                             console.log("코도바 앱 ver");
                             console.log("InAppBrowser:" + window.cordova.InAppBrowser); // undefined가 아니라 나와야 정상
-                            window.cordova.InAppBrowser.open(url, "_blank", "location=no,fullscreen=yes");
+                            var inAppBrowser = window.cordova.InAppBrowser.open(url, "_blank", "location=no,fullscreen=yes");
+                                
+                            inAppBrowser.addEventListener('exit', function() {
+                                console.log('InAppBrowser가 닫히면서 앱 내 로직 실행됨');
+                            });
+
                         }, false);
                     } else {
                         const state = "web";
