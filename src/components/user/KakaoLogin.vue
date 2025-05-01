@@ -15,6 +15,8 @@ export default {
         const state = searchParams.get('state');
         console.log("state:", state)
 
+        if(state != 'web') return
+
         if(code == null || code == undefined) {
             this.$toastr.error("정상적인 접근이 아닙니다")
             this.$router.push("/")
