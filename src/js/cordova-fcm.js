@@ -61,14 +61,21 @@ export function cordovaSetFcmToken(accessToken, cookieToken) {
       }
 }
 
-export function getFcmToken() {
-    if (typeof window.cordova !== 'undefined') {
-        console.log("firebase - cordova check")
-        document.addEventListener('deviceready', () => {
-          window.FirebasePlugin.getToken(token => {
-            console.log("FCM token:", token)
-            return token
-          }
-        )}, false)
-      }
-}
+// export function getFcmToken() {
+//     return new Promise((resolve, reject) => {
+//         if (typeof window.cordova !== 'undefined') {
+//             console.log("firebase - cordova check")
+//             document.addEventListener('deviceready', () => {
+//                 window.FirebasePlugin.getToken(token => {
+//                     console.log("FCM token:", token)
+//                     resolve(token)  // token 값을 resolve하여 반환
+//                 }, error => {
+//                     reject(error)  // error가 발생하면 reject
+//                 })
+//             }, false)
+//         } else {
+//             reject("Cordova is not available")
+//         }
+//     })
+// }
+    

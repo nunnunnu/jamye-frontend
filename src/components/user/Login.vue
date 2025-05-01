@@ -35,8 +35,21 @@
 </template>
 <script>
 import { redirectBaseUrl } from '@/js/config';
-import { getFcmToken } from '@/js/cordova-fcm'
+// import { getFcmToken } from '@/js/cordova-fcm'
 import axios from 'axios'
+
+// async function fetchFcmToken() {
+//     try {
+//         const token = await getFcmToken()
+//         console.log("finalToken", token)  // token 출력
+//         if(token != null) {
+//             this.$cookies.set("fcmToken", token)
+//         }
+//     } catch (error) {
+//         console.error("FCM token error", error)
+//     }
+// }
+
 export default {
         name: 'loginPage',
         data() {
@@ -136,7 +149,6 @@ export default {
                 this.$router.push("/join")
             },
             loginWithKakao() {
-
                 const authUrl = "https://kauth.kakao.com/oauth/authorize";
                 const responseType = "code";
                 const redirectUrl = redirectBaseUrl + "/oauth/kakao"
@@ -147,17 +159,63 @@ export default {
                         const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
                         document.addEventListener('deviceready', function() {
                             console.log("코도바 앱 ver");
-                            const token = getFcmToken()
-                            this.$cookies.set("fcmToken", token)
-
-                            console.log("InAppBrowser:" + window.cordova.InAppBrowser); // undefined가 아니라 나와야 정상
+                            // fetchFcmToken()
+                            console.log("InAppBrowser:" + window.cordova.InAppBrowser);
                             var inAppBrowser = window.cordova.InAppBrowser.open(url, "_blank", "location=no,fullscreen=yes");
                                 
-                            inAppBrowser.addEventListener('exit', function() {
-                                console.log('InAppBrowser가 닫히면서 앱 내 로직 실행됨');
-                            });
+                            inAppBrowser.addEventListener("loadstart", function(event) {
+                                console.log("인앱브라우저 종료 로직 확인")
+                                if (event.url.startsWith("https://jamye.p-e.kr/oauth/kakao")) {
+                                    const url = new URL(event.url);
+                                    // code 파라미터 추출
+                                    const code = url.searchParams.get("code");
+                                    const state = url.searchParams.get("state");
 
-                        }, false);
+                                    console.log("code:", code)
+                                    console.log("state:", state)
+
+                                    if(code == null || code == undefined) {
+                                        this.$toastr.error("정상적인 접근이 아닙니다")
+                                        this.$router.push("/")
+                                        return
+                                    }
+                                    console.log("카카오 인증코드 정상 수신 확인")
+
+                                    axios.get("/oauth/kakao/callback?code="+code)
+                                    .then((response)=>{
+                                        console.log("kakao callback api 호출")
+                                        const token = response.data.data.token;
+                                        const accessToken = token.accessToken; 
+                                        const refreshToken = token.refreshToken; 
+                                        
+                                        if (!accessToken || !refreshToken) {
+                                            this.$toastr.warning("토큰을 받아오는 데 실패했습니다.");
+                                            return;
+                                        }
+                                        
+                                        this.$cookies.set('accessToken', accessToken);
+                                        this.$cookies.set('refreshToken', refreshToken);
+                                        this.$cookies.set('id', response.data.data.id);
+                                        this.$cookies.set('sequence', response.data.data.sequence);
+                                        this.$emit("isLoginChange", true)
+                                        console.log("status:" + state)
+                                        // setTimeout(() => {
+                                            console.log("setTimeout 실행됨")
+                                            if (state == 'app') {
+                                                console.log("app close")
+                                                // window.cordova.InAppBrowser.close();
+                                                console.log("app close2")
+                                                this.$router.push("/");
+                                            } else {
+                                                console.log("kakao redirect 웹 ver")
+                                                this.$router.push("/");
+                                            }
+                                        // }, 0)
+                                        this.$toastr.success("카카오 로그인 성공")
+                                });
+                            }
+                        })
+                        })
                     } else {
                         const state = "web";
                         const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
