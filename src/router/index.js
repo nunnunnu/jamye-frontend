@@ -135,7 +135,12 @@ const routes = [
         path: "/oauth/kakao",
         name: "kakaoLogin",
         component: KakaoLogin,
-    }
+    },
+    { 
+        path: '/:pathMatch(.*)*', 
+        name: 'NotFound', 
+        component: MainHome
+      }
 ]
 
 const router = createRouter({

@@ -40,6 +40,7 @@ export default {
             setTimeout(() => {
                 if (state == 'app') {
                     window.cordova.InAppBrowser.close();
+                    this.$router.push("/");
                 } else {
                     console.log("kakao redirect 웹 ver")
                     this.$router.push("/");
