@@ -157,6 +157,9 @@ export default {
                     if (typeof window.cordova !== 'undefined') {
                         const state = 'app';
                         const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
+
+                        const self = this // Vue context 저장
+
                         document.addEventListener('deviceready', function() {
                             console.log("코도바 앱 ver");
                             // fetchFcmToken()
@@ -175,8 +178,8 @@ export default {
                                     console.log("state:", state)
 
                                     if(code == null || code == undefined) {
-                                        this.$toastr.error("정상적인 접근이 아닙니다")
-                                        this.$router.push("/")
+                                        self.$toastr.error("정상적인 접근이 아닙니다")
+                                        self.$router.push("/")
                                         return
                                     }
                                     console.log("카카오 인증코드 정상 수신 확인")
@@ -189,29 +192,29 @@ export default {
                                         const refreshToken = token.refreshToken; 
                                         
                                         if (!accessToken || !refreshToken) {
-                                            this.$toastr.warning("토큰을 받아오는 데 실패했습니다.");
+                                            self.$toastr.warning("토큰을 받아오는 데 실패했습니다.");
                                             return;
                                         }
                                         
-                                        this.$cookies.set('accessToken', accessToken);
-                                        this.$cookies.set('refreshToken', refreshToken);
-                                        this.$cookies.set('id', response.data.data.id);
-                                        this.$cookies.set('sequence', response.data.data.sequence);
-                                        this.$emit("isLoginChange", true)
+                                        self.$cookies.set('accessToken', accessToken);
+                                        self.$cookies.set('refreshToken', refreshToken);
+                                        self.$cookies.set('id', response.data.data.id);
+                                        self.$cookies.set('sequence', response.data.data.sequence);
+                                        self.$emit("isLoginChange", true)
                                         console.log("status:" + state)
                                         // setTimeout(() => {
                                             console.log("setTimeout 실행됨")
                                             if (state == 'app') {
                                                 console.log("app close")
-                                                // window.cordova.InAppBrowser.close();
+                                                inAppBrowser.close();
                                                 console.log("app close2")
-                                                this.$router.push("/");
+                                                self.$router.push("/");
                                             } else {
                                                 console.log("kakao redirect 웹 ver")
-                                                this.$router.push("/");
+                                                self.$router.push("/");
                                             }
                                         // }, 0)
-                                        this.$toastr.success("카카오 로그인 성공")
+                                        self.$toastr.success("카카오 로그인 성공")
                                 });
                             }
                         })
