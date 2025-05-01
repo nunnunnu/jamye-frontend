@@ -1,6 +1,6 @@
 import axios from '@/js/axios';
 
-export function cordovaSetFcmToken(accessToken) {
+export function cordovaSetFcmToken(accessToken, cookieToken) {
     console.log("firebase - function start")
     if (typeof window.cordova !== 'undefined') {
         console.log("firebase - cordova check")
@@ -48,9 +48,27 @@ export function cordovaSetFcmToken(accessToken) {
         window.FirebasePlugin.onMessageReceived(data => {
           console.log("푸시 메시지 수신", data)
           // 예시: 알림 표시
-          alert(data.body)
+          alert(data.title, data.body)
+        })
+      } else if(cookieToken != null) {
+        axios.post("/api/fcm/alarm?token=" + cookieToken, {}, {
+            headers: {
+                Authorization: `Bearer `+ accessToken
+            }
         })
       } else {
         console.warn("FirebasePlugin is not available.")
+      }
+}
+
+export function getFcmToken() {
+    if (typeof window.cordova !== 'undefined') {
+        console.log("firebase - cordova check")
+        document.addEventListener('deviceready', () => {
+          window.FirebasePlugin.getToken(token => {
+            console.log("FCM token:", token)
+            return token
+          }
+        )}, false)
       }
 }

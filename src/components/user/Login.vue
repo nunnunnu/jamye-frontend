@@ -35,6 +35,7 @@
 </template>
 <script>
 import { redirectBaseUrl } from '@/js/config';
+import { getFcmToken } from '@/js/cordova-fcm'
 import axios from 'axios'
 export default {
         name: 'loginPage',
@@ -146,6 +147,9 @@ export default {
                         const url = `${authUrl}?client_id=${r.data.data}&redirect_uri=${redirectUrl}&response_type=${responseType}&state=${state}`;
                         document.addEventListener('deviceready', function() {
                             console.log("코도바 앱 ver");
+                            const token = getFcmToken()
+                            this.$cookies.set("fcmToken", token)
+
                             console.log("InAppBrowser:" + window.cordova.InAppBrowser); // undefined가 아니라 나와야 정상
                             var inAppBrowser = window.cordova.InAppBrowser.open(url, "_blank", "location=no,fullscreen=yes");
                                 

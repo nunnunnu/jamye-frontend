@@ -42,7 +42,8 @@ export default {
           console.log("1차 테스트 - firebase")
           const accessToken = this.$cookies.get('accessToken')
           console.log("accessToken : " + accessToken)
-          cordovaSetFcmToken(accessToken)
+          const fcmToken = this.$cookies.get("fcmToken")
+          cordovaSetFcmToken(accessToken, fcmToken)
         } else {
           if (this.stompClient && this.stompClient.connected) {
             this.stompClient.disconnect(() => {
