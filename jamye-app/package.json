@@ -25,12 +25,14 @@
       },
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-firebasex": {},
-      "cordova-plugin-splashscreen": {}
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-android-permissions": {}
     }
   },
   "devDependencies": {
     "cordova-android": "^14.0.1",
     "cordova-plugin-advanced-http": "^3.3.1",
+    "cordova-plugin-android-permissions": "^1.1.5",
     "cordova-plugin-console": "^1.1.0",
     "cordova-plugin-customurlscheme": "^5.0.2",
     "cordova-plugin-file": "^8.1.3",
