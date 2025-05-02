@@ -20,6 +20,7 @@ import ImagePreviewOpen from '@/components/ImagePreviewOpen.vue'
 import CommentList from '@/components/post/CommentList.vue'
 import DiscordLogin from '@/components/user/DiscordLogin.vue'
 import KakaoLogin from '@/components/user/KakaoLogin.vue'
+import FindId from '@/components/user/FindId.vue'
 const routes = [
     {
         path: "/",
@@ -140,7 +141,13 @@ const routes = [
         path: '/:pathMatch(.*)*', 
         name: 'NotFound', 
         component: MainHome
-      }
+      },
+      {
+        path: "/find/id:activeTab",
+        name: "findId",
+        component: FindId,
+        props: true
+    },
 ]
 
 const router = createRouter({

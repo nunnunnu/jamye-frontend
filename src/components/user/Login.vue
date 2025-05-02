@@ -19,8 +19,19 @@
                 <label for="saveId">아이디 저장</label>
             </div>
             <div>
-                <span class="clickable-text mx-3">아이디 찾기</span>
-                <span class="clickable-text">비밀번호 찾기</span>
+                <router-link
+                    :to="{ name: 'findId', params:{activeTab: 'id'} }"
+                    class="clickable-text mx-3"
+                    >
+                    아이디 찾기
+                </router-link>
+                <router-link
+                    :to="{ name: 'findId',  params:{activeTab: 'pw'} }"
+                    class="clickable-text"
+                    >
+                    비밀번호 찾기
+                </router-link>
+
             </div>
         </div>
         <div class="d-flex align-items-center">
