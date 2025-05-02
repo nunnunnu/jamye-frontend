@@ -47,10 +47,19 @@
         type: String,
         required: true,
       },
+
     },
     data() {
         return {
             activeTabCopy: this.activeTab
+        }
+    },
+    created() {
+       this.isLogin = this.$cookies.get('accessToken') !== null;
+        if(this.isLogin) {
+          this.$toastr.warning("이미 로그인 하셨습니다.")
+          this.$router.push("/")
+
         }
     },
     emits: ['update:activeTab'],
