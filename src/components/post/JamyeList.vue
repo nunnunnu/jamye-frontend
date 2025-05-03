@@ -222,9 +222,15 @@ export default{
                 return
             }
             if(type == "MSG") {
-                this.$router.push("/jamye/message" + postSeq)
+                this.$router.push({ 
+                    name: 'messageJamye',
+                    params: { postSeq: postSeq, groupSeq: this.groupSeq }
+                })
             } else if(type == "BOR") {
-                this.$router.push("/jamye/board" + postSeq)
+                this.$router.push({ 
+                    name: 'boardJamye',
+                    params: { postSeq: postSeq, groupSeq: this.groupSeq }
+                })
             }
         },
         pageClick(page){

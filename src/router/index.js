@@ -82,13 +82,13 @@ const routes = [
         component: JamyeList
     },
     {
-        path: "/jamye/message:postSeq",
+        path: "/jamye/message:postSeq&groupSeq",
         name: "messageJamye",
         component: MessageJamye,
         props: true
     },
     {
-        path: "/jamye/board:postSeq",
+        path: "/jamye/board:postSeq&groupSeq",
         name: "boardJamye",
         component: BoardJamye,
         props: true

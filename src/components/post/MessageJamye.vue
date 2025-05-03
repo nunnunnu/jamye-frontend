@@ -527,7 +527,7 @@
                         <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image" />  
                     </div>
                 </div>
-                <comment-list v-if="message.postSequence != null" class="comment" :postSeq= "postSeq"></comment-list>
+                <comment-list v-if="message.postSequence != null" class="comment" :postSeq= "postSeq" :groupSeq="groupSeq"></comment-list>
     </div>    
 </template>
 <script>
@@ -573,24 +573,20 @@ export default {
             isInputVisible: false,
             searchTerm: "",
             searchResults: [],
-            groupSeq: null
         }   
     },
     props: {
         postSeq: Number,
+        groupSeq: Number,
         isLogin: {
             type: Boolean,
             required: true
         }
     },
     created() {
-        this.groupSeq = this.$cookies.get("groupSeq")
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
-        } else if(this.groupSeq == null) {
-            this.$toastr.warning("메세지를 작성할 그룹을 먼저 선택해주세요")
-            this.$router.push("/")
         } else {
             axios.get(`/api/post/${this.groupSeq}/${this.postSeq}`, {
                 headers: {

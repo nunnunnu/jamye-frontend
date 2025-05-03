@@ -39,11 +39,14 @@ export default {
         postSeq: {
             type: Number,
             requeire: true
+        },
+        groupSeq: {
+            type: Number,
+            requeire: true
         }
     },
     data() {
         return {
-            groupSeq: null,
             comments: {},
             comment: null,
             userSeq: null,
@@ -52,12 +55,6 @@ export default {
     },
     created() {
         this.userSeq = this.$cookies.get('sequence');
-        this.groupSeq = this.$cookies.get("groupSeq")
-        if(this.groupSeq == null) {
-            this.$toastr.warning("그룹을 먼저 선택해주세요")
-            this.$router.push("/")
-            return
-        }
         this.getCommentList()
     },
     methods: {
