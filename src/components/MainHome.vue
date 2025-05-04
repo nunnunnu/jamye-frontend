@@ -166,9 +166,15 @@ export default {
             }).then(r => {
                 const postInfo = r.data.data
                 if (postInfo.type == "MSG") {
-                    this.$router.push("/jamye/message" + postInfo.postSequence)
+                    this.$router.push({ 
+                        name: 'messageJamye',
+                        params: { postSeq: postInfo.postSequence, groupSeq: this.currentGroup.groupSequence }
+                    })
                 } else {
-                    this.$router.push("/jamye/board" + postInfo.postSequence)
+                    this.$router.push({ 
+                        name: 'boardJamye',
+                        params: { postSeq: postInfo.postSequence, groupSeq: this.currentGroup.groupSequence }
+                    })
                 }
             }).catch(e => {
                 this.$toastr.error(e.response.data.message)

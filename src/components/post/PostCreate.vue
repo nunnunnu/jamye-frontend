@@ -190,7 +190,10 @@ export default {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
             }).then((r) => {
-                this.$router.push("/jamye/board" + r.data.data)
+                this.$router.push({ 
+                        name: 'boardJamye',
+                        params: { postSeq: r.data.data, groupSeq: this.groupSeq }
+                    })
             })
         },
         handleImageMapUpdate(imageUidMap) {

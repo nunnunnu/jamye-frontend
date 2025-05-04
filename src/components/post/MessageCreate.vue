@@ -915,7 +915,10 @@ export default {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
                 }).then((r) => {
-                    this.$router.push("/jamye/message" + r.data.data)
+                    this.$router.push({ 
+                        name: 'messageJamye',
+                        params: { postSeq: r.data.data, groupSeq: this.groupSeq }
+                    })
                 })
         },
         groupUserList() {
