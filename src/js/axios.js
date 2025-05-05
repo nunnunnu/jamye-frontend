@@ -16,7 +16,6 @@ export const setLoadingCallback = (callback) => {
 
 instance.interceptors.request.use((config) => {
   activeRequests++;
-  console.log("skipLoading:"+config.skipLoading)
   if (loadingCallback && !config.skipLoading) loadingCallback(true); // 로딩 시작
   return config;
 }, (error) => {

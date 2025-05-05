@@ -82,16 +82,22 @@ const routes = [
         component: JamyeList
     },
     {
-        path: "/jamye/message:postSeq&groupSeq",
+        path: "/jamye/message:postSeq",
         name: "messageJamye",
         component: MessageJamye,
-        props: true
+        props: route => ({
+            postSeq: Number(route.params.postSeq),
+            groupSeq: Number(route.query.groupSeq)
+          })
     },
     {
-        path: "/jamye/board:postSeq&groupSeq",
+        path: "/jamye/board:postSeq",
         name: "boardJamye",
         component: BoardJamye,
-        props: true
+        props: route => ({
+            postSeq: Number(route.params.postSeq),
+            groupSeq: Number(route.query.groupSeq)
+          })
     },
     {
         path: "/leave-group",

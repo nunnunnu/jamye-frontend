@@ -34,7 +34,6 @@ export function cordovaSetFcmToken(accessToken, cookieToken) {
                 console.warn('Cordova 플러그인을 찾을 수 없습니다.')
               }
           window.FirebasePlugin.getToken(token => {
-            console.log("FCM token:", token)
             axios.post("/api/fcm/alarm?token=" + token, {}, {
                 headers: {
                     Authorization: `Bearer `+ accessToken

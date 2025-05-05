@@ -41,7 +41,6 @@ export default {
           this.socketRead()
           console.log("1차 테스트 - firebase")
           const accessToken = this.$cookies.get('accessToken')
-          console.log("accessToken : " + accessToken)
           const fcmToken = this.$cookies.get("fcmToken")
           cordovaSetFcmToken(accessToken, fcmToken)
         } else {
@@ -118,7 +117,7 @@ export default {
             try {
               this.connected = true;
               this.stompClient.subscribe(`/alarm/receive/${userSeq}`, (message) => {
-                  console.log("unreadCount")
+                  console.log("unreadCount:" + message.body)
                   const data = JSON.parse(message.body);
                   this.unreadCount = data;
               });

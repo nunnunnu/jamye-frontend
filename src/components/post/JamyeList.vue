@@ -224,12 +224,14 @@ export default{
             if(type == "MSG") {
                 this.$router.push({ 
                     name: 'messageJamye',
-                    params: { postSeq: postSeq, groupSeq: this.groupSeq }
+                    params: { postSeq: postSeq },
+                    query: { groupSeq: this.groupSeq }
                 })
             } else if(type == "BOR") {
                 this.$router.push({ 
                     name: 'boardJamye',
-                    params: { postSeq: postSeq, groupSeq: this.groupSeq }
+                    params: { postSeq: postSeq },
+                    query: { groupSeq: this.groupSeq }
                 })
             }
         },

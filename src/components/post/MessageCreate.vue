@@ -917,7 +917,8 @@ export default {
                 }).then((r) => {
                     this.$router.push({ 
                         name: 'messageJamye',
-                        params: { postSeq: r.data.data, groupSeq: this.groupSeq }
+                        params: { postSeq: r.data.data },
+                        query: { groupSeq: this.groupSeq }
                     })
                 })
         },

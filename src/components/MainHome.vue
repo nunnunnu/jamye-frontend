@@ -168,12 +168,14 @@ export default {
                 if (postInfo.type == "MSG") {
                     this.$router.push({ 
                         name: 'messageJamye',
-                        params: { postSeq: postInfo.postSequence, groupSeq: this.currentGroup.groupSequence }
+                        params: { postSeq: postInfo.postSequence },
+                        query: { groupSeq: this.currentGroup.groupSequence }
                     })
                 } else {
                     this.$router.push({ 
                         name: 'boardJamye',
-                        params: { postSeq: postInfo.postSequence, groupSeq: this.currentGroup.groupSequence }
+                        params: { postSeq: postInfo.postSequence },
+                        query: { groupSeq: this.currentGroup.groupSequence }
                     })
                 }
             }).catch(e => {
@@ -181,6 +183,7 @@ export default {
             })
         },
         getGroupInfo(groupSeq) {
+            console.log(groupSeq)
             axios.get("/api/group/name/" + groupSeq, {
               headers: {
               Authorization: `Bearer ${this.$cookies.get('accessToken')}`

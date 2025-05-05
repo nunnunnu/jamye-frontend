@@ -76,12 +76,14 @@ export default {
                 if (postInfo.type == "MSG") {
                     this.$router.push({ 
                         name: 'messageJamye',
-                        params: { postSeq: postInfo.postSequence, groupSeq: groupSeq }
+                        params: { postSeq: postInfo.postSequence },
+                        query: { groupSeq: groupSeq }
                     })
                 } else {
                     this.$router.push({ 
                         name: 'boardJamye',
-                        params: { postSeq: postInfo.postSequence, groupSeq: groupSeq }
+                        params: { postSeq: postInfo.postSequence },
+                        query: { groupSeq: groupSeq }
                     })
                 }
             }).catch(() => {
