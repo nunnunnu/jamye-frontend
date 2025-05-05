@@ -891,10 +891,22 @@ export default {
                     formdata.append(key, base64ToFile(value));
                 }
             });
+
+            const copiedContent = JSON.parse(JSON.stringify(this.messageResponse))
+
+            for (const key in copiedContent) {
+            if (Object.prototype.hasOwnProperty.call(copiedContent, key)) {
+                const item = copiedContent[key]
+                if (item.sendUserSeq && typeof item.sendUserSeq === 'object') {
+                    item.sendUserSeq = item.sendUserSeq.groupUserSequence // 수정함
+                }
+            }
+            }
+
             const data = {
                 title: this.postTitle,
                 groupSeq: this.groupSeq,
-                content: this.messageResponse
+                content: copiedContent
             };
 
             formdata.append('data', JSON.stringify(data));
