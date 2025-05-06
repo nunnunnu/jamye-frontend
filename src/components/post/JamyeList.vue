@@ -168,7 +168,8 @@ export default{
             , {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
-                    }
+                    },
+                    skipLoading: true 
                 }).then(r => {
                     const jamyesData = r.data.data.content;
                     this.totalPage = r.data.data.totalPages
@@ -203,7 +204,8 @@ export default{
                 axios.get(`/api/group/${this.groupSeq}/all-post/count`, {
                     headers: {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
-                    }
+                    },
+                    skipLoading: true 
                 }).then(r => {
                     this.allPostCount = r.data.data.totalCount
                     this.totalElements = r.data.data.haveCount
