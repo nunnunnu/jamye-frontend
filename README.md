@@ -58,7 +58,8 @@
 	- 그룹 별 사용 태그 조회
 
 ##### 📝 게시글 목록
-![화면 기록 2025-05-06 오후 3 00 17 (1)](https://github.com/user-attachments/assets/af98ff84-9839-4cb3-8f2a-88b549ae4384)
+![화면 기록 2025-05-06 오후 3 21 05 (1)](https://github.com/user-attachments/assets/c70c3fe4-cac3-4189-aacc-5ce5dcf8e92f)
+
 - 그룹 별 사용 태그 조회
 - 보유 잼얘 목록 필터(태그, 게시글 타입, 제목) 조회
 - 그룹 전체 게시글 수와 보유 게시글 수 조회
