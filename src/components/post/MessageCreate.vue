@@ -154,7 +154,7 @@
                                             </button>
                                             <button class="circle-btn left tooltip-btn" @click="moveLeft(key, msg.seq)">
                                                 <i class="fas fa-arrow-left"></i>
-                                                <span class="tooltip-text">왼쪽으로 이동</span>
+                                                <span class="tooltip-text">상대방 메세지로 이동</span>
                                             </button>
                                             <button class="circle-btn down-arrow tooltip-btn" @click="toggleReplyMode(msg)" title="답장 연결">
                                                 <i class="fas fa-link"></i>
@@ -272,7 +272,7 @@
                                             </button>
                                             <button class="circle-btn right tooltip-btn" @click="moveRight(key)">
                                                 <i class="fas fa-arrow-right"></i>
-                                                <span class="tooltip-text">내 메세지로 이동</span>
+                                                <span class="tooltip-text">내가 보낸 메세지로 이동</span>
                                             </button>
                                     </div>
                                 </div>
@@ -364,9 +364,9 @@
                                                 <i class="fas fa-camera"></i>
                                                 <span class="tooltip-text">이미지 메세지 추가</span>
                                             </button>
-                                            <button class="circle-btn right tooltip-btn" @click="moveLeft(key, msg.seq)">
+                                            <button class="circle-btn right tooltip-btn" @click="moveOnlyMsgRight(key, msg.seq)">
                                                 <i class="fas fa-arrow-right"></i>
-                                                <span class="tooltip-text">왼쪽으로 이동</span>
+                                                <span class="tooltip-text">내가보낸 메세지로 이동</span>
                                             </button>
                                             <button class="circle-btn down-arrow tooltip-btn" @click="toggleReplyMode(msg)" title="답장 연결">
                                                 <i class="fas fa-link"></i>
@@ -1030,18 +1030,24 @@ export default {
                         continue
                     }
                     if (value.sendUser == preUser) {
-                        var maxNum = tempMapUser[tempKey - 1].message.reduce((max, msg) => {
-                            return msg.seq > max ? msg.seq : max;
-                        }, 0);
-                        value.message.forEach(msg => tempMapUser[tempKey - 1].message.push({
-                            seq: ++maxNum,
-                            message: msg.message,
-                            imageKey: msg.imageKey,
-                            imageUri: msg.imageUri,
-                            isReply: msg.isReply,
-                            replyMessage: msg.replyMessage,
-                            replyTo: msg.replyTo
-                        }))
+                        var preMsg = tempMapUser[tempKey-1]
+                        var maxNum = 0;
+                        if(preMsg != undefined && preMsg != null) {
+                            maxNum = preMsg.message.reduce((max, msg) => {
+                                return msg.seq > max ? msg.seq : max;
+                            }, 0);
+                            value.message.forEach(msg => preMsg.message.push({
+                                seq: ++maxNum,
+                                message: msg.message,
+                                imageKey: msg.imageKey,
+                                imageUri: msg.imageUri,
+                                isReply: msg.isReply,
+                                replyMessage: msg.replyMessage,
+                                replyTo: msg.replyTo
+                            }))
+                        } else {
+                            tempMapUser[tempKey++] = value    
+                        }
                     } else {
                         tempMapUser[tempKey++] = value
                     }
@@ -1082,6 +1088,111 @@ export default {
                 sendUser: null,
                 myMessage: true
             };
+            this.messageResponseTempRemove(this.messageResponse)
+        },
+        moveOnlyMsgRight(key, seq) {
+            console.log(`start move Right - key=${key}, seq=${seq}`)
+            const messages = this.messageResponse[key]?.message || [];
+            const targetIndex = messages.findIndex((msg) => msg.seq === seq);
+
+            if (targetIndex === -1) {
+                console.error("해당 seq를 가진 메시지가 없습니다.");
+                return;
+            }
+
+            const [removedMessage] = messages.splice(targetIndex, 1);
+            console.log(removedMessage)
+
+            var tempMap = new Map
+            var tempKey = 1
+            for (let [id, value] of Object.entries(this.messageResponse)) {
+                if(id==key) {
+                    var downMsg = []
+                    var downSeq = 1
+                    var originMsg = []
+                    if(value.message.length == 0) {
+                        tempKey = tempKey + 2
+                    }
+                    for(const msg of value.message) {
+                        if(msg.seq > seq) {
+                            console.log("downCheck" + msg.message)
+                           downMsg.push({
+                                ...msg,
+                                seq: downSeq++
+                           })
+                           console.log("addCheck" + JSON.stringify(downMsg))
+                        } else {
+                            console.log("originCheck" + JSON.stringify(msg.message))
+                            originMsg.push(msg)
+                        }
+                    }
+                    if(originMsg.length != 0) {
+                        tempMap[tempKey++] = {
+                            ...value,
+                            message: originMsg
+                        }
+                        console.log("origin" + JSON.stringify(originMsg))
+                    }
+                    if(downMsg.length != 0) {
+                        tempKey = tempKey + 2
+                        tempMap[tempKey] = {
+                            ...value,
+                            message: downMsg
+                        }
+                        console.log("down:" + JSON.stringify(downMsg))
+                    }
+                } else 
+                if(Number(id) > Number(key)) {
+                    console.log(`id=${id}, key=${key}`)
+                    console.log("2down" + JSON.stringify(value))
+                    tempKey = tempKey + 2
+                    tempMap[tempKey] = value
+                } else {
+                    console.log("std" + tempKey + JSON.stringify(value))
+                    tempMap[tempKey++] = value 
+                }
+            }
+            console.log(JSON.parse(JSON.stringify(tempMap)))
+            
+            var newKey = Number(key) + 1
+            var addMsg = tempMap[newKey]
+            if(addMsg == undefined || addMsg == null) {
+                addMsg = {
+                    myMessage: true,
+                    sendUser: null,
+                    sendUserSeq: null,
+                    message: []
+                }
+            }
+            var newSeq = removedMessage.seq;
+            if(removedMessage.seq == 1) {
+                console.log("case1")
+                if(tempMap[key] == undefined || tempMap[key] == null) {
+                    newSeq = 1
+                } else {
+                    newSeq = tempMap[key].message.reduce((max, msg) => {
+                                return msg.seq > max ? msg.seq : max;
+                            }, 0);
+                }
+
+            } else {
+                console.log("case2")
+                newSeq = 1;
+            }
+
+            addMsg.message.push({ 
+                imageKey: removedMessage.imageKey,
+                imageUri: removedMessage.imageUri,
+                isReply: removedMessage.isReply,
+                message: removedMessage.message,
+                replyMessage: removedMessage.removeMessage,
+                replyTo: removedMessage.replyTo,
+                seq: newSeq
+
+            })
+            tempMap[newKey] = addMsg
+            console.log(JSON.parse(JSON.stringify(tempMap)))
+            this.messageResponse = tempMap
             this.messageResponseTempRemove(this.messageResponse)
         },
         editNickName(key) {
