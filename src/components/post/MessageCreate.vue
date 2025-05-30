@@ -606,6 +606,7 @@ export default {
 
             const [removedMessage] = messages.splice(targetIndex, 1);
             console.log(removedMessage)
+            var newKey = key
 
             var tempMap = new Map
             var tempKey = 1
@@ -635,14 +636,17 @@ export default {
                             ...value,
                             message: originMsg
                         }
+                        console.log("origin_newKey:" + tempKey)
                         console.log("origin" + JSON.stringify(originMsg))
                     }
                     if(downMsg.length != 0) {
                         tempKey = tempKey + 2
-                        tempMap[tempKey++] = {
+                        tempMap[tempKey] = {
                             ...value,
                             message: downMsg
                         }
+                        console.log("down_newKey:" + tempKey)
+                        newKey = tempKey - 1
                         console.log("down:" + JSON.stringify(downMsg))
                     }
                 } else if(Number(id) > Number(key)) {
@@ -669,8 +673,8 @@ export default {
                 console.log(this.userNameMap[randomUser])
             }
             console.log(key)
-            this.messageResponse[key] = { sendUserSeq: this.userNameMap[randomUser], sendUser: randomUser, message: [] };
-            this.messageResponse[key].message.unshift(removedMessage);
+            this.messageResponse[newKey] = { sendUserSeq: this.userNameMap[randomUser], sendUser: randomUser, message: [] };
+            this.messageResponse[newKey].message.unshift(removedMessage);
             this.messageResponseTempRemove(this.messageResponse)
         },
         moveMessageUp(key, seq) {
@@ -681,6 +685,7 @@ export default {
 
             if (seq === 1) {
                 var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
+                console.log("preMessageCut" + JSON.stringify(preMessageCut))
                 if(preMessageCut.message.length == 1) {
                     var editMessage = JSON.parse(JSON.stringify(this.messageResponse[key]))
                     var upMessage = editMessage.message.shift()
@@ -703,6 +708,7 @@ export default {
                 }
 
                 var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
+                var messageTextHeader = this.messageResponse[key]
                 this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
                 console.log(JSON.parse(JSON.stringify(messageText)))
                 var orderSeq = 1
@@ -716,7 +722,7 @@ export default {
                 var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
                 
                 console.log(JSON.parse(JSON.stringify(preMessageCut)))
-                if(preMessageCut.sendUser == messageText.sendUser) {
+                if(preMessageCut.sendUser == messageTextHeader.sendUser) {
                     const maxSeq = preMessageCut.message.reduce((max, msg) => {
                         return msg.seq > max ? msg.seq : max;
                     }, 0);
