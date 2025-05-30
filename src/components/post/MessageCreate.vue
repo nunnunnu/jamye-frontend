@@ -658,7 +658,6 @@ export default {
             console.log(JSON.stringify(tempMap))
             this.messageResponse = tempMap
 
-            const nextKey = Number(key) + 1
             removedMessage.seq = 1
             var randomUser = "임시"
             console.log(this.nicknames)
@@ -669,9 +668,9 @@ export default {
                 console.log(randomUser)
                 console.log(this.userNameMap[randomUser])
             }
-            console.log(nextKey)
-            this.messageResponse[nextKey] = { sendUserSeq: this.userNameMap[randomUser], sendUser: randomUser, message: [] };
-            this.messageResponse[nextKey].message.unshift(removedMessage);
+            console.log(key)
+            this.messageResponse[key] = { sendUserSeq: this.userNameMap[randomUser], sendUser: randomUser, message: [] };
+            this.messageResponse[key].message.unshift(removedMessage);
             this.messageResponseTempRemove(this.messageResponse)
         },
         moveMessageUp(key, seq) {
