@@ -6,7 +6,7 @@ export function cordovaSetFcmToken(accessToken, cookieToken) {
         console.log("firebase - cordova check")
         document.addEventListener('deviceready', () => {
             if (window.cordova.plugins && window.cordova.plugins.permissions) {
-                console.log("firebase - 알림수신 제발 실행되어라")
+                console.log("firebase - 알림수신")
                 const permissions = window.cordova.plugins.permissions
                 const notificationPermission = permissions.POST_NOTIFICATIONS
               

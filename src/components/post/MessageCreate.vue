@@ -636,7 +636,8 @@ export default {
                             ...value,
                             message: originMsg
                         }
-                        console.log("origin_newKey:" + tempKey)
+                        newKey = tempKey + 1
+                        console.log("origin_newKey:" + newKey)
                         console.log("origin" + JSON.stringify(originMsg))
                     }
                     if(downMsg.length != 0) {
@@ -645,8 +646,8 @@ export default {
                             ...value,
                             message: downMsg
                         }
-                        console.log("down_newKey:" + tempKey)
                         newKey = tempKey - 1
+                        console.log("down_newKey:" + newKey)
                         console.log("down:" + JSON.stringify(downMsg))
                     }
                 } else if(Number(id) > Number(key)) {
@@ -664,15 +665,12 @@ export default {
 
             removedMessage.seq = 1
             var randomUser = "임시"
-            console.log(this.nicknames)
-            console.log(this.nicknames.length)
             if(this.nicknames != null && this.nicknames.length != undefined && this.nicknames.length != 0) {
-                console.log("??")
                 randomUser = this.nicknames[0]
                 console.log(randomUser)
                 console.log(this.userNameMap[randomUser])
             }
-            console.log(key)
+            console.log(newKey)
             this.messageResponse[newKey] = { sendUserSeq: this.userNameMap[randomUser], sendUser: randomUser, message: [] };
             this.messageResponse[newKey].message.unshift(removedMessage);
             this.messageResponseTempRemove(this.messageResponse)

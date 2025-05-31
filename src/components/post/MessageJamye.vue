@@ -747,7 +747,7 @@ export default {
             if (seq === minSeq) {
                 var thisMessage = this.messageResponse[key]
                 var messageText = JSON.parse(JSON.stringify(thisMessage.message.filter(msg => msg.seq == minSeq)));
-                console.log("why:"+ JSON.stringify(messageText))
+                console.log("messageText:"+ JSON.stringify(messageText))
                 thisMessage.message = thisMessage.message.filter(msg => msg.seq != seq)
                 var orderSeq = 1
                 if(thisMessage.message.length != 0) {
@@ -949,7 +949,6 @@ export default {
                 this.messageResponse = JSON.parse(JSON.stringify(tempMapUser))
 
             } else {
-                console.log("else")
                 // seq가 최대값이 아닌 경우 배열 내에서 순서 변경
                 const index = messageArray.findIndex(msg => msg.seq === seq);
                 if (index < messageArray.length - 1) {
@@ -1079,10 +1078,8 @@ export default {
         updateReplySeq(messageSeq, key, seq) {
             console.log(messageSeq)
             if(messageSeq != null) {
-                console.log("1")
                 this.selectedReplyMessageSeq = messageSeq
             } else {
-                console.log("2")
                 this.selectedReplyKey = key
                 this.selectedReplySeq = seq
             }
@@ -1201,8 +1198,6 @@ export default {
             var preUser = null
             var tempKey = 1
             for(let [id, value] of Object.entries(message)) {
-                // console.log(tempKey)
-                // console.log(JSON.stringify(tempMapUser))
                 if(id == 1) {
                     preUser = value.sendUserSeq
                     tempMapUser[tempKey++] = value
