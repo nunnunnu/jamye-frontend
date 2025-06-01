@@ -2,7 +2,7 @@
     <div class="b-container">
         <div class="title">쪽지함</div>
         <div class="descript">모든 알람은 한달 뒤 삭제됩니다</div>
-        <button v-if="state == 'web'" class="btn btn-dark notifyBox " @click="discordLogin">디스코드 연동
+        <button class="btn btn-dark notifyBox " @click="discordLogin">디스코드 연동
             <span class="tooltip-text">디스코드 연동시 jamye bot이 알림을 전송해 드립니다.</span>
         </button>
         <button v-if="isNoRead" class="btn btn-dark notifyBox" @click="allNotifyRead">모두 읽기</button>
@@ -30,16 +30,10 @@ export default {
         return {
             notifyList: [],
             isNoRead: false,
-            state: 'web'
         }
     },
     created() {
         this.getNotiftList()
-        console.log("cordova app check")
-        if (typeof window.cordova !== 'undefined') {
-            this.state = 'app';
-            console.log("cordova app ver notify")
-        }
     },
     methods: {
         getNotiftList() {
@@ -130,14 +124,55 @@ export default {
         async discordLogin() {
             const authUrl = "https://discord.com/oauth2/authorize"
 
-                const response_type = "code"
-                
-                const scope = "identify"
+            const response_type = "code"
+            
+            const scope = "identify"
+            console.log("window.cordova:"+window.cordova)
+            if (typeof window.cordova !== 'undefined') {
+                const state = 'app';
+                axios.get("/discord/client-id").then(r => {
+                    const url = `${authUrl}?client_id=${r.data.data}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}&sstate=${state}`;
+                    var inAppBrowser = window.cordova.InAppBrowser.open(url, "_blank", "location=no,fullscreen=yes");
+
+                    inAppBrowser.addEventListener("loadstart", function(event) {
+                                console.log("인앱브라우저 종료 로직 확인")
+                                if (event.url.startsWith("https://jamye.p-e.kr/oauth/redirect")) {
+                                    const url = new URL(event.url);
+                                    const code = url.searchParams.get('code');
+                                    const state = url.searchParams.get('state');
+    
+                                        if(code == null || code == undefined) {
+                                            this.$toastr.error("정상적인 접근이 아닙니다")
+                                            this.$router.push("/")
+                                            return
+                                        }
+
+                                        axios.get("/discord/oauth/callback?code="+code, {
+                                            headers: {
+                                                Authorization: `Bearer `+this.$cookies.get('accessToken')
+                                            }
+                                    })
+                                        .then((r)=>{
+                                            console.log(r)
+                                        })
+                                        if (state == 'app') {
+                                                console.log("app close")
+                                                inAppBrowser.close();
+                                                console.log("app close2")
+                                                self.$router.push("/notify-box")
+                                            } else {
+                                                console.log("디스코드 redirect 웹 ver")
+                                                self.$router.push("/notify-box")
+                                            }
+                                    }
+                                });
+                }).catch(() => this.$toastr.error("현재 디스코드 연동을 사용할 수 없습니다. 운영자에게 문의해주세요."))
+            } else {
                 axios.get("/discord/client-id").then(r => {
                     const url = `${authUrl}?client_id=${r.data.data}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}`;
-
                     window.location.href=url
                 }).catch(() => this.$toastr.error("현재 디스코드 연동을 사용할 수 없습니다. 운영자에게 문의해주세요."))
+            }
                 
             
         }
