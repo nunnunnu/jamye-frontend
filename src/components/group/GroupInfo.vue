@@ -329,12 +329,25 @@ export default {
                 this.$toastr.warning("초대코드 생성중입니다.")
                 return
             }
-            if (navigator.share) {
-            navigator.share({
-                title: '[잼얘 가챠 초대 코드 공유]',
-                text: `이 링크로 들어와서 그룹에 참여하세요!\n초대 코드: ${this.inviteCode}`,
-                url: redirectBaseUrl + "/add?inviteCode=" + this.inviteCode
-            })
+            const title = '[잼얘 가챠 초대 코드 공유]'
+            const text = `이 링크로 들어와서 그룹에 참여하세요!\n초대 코드: ${this.inviteCode}`
+            const url = redirectBaseUrl + "/add?inviteCode=" + this.inviteCode
+             
+            if(typeof window.cordova !== 'undefined') {
+                document.addEventListener('deviceready', () => {
+                    window.plugins.socialsharing.share(
+                        text,
+                        title,
+                        null, // 이미지 없음
+                        url
+                    );
+                })
+            } else if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text,
+                    url: url
+                })
             } else {
                 this.$toastr.error("공유 기능을 지원하지 않는 브라우저입니다.")
             }
