@@ -46,20 +46,7 @@
 </template>
 <script>
 import { redirectBaseUrl } from '@/js/config';
-// import { getFcmToken } from '@/js/cordova-fcm'
 import axios from 'axios'
-
-// async function fetchFcmToken() {
-//     try {
-//         const token = await getFcmToken()
-//         console.log("finalToken", token)  // token 출력
-//         if(token != null) {
-//             this.$cookies.set("fcmToken", token)
-//         }
-//     } catch (error) {
-//         console.error("FCM token error", error)
-//     }
-// }
 
 export default {
         name: 'loginPage',

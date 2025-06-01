@@ -495,11 +495,14 @@ export default {
                 }
             })
             .then(r => {
+                console.log("결과 수신")
                 if(this.messageResponse !=null && Object.keys(this.messageResponse).length != 0) {
                     const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
+                    console.log("maxKey: " + maxKey)
                     for(let [id, value] of Object.entries(r.data.data)) {
                         this.messageResponse[Number(maxKey) + Number(id)] = value
                     }
+                    console.log("결과 추가 complate")
                 } else {
                     this.messageResponse = r.data.data
                 }
