@@ -33,6 +33,7 @@ export default {
         }
     },
     created() {
+        console.log("test log")
         this.getNotiftList()
     },
     methods: {
@@ -128,45 +129,52 @@ export default {
             
             const scope = "identify"
             console.log("window.cordova:"+window.cordova)
+            const accessToken =this.$cookies.get('accessToken');
             if (typeof window.cordova !== 'undefined') {
                 const state = 'app';
                 axios.get("/discord/client-id").then(r => {
                     const url = `${authUrl}?client_id=${r.data.data}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}&sstate=${state}`;
-                    var inAppBrowser = window.cordova.InAppBrowser.open(url, "_blank", "location=no,fullscreen=yes");
+                    const self = this // Vue context 저장
 
-                    inAppBrowser.addEventListener("loadstart", function(event) {
-                                console.log("인앱브라우저 종료 로직 확인")
-                                if (event.url.startsWith("https://jamye.p-e.kr/oauth/redirect")) {
-                                    const url = new URL(event.url);
-                                    const code = url.searchParams.get('code');
-                                    const state = url.searchParams.get('state');
-    
-                                        if(code == null || code == undefined) {
-                                            this.$toastr.error("정상적인 접근이 아닙니다")
-                                            this.$router.push("/")
-                                            return
-                                        }
+                    document.addEventListener('deviceready', function() {
+                        var inAppBrowser = window.cordova.InAppBrowser.open(url, "_blank", "location=no,fullscreen=yes");
 
-                                        axios.get("/discord/oauth/callback?code="+code, {
-                                            headers: {
-                                                Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        inAppBrowser.addEventListener("loadstart", function(event) {
+                                    console.log("인앱브라우저 종료 로직 확인")
+                                    if (event.url.startsWith("https://jamye.p-e.kr/oauth/redirect")) {
+                                        const url = new URL(event.url);
+                                        const code = url.searchParams.get('code');
+                                        const state = url.searchParams.get('state');
+
+                                            if(code == null || code == undefined) {
+                                                this.$toastr.error("정상적인 접근이 아닙니다")
+                                                this.$router.push("/")
+                                                return
                                             }
-                                    })
-                                        .then((r)=>{
-                                            console.log(r)
+
+                                            axios.get("/discord/oauth/callback?code="+code, {
+                                                headers: {
+                                                    Authorization: `Bearer `+self.$cookies.get('accessToken')
+                                                }
                                         })
-                                        if (state == 'app') {
-                                                console.log("app close")
-                                                inAppBrowser.close();
-                                                console.log("app close2")
-                                                self.$router.push("/notify-box")
-                                            } else {
-                                                console.log("디스코드 redirect 웹 ver")
-                                                self.$router.push("/notify-box")
-                                            }
-                                    }
-                                });
+                                            .then((r)=>{
+                                                console.log(r)
+                                            })
+                                            if (state == 'app') {
+                                                    console.log("app close")
+                                                    inAppBrowser.close();
+                                                    console.log("app close2")
+                                                    self.$router.push("/notify-box")
+                                                } else {
+                                                    console.log("디스코드 redirect 웹 ver")
+                                                    this.$cookies.set('accessToken', accessToken)
+                                                }
+                                        }
+                                    });
+                    })
                 }).catch(() => this.$toastr.error("현재 디스코드 연동을 사용할 수 없습니다. 운영자에게 문의해주세요."))
+                console.log("성공")
+                this.$cookies.set('accessToken', accessToken)
             } else {
                 axios.get("/discord/client-id").then(r => {
                     const url = `${authUrl}?client_id=${r.data.data}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}`;
