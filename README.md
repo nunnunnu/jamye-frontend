@@ -67,15 +67,18 @@
 
 ##### 📝 게시글 조회
 <img width="1472" alt="image" src="https://github.com/user-attachments/assets/8d9cbf2a-6867-434f-9cd8-7bf1d4f893c1" />
+
 - 게시글 수정
 - 댓글 등록/수정/삭제
 
 ##### 👥 그룹 목록 조회
+
 - 소속 그룹 목록 조회
 - 그룹 생성/초대코드로 가입
 
 ##### 👥 그룹 정보 상세 조회
 <img width="1455" alt="image" src="https://github.com/user-attachments/assets/64fa986b-731f-4b0c-ac85-707146d074dd" />
+
 - 그룹 상세정보/소속 회원 목록 조회
 - 그룹 정보 수정/회원 정보 수정
 - 그룹 탈퇴
@@ -84,12 +87,14 @@
 
 ##### 📬 쪽지함
 <img width="1455" alt="image" src="https://github.com/user-attachments/assets/b9749745-0fcf-4e3c-b0b5-38891b4b00ac" />
+
 - 쪽지 목록 조회
 - 디스코드 알람 수신 - jamye bot 연동
 - 모두읽기/안읽은 쪽지 일괄 삭제
 
 ##### 👤 MY페이지
 <img width="1455" alt="image" src="https://github.com/user-attachments/assets/5cd10886-d33e-454b-b04c-901dcdaac642" />
+
 - 회원 탈퇴
 - 회원 정보 수정
 - 그룹 목록 조회
