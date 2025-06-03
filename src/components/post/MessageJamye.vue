@@ -208,7 +208,7 @@
                                                 <i class="fas fa-arrow-left"></i>
                                                 <span class="tooltip-text">메시지 왼쪽 이동</span>
                                             </button>
-                                            <button class="circle-btn down-arrow tooltip-btn" @click="toggleReplyMode(msg)" title="답장 연결">
+                                            <button class="circle-btn down-arrow tooltip-btn" @click="toggleReplyMode(msg, key)" title="답장 연결">
                                                 <i class="fas fa-link"></i>
                                                 <span class="tooltip-text">답장 연결</span>
                                             </button>
@@ -510,7 +510,7 @@
                                                 <i class="fas fa-arrow-right"></i>
                                             <span class="tooltip-text">내가보낸 메세지로 이동</span>
                                             </button>
-                                            <button class="circle-btn down-arrow tooltip-btn" @click="toggleReplyMode(msg)" title="답장 연결">
+                                            <button class="circle-btn down-arrow tooltip-btn" @click="toggleReplyMode(msg, key)" title="답장 연결">
                                                 <i class="fas fa-link"></i>
                                                 <span class="tooltip-text">답장 연결</span>
                                             </button>
@@ -587,7 +587,8 @@ export default {
             isInputVisible: false,
             searchTerm: "",
             searchResults: [],
-            messageImage: null
+            messageImage: null,
+            replyOriginMessage: null
         }   
     },
     props: {
@@ -652,7 +653,10 @@ export default {
                         Authorization: `Bearer `+this.$cookies.get('accessToken')
                     }
                 }
-            )
+            ).catch(e => {
+                console.log(e)
+                this.$toastr.error("수정사항을 저장할 수 없습니다. 운영자에게 문의해주세요.")
+            })
 
             this.isEditing = null
             this.replyMode = false
@@ -1076,14 +1080,16 @@ export default {
             });
             this.addNickNameSet = newSet;
         },
-        toggleReplyMode(msg) {
+        toggleReplyMode(msg, key) {
             this.replyMode = true
                 if (!this.replyMode) {
                     this.selectedReplyKey = null
                     this.selectedReplySeq = null; // 모드 비활성화 시 선택 초기화
                     this.replyOriginMessage = null
+                    this.replyOriginKey = null
                 } else {
                     this.replyOriginMessage = msg
+                    this.replyOriginKey = key
                 }
         },
         updateReplySeq(messageSeq, key, seq) {
@@ -1110,7 +1116,7 @@ export default {
                     if(newReplyMessage != null && newReplyMessage != undefined && newReplyMessage.length != 0) {
                         console.log(newReplyMessage)
                         this.replyOriginMessage.replyMessage = newReplyMessage[0].message
-                        this.replyOriginMessage.replyNickNameSeq = value.sendUserSeq == null ? '나' : value.sendUserSeq
+                        this.replyOriginMessage.replyNickNameSeq = value.sendUserSeq == null ? null : value.sendUserSeq
                     }
 
                 }
@@ -1121,7 +1127,7 @@ export default {
                 this.replyOriginMessage.replyMessage = this.messageResponse[this.selectedReplyKey].message.filter(
                     (msg) => msg.seq == this.selectedReplySeq
                 )[0].message;
-                this.replyOriginMessage.replyNickNameSeq = this.messageResponse[this.selectedReplyKey].sendUserSeq == null ? '나' : this.messageResponse[this.selectedReplyKey].sendUserSeq
+                this.replyOriginMessage.replyNickNameSeq = this.messageResponse[this.selectedReplyKey].sendUserSeq == null ? null : this.messageResponse[this.selectedReplyKey].sendUserSeq
                 this.replyOriginMessage.replyMessageSeq = null
                 this.selectedReplyKey = null;
                 this.selectedReplySeq = null;
@@ -1130,7 +1136,26 @@ export default {
             this.replyOriginMessage.isReply = true
 
             this.replyMode = false;
+
+            if(this.replyOriginMessage.seq == null 
+            && ((this.replyOriginMessage.replyToKey == undefined || this.replyOriginMessage.replyToKey == null) 
+            && (this.replyOriginMessage.replyToSeq == undefined || this.replyOriginMessage.replyToSeq == null))) {
+                return
+            }
+            var targetMessageId = ''
+            if(this.replyOriginMessage.messageSeq != null) {
+                targetMessageId = `message-${this.replyOriginMessage.messageSeq}`
+            } else {
+                targetMessageId = `message-${this.replyOriginKey}_${this.replyOriginMessage.seq}`
+            }
+            console.log(targetMessageId)
+            const targetMessage = document.getElementById(targetMessageId)          
             
+            if(targetMessage) {
+                targetMessage.scrollIntoView({ behavior: "auto", block: "start" })
+            }
+            this.replyOriginMessage = null
+
         },
         scrollToMessage(key, msg) {
             if(msg.replyMessageSeq == null && ((msg.replyToKey == undefined || msg.replyToKey == null) && (msg.replyToSeq == undefined || msg.replyToSeq == null))) {
@@ -1578,7 +1603,6 @@ export default {
                 } else {
                     this.messageResponse = r.data.data
                 }
-                
             })
             .catch(e => {
                 this.$toastr.error(e.data.message)
