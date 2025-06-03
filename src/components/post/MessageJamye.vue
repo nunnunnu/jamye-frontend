@@ -11,17 +11,27 @@
             <button @click="editMode" class="btn btn-dark btn-area">수정</button>
             <button @click="deletePost" class="btn btn-dark btn-area">삭제</button>
             <div class="tag-list">
-            <div
-                v-for="tag in tags" :key="tag.tagPostConnectionSeq"
-                class="tag-item"
-                @mouseover="hoverIndex = index"
-                @mouseleave="hoverIndex = -1"
-            >
-                # {{ tag.tagName }}
+                <div
+                    v-for="tag in tags" :key="tag.tagPostConnectionSeq"
+                    class="tag-item"
+                    @mouseover="hoverIndex = index"
+                    @mouseleave="hoverIndex = -1"
+                >
+                    # {{ tag.tagName }}
+                </div>
             </div>
         </div>
-        </div>
         <div class="editMode" v-if="isEditing != null && message.createdUserSequence == $cookies.get('sequence')">
+            <div>
+                <div class="row g-2">
+                    <div class="col-auto">
+                        <input type="file" accept="image/*" class="form-control" id="inputPassword2" placeholder="" @change="messageImageChange">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-dark mb-3" @click="messageListGet">메세지 변환</button>
+                    </div>
+                </div>
+            </div>
             <button type="button" class="btn btn-dark btn-area btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
                 <span style="font-size: 10px;">이미지 보관함</span>
             </button>
@@ -577,6 +587,7 @@ export default {
             isInputVisible: false,
             searchTerm: "",
             searchResults: [],
+            messageImage: null
         }   
     },
     props: {
@@ -1536,7 +1547,52 @@ export default {
             console.log(JSON.parse(JSON.stringify(tempMap)))
             this.messageResponse = tempMap
             this.messageResponseTempRemove(this.messageResponse)
-        }
+        },
+        messageListGet() {
+            if(this.messageImage == null) {
+                this.$toastr.warning("메세지 변환할 이미지를 첨부해주세요")
+                return
+            }
+            const formdata = new FormData()
+            formdata.append("image", this.messageImage)
+            const nicknameParam = Object.values(this.nickNameMap).map(user => user.nickName);
+            axios.post("/api/post/message-text?sendUser=" + nicknameParam, formdata, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            })
+            .then(r => {
+                console.log("결과 수신")
+                if(this.messageResponse !=null && Object.keys(this.messageResponse).length != 0) {
+                    const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
+                    console.log("maxKey: " + maxKey)
+                    for(let [id, value] of Object.entries(r.data.data)) {
+                        for(let [seq, nickName] of Object.entries(this.nickNameMap)) {
+                            if(value.sendUser == nickName.nickName) {
+                                value.sendUserSeq = seq
+                            }
+                        }
+                        this.messageResponse[Number(maxKey) + Number(id)] = value
+                    }
+                    console.log("결과 추가 complate")
+                } else {
+                    this.messageResponse = r.data.data
+                }
+                
+            })
+            .catch(e => {
+                this.$toastr.error(e.data.message)
+            })
+        },
+        messageImageChange(event){
+            const imgbox = this.$refs.imgbox //imgbox ref를 가진 div
+            if(event.target.files && event.target.files[0]){ //파일있는지 검사
+                this.messageImage = event.target.files[0]
+            }else{
+                imgbox.style.backgroundImage = ""
+            }
+            
+        },
     }
 }
 </script>
