@@ -114,9 +114,12 @@ export default ({
                     "id":this.userId,
                     "password": this.password,
                     "email":this.email
+                }).then(() => {
+                    this.$toastr.success("회원가입이 완료되었습니다.")
+                    this.$router.push("/")
+                }).catch(e => {
+                    this.$toastr.warning(e.response.data.message)
                 })
-                this.$toastr.success("회원가입이 완료되었습니다.")
-                this.$router.push("/")
             }
         },
         idCheck(){
