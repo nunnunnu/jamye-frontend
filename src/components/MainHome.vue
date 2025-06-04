@@ -107,6 +107,16 @@
                             </div>
                         </div>
                     </div>
+                    <div v-if="showBegModal" class="modal-overlay">     
+                        <div class="modal-detail">
+                            <p>더 이상 뽑을 수 있는 잼얘가 없습니다.
+                                <br>잼얘를 구걸하시겠습니까?
+                                <br>구걸 시 본인을 제외한 그룹의 모든 회원에게 쪽지가 전송됩니다.
+                            </p>
+                            <button class='btn btn-dark' @click="onBeg">잼얘 구걸하기</button>
+                            <button class='btn btn-dark' @click="showBegModal = false">닫기</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -123,7 +133,8 @@ export default {
     data() {
         return {
             currentGroup: null,
-            groupInfos: {}
+            groupInfos: {},
+            showBegModal: false
         }
     },
     methods: {
@@ -179,8 +190,25 @@ export default {
                     })
                 }
             }).catch(e => {
+                if(e.response.data.code == 'ALL_POSTS_ALREADY_OWNED') {
+                    this.showBegModal = true
+                } else {
+                    this.$toastr.error(e.response.data.message)
+                }
+            })
+        },
+        onBeg() {
+            axios.post(`/api/group/${this.currentGroup.groupSequence}/panhandling`, {}, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
+            }).then(() => {
+                this.$toastr.success("잼얘 독촉 성공")
+                this.showBegModal = false
+            }).catch(e => {
                 this.$toastr.error(e.response.data.message)
             })
+            
         },
         getGroupInfo(groupSeq) {
             console.log(groupSeq)
@@ -243,5 +271,26 @@ export default {
         margin: 0; /* 기본 여백 제거 */
         margin-top: 65px;
         margin-bottom: 10px;
+    }
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.6); /* 반투명 배경 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+    }
+    .modal-detail {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+    .modal-detail button {
+        margin: 0.5rem;
     }
 </style>
