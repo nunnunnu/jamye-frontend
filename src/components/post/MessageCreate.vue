@@ -1468,9 +1468,9 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 90%;
-  max-height: 90%;
-  overflow: hidden;
+  max-width: 50%;
+  max-height: 50%;
+  /* overflow: hidden; */
 }
 
 /* 큰 이미지 스타일 */

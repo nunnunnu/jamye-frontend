@@ -538,7 +538,7 @@
                             alt="Preview Image" 
                             class="large-image" 
                             />
-                        <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image" />  
+                        <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image"/>  
                     </div>
                 </div>
                 <comment-list v-if="message.postSequence != null" class="comment" :postSeq= "postSeq" :groupSeq="groupSeq"></comment-list>
