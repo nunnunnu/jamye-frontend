@@ -410,7 +410,7 @@
                                                 :key="index"
                                                 :src="imageUrl(image.second)"
                                                 class="small-image"
-                                                @click="openPreview(image)"
+                                                @click="openPreview(image.second)"
                                                 alt="Uploaded Image"
                                             />
                                             <img
@@ -466,7 +466,7 @@
                                                 :key="index"
                                                 :src="imageUrl(image.second)"
                                                 class="small-image"
-                                                @click="openPreview(image)"
+                                                @click="openPreview(image.second)"
                                                 alt="Uploaded Image"
                                             />
                                             <img
