@@ -406,9 +406,9 @@
                                         <input  type="text" v-model="msg.message" @blur="saveMessage(key, msg)" class="from-them" :id="'input-' + key + '_' + msg.seq">
                                         <span class="image-gallery">
                                             <img
-                                                v-for="(image, index) in msg.imageKey"
+                                                v-for="(image, index) in msg.imageUri"
                                                 :key="index"
-                                                :src="imageUrl(image)"
+                                                :src="imageUrl(image.second)"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
@@ -462,9 +462,9 @@
                                         {{ msg.message }}
                                         <span class="image-gallery">
                                             <img
-                                                v-for="(image, index) in msg.imageKey"
+                                                v-for="(image, index) in msg.imageUri"
                                                 :key="index"
-                                                :src="imageUrl(image)"
+                                                :src="imageUrl(image.second)"
                                                 class="small-image"
                                                 @click="openPreview(image)"
                                                 alt="Uploaded Image"
