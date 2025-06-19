@@ -76,8 +76,11 @@
                                         <stop class="gradient-start-color" offset="0%"></stop>
                                         <stop class="gradient-end-color" offset="100%"></stop>
                                     </linearGradient>
+                                        <filter id="blurEdge" x="-50%" y="-50%" width="200%" height="200%">
+                                            <feGaussianBlur stdDeviation="0.4" />
+                                        </filter>
                                 </defs>
-                                <circle cx="50" cy="50" r="50"></circle>
+                                <circle cx="50" cy="50" r="50" filter="url(#blurEdge)"></circle>
                             </svg>
                                 <svg class="shape-1 d-none d-sm-block" viewBox="0 0 240.83 240.83" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(120.42 -49.88) rotate(45)"></rect>
@@ -87,22 +90,7 @@
                                 <circle cx="50" cy="50" r="50"></circle>
                             </svg>
                             <div class="device-wrapper">
-                                <div class="device" data-device="iPhoneX" data-orientation="portrait" data-color="black">
-                                    <div class="screen bg-black"> 
-                                        <video 
-                                            muted 
-                                            autoplay 
-                                            loop 
-                                            playsinline 
-                                            disablePictureInPicture 
-                                            controlsList="nodownload nofullscreen noremoteplayback" 
-                                            style="max-width: 100%; height: 100%;" 
-                                            oncontextmenu="return false;"
-                                        >
-                                            <source src="@/assets/img/demo-screen.mp4" type="video/mp4" />
-                                        </video>
-                                    </div>
-                                    
+                                <div class="device" data-device="iPhoneX" data-orientation="portrait" data-color="black">                                    
                                 </div>
                             </div>
                         </div>
