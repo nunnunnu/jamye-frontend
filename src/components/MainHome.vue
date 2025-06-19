@@ -190,8 +190,8 @@ export default {
                 video.style.top = '50%'
                 video.style.left = '50%'
                 video.style.transform = 'translate(-50%, -50%)'
-                video.style.width = '50%'
-                video.style.height = '50%'
+                video.style.width = 'auto'
+                video.style.height = '80vh' // 세로 기준으로 꽉 차게
                 video.style.zIndex = '9999'
                 video.style.objectFit = 'cover'
 
