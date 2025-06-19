@@ -127,6 +127,7 @@
   <script>
 import { nextTick } from 'vue';
 import axios from '@/js/axios';
+import gachaVideo from '@/assets/img/gacha.mp4'
 
 export default {
     name: 'MainHome',
@@ -170,32 +171,60 @@ export default {
                 this.$toastr.warning("잼얘를 뽑을 그룹을 먼저 선택해주세요.")
                 return
             }
+    
             axios.get("/api/post/lucky-draw/" + this.currentGroup.groupSequence, {
-                headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+            headers: {
+                    Authorization: `Bearer ` + this.$cookies.get('accessToken')
                 }
-            }).then(r => {
+            })
+            .then(r => {
                 const postInfo = r.data.data
-                if (postInfo.type == "MSG") {
-                    this.$router.push({ 
-                        name: 'messageJamye',
-                        params: { postSeq: postInfo.postSequence },
-                        query: { groupSeq: this.currentGroup.groupSequence }
-                    })
-                } else {
-                    this.$router.push({ 
-                        name: 'boardJamye',
-                        params: { postSeq: postInfo.postSequence },
-                        query: { groupSeq: this.currentGroup.groupSequence }
-                    })
-                }
-            }).catch(e => {
-                if(e.response.data.code == 'ALL_POSTS_ALREADY_OWNED') {
-                    this.showBegModal = true
+
+                // 1. 비디오 엘리먼트 동적 생성
+                const video = document.createElement('video')
+                video.src = gachaVideo
+                video.autoplay = true
+                video.playsInline = true
+                video.muted = true // 모바일 autoplay 보장용
+                video.style.position = 'fixed'
+                video.style.top = '50%'
+                video.style.left = '50%'
+                video.style.transform = 'translate(-50%, -50%)'
+                video.style.width = '50%'
+                video.style.height = '50%'
+                video.style.zIndex = '9999'
+                video.style.objectFit = 'cover'
+
+                document.body.appendChild(video)
+
+                // 2. 영상이 끝나면 페이지 이동 + 영상 제거
+                video.addEventListener('ended', () => {
+                    document.body.removeChild(video)
+
+                    if (postInfo.type === "MSG") {
+                        this.$router.push({
+                            name: 'messageJamye',
+                            params: { postSeq: postInfo.postSequence },
+                            query: { groupSeq: this.currentGroup.groupSequence }
+                        })
+                    } else {
+                        this.$router.push({
+                            name: 'boardJamye',
+                            params: { postSeq: postInfo.postSequence },
+                            query: { groupSeq: this.currentGroup.groupSequence }
+                        })
+                    }
+                })
+            })
+            .catch(e => {
+                if (e.response?.data?.code === 'ALL_POSTS_ALREADY_OWNED') {
+                    this.showBegModal=true
                 } else {
                     this.$toastr.error(e.response.data.message)
                 }
             })
+
+            
         },
         onBeg() {
             axios.post(`/api/group/${this.currentGroup.groupSequence}/panhandling`, {}, {
@@ -242,7 +271,6 @@ export default {
         })
     }
 }
-
 </script>
   <style>
     a {
