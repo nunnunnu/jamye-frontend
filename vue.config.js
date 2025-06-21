@@ -5,4 +5,10 @@ module.exports = defineConfig({
 
 module.exports = {
     filenameHashing: false,
+    pages: {
+      index: {
+        entry: 'src/main.js',
+        title: '잼얘가챠',
+      }
+    }
 };
