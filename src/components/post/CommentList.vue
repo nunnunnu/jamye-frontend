@@ -1,35 +1,57 @@
 <template>
-    <div class="input-group mb-3">
-        <span class="input-group-text">댓글</span>
-        <textarea class="form-control" aria-label="With textarea" v-model="comment"></textarea>
-        <button class="btn btn-outline-dark" type="button" id="button-addon1" @click="createComment">등록</button>
+  <div class="input-group align-items-start" style="height: 60px;">
+    <span class="input-group-text d-flex align-items-center" style="height: 100%;">댓글</span>
+    <div class="flex-grow-1 position-relative" style="height: 100%;">
+      <div v-if="replyUserNickName" class="mention-inline">
+        @{{ replyUserNickName }}에게 답글
+        <span class="cancel-btn" @click="cancelReply">×</span>
+      </div>
+      <textarea
+        class="form-control h-100"
+        v-model="comment"
+        ref="commentInput"
+        placeholder="댓글을 입력하세요"
+        style="padding-top: 1.8rem; resize: none;"
+      ></textarea>
     </div>
-    <div  v-if="comments.length != 0">
-        <div class="comments" v-for="comment in comments" :key="comment.commentSeq">
-            <div class="comment">
-                <div class="comment-body">
-                    <div class="comment-header">
-                        <span class="comment-author">{{ comment.nickName }}</span>
-                        <span class="comment-date">{{ comment.updateDate }}</span>
-                        <div class="comment-actions" v-if="userSeq == comment.userSeq">
-                            <button class="edit-btn" v-if="isEditingSeq == null || isEditingSeq != comment.commentSeq" title="수정" @click="editComment(comment.commentSeq)">&#9998;</button>
-                            <button class="complete-btn" v-else @click="completeEdit(comment)">✔️</button>
-                            <button class="delete-btn" title="삭제" @click="deleteComment(comment.commentSeq)">&#10006;</button>
-                        </div>
-                    </div>
-                    <div v-if="isEditingSeq != null && isEditingSeq == comment.commentSeq">
-                        <input class="comment-edit-input" v-model="comment.comment" ref="editInput">
-                    </div>
-                    <div class="comment-text" v-else>
-                        {{ comment.comment }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div v-else>
-        등록된 댓글이 없습니다
-    </div>  
+    <button
+      class="btn btn-outline-dark d-flex align-items-center justify-content-center"
+      type="button"
+      @click="createComment"
+      style="height: 100%;"
+    >
+      등록
+    </button>
+  </div>
+  <div  v-if="comments.length != 0">
+      <div class="comments" v-for="comment in comments" :key="comment.commentSeq">
+          <div class="comment">
+              <div class="comment-body">
+                  <div class="comment-header">
+                      <span class="comment-author"  @click="addMention(comment.nickName, comment.userSeq)">{{ comment.nickName }}</span>
+                      <span class="comment-date">{{ comment.updateDate }}</span>
+                      <div class="comment-actions" v-if="userSeq == comment.userSeq">
+                          <button class="edit-btn" v-if="isEditingSeq == null || isEditingSeq != comment.commentSeq" title="수정" @click="editComment(comment.commentSeq)">&#9998;</button>
+                          <button class="complete-btn" v-else @click="completeEdit(comment)">✔️</button>
+                          <button class="delete-btn" title="삭제" @click="deleteComment(comment.commentSeq)">&#10006;</button>
+                      </div>
+                  </div>
+                  <div v-if="isEditingSeq != null && isEditingSeq == comment.commentSeq">
+                      <input class="comment-edit-input" v-model="comment.comment" ref="editInput">
+                  </div>
+                  <div class="comment-text" v-else>
+                    <span v-if="comment.replySeq != null" class="replyUser">@{{ comment.replyUserNickname }} </span>
+                    <span>
+                      {{ comment.comment }}
+                    </span>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div v-else>
+      등록된 댓글이 없습니다
+  </div>  
 </template>
 
 <script>
@@ -51,6 +73,8 @@ export default {
             comment: null,
             userSeq: null,
             isEditingSeq: null,
+            replyUserSeq: null,
+            replyUserNickName: null
         }
     },
     created() {
@@ -73,7 +97,8 @@ export default {
                 return
             }
             axios.post(`/api/comment/${this.groupSeq}/${this.postSeq}`, {
-                comment: this.comment
+                comment: this.comment,
+                replySeq: this.replyUserSeq
             }, {
               headers: {
                 Authorization: `Bearer ${this.$cookies.get('accessToken')}`
@@ -112,6 +137,15 @@ export default {
           }).then( () => {
             this.getCommentList()
           }) 
+        },
+        addMention(nickName, userSeq) {
+          this.replyUserNickName = nickName
+          this.replyUserSeq = userSeq
+          this.$refs.commentInput.focus()
+        },
+        cancelReply() {
+          this.replyUserNickName = null
+          this.replyUserSeq = null
         }
     }
 }
@@ -161,6 +195,7 @@ export default {
   font-weight: bold;
   margin-right: 10px;
   font-size: 1em;
+  cursor: pointer;
 }
 
 .comment-date {
@@ -206,6 +241,26 @@ export default {
 
 .comment-edit-input:focus {
   border-bottom: 1px solid #000000; /* 포커스 시 밑줄 효과 */
+}
+.mention-inline {
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  font-size: 0.9em;
+  color: #555;
+  pointer-events: none;
+}
+
+.cancel-btn {
+  margin-left: 6px;
+  color: #888;
+  font-weight: bold;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.replyUser {
+  color: blue;
+  margin-right:5px
 }
 
 
