@@ -15,7 +15,7 @@
                 <div class="message-content">{{ notify.message }}</div>
                 <div class="message-date">{{ notify.createDate }}</div>
                 <div class="action-buttons">
-                    <button v-if="notify.groupSeq != null" class="btn btn-dark group-button btn-sm" @click="goToGroup(notify.groupSeq)">그룹 가기</button>
+                    <!-- <button v-if="notify.groupSeq != null" class="btn btn-dark group-button btn-sm" @click="goToGroup(notify.groupSeq)">그룹 가기</button> -->
                     <button v-if="notify.postSeq != null" class="btn btn-dark post-button btn-sm" @click="goToPost(notify.groupSeq, notify.postSeq)">게시글 가기</button>
                 </div>
             </div>
