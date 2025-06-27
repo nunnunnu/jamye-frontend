@@ -68,17 +68,20 @@
                 </div>
             </div>
         </div>
+    <div>
         <div v-if="!isEditing" v-html="content" class="post-container-view"></div>
         <div v-else class="post-container">
-            <div
-            id = "content"
-            class="post-input"
-            contenteditable="true"
-            ref="postArea"
-            @input="syncPostContent"
-            placeholder="게시글 내용을 입력하세요..."
-            ></div>
+            <QuillEditor
+                ref="quillEditor"
+                v-model:content="postContent"
+                content-type="html"
+                :options="editorOptions"
+                @textChange="onEditorChange"
+                @selectionChange="onSelectionChange"
+                style="height: 400px;"
+            />
         </div>
+    </div>
         <comment-list v-if="board.postSequence != null" class="comment" :postSeq= "postSeq" :groupSeq="groupSeq"></comment-list>
     </div>    
 </template>
@@ -87,11 +90,14 @@ import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import CommentList from './CommentList.vue'
 import { base64ToFile } from '@/js/fileScripts';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 export default {
     components: {
         ImageBox,
-        CommentList
+        CommentList,
+        QuillEditor
     },
     data() {
         return {
@@ -115,6 +121,27 @@ export default {
             isInputVisible: false,
             searchTerm: "",
             searchResults: [],
+            editorOptions: {
+                theme: 'snow',
+                placeholder: '게시글 내용을 입력하세요...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean']
+                    ]
+                }
+            }
         }
     },
     props: {
@@ -150,10 +177,6 @@ export default {
     methods: {
         editMode() {
             this.isEditing = true
-            this.$nextTick(() => {
-            // DOM이 렌더링된 이후 실행
-                this.$refs.postArea.innerHTML = this.content;
-            });
         },
         editModeComplate() {
             this.isEditing = false
@@ -169,7 +192,7 @@ export default {
             var tempContent = this.postContent.replace(/<img([^>]+)src="([^"]+)"([^>]*)>/g, (match, before, src, after) => {
                 const imageId = Object.keys(this.imageMap).find(key => this.imageMap[key] === src);
                 if (imageId) {
-                    return `<img${before}src="${imageId}"${after}>`;
+                    return `<br><img${before}src="${imageId}"${after} alt="image" width="400" height="auto"/>`;
                 }
                 return match;
             });
@@ -192,6 +215,68 @@ export default {
                 this.content = r.data.data
             })
         },
+        onEditorChange() {
+            // 에디터 내용이 변경될 때 호출
+            this.saveCurrentSelection();
+        },
+        onSelectionChange(range) {
+            // 커서 위치가 변경될 때 호출 - null 체크 추가
+            if (range && range.index !== null && range.index !== undefined) {
+                this.cursorPosition = range;
+            }
+        },
+        saveCurrentSelection() {
+            const quill = this.getQuillInstance();
+            if (quill) {
+                const selection = quill.getSelection();
+                if (selection && selection.index !== null && selection.index !== undefined) {
+                    this.cursorPosition = selection;
+                }
+            }
+        },
+        getQuillInstance() {
+            return this.$refs.quillEditor?.getQuill?.();
+        },
+        addImageAtCursor(selectedImages) {
+            // 에디터가 준비될 때까지 잠시 기다림
+            this.$nextTick(() => {
+                const quill = this.getQuillInstance();
+                if (!quill) return;
+
+                selectedImages.forEach((img, index) => {
+                    const imgUrl = this.imageMap[img];
+                    
+                    // 현재 커서 위치 가져오기 - null 체크 강화
+                    let range = quill.getSelection();
+                    if (!range && this.cursorPosition) {
+                        range = this.cursorPosition;
+                    }
+                    if (!range || range.index === null || range.index === undefined) {
+                        range = { index: quill.getLength(), length: 0 };
+                    }
+                    
+                    // 이미지 삽입 위치 계산 (여러 이미지일 경우 순차적으로 삽입)
+                    const insertIndex = range.index + index;
+                    
+                    // 이미지 삽입
+                    quill.insertEmbed(insertIndex, 'image', imgUrl);
+                });
+
+                // 마지막 이미지 다음으로 커서 이동
+                const finalPosition = (quill.getSelection()?.index || quill.getLength()) + selectedImages.length;
+                
+                // 안전한 커서 설정
+                setTimeout(() => {
+                    try {
+                        quill.setSelection(finalPosition, 0);
+                        quill.focus();
+                    } catch (error) {
+                        console.warn('커서 설정 중 오류:', error);
+                        quill.focus();
+                    }
+                }, 50);
+            });
+        },
         openPreview(image) {
             this.previewImage = image
             this.isPreviewOpen = true;
@@ -204,30 +289,9 @@ export default {
             this.imageAddKey = key
             this.imageAddSeq = seq
         },
-        syncPostContent() {
-            // contenteditable 내용 동기화
-            this.postContent = this.$refs.postArea.innerHTML
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-            // 현재 커서 위치 저장
-            this.cursorPosition = selection.getRangeAt(0);
-            }
-        },
         handleImageMapUpdate(imageUidMap) {
             this.imageMap = imageUidMap
-        },
-        addImageAtCursor(selectedImages) {
-            selectedImages.forEach(img => {
-                const imgUrl = this.imageMap[img];
-
-                const imgTag = `<br><img src="${imgUrl}" alt="image" width="200" height="auto"/>`;
-                
-                document.execCommand("insertHTML", false, imgTag);
-            });
-
-            this.postContent = this.$refs.postArea.innerHTML;
-            this.moveCursorToEnd()
-        },
+        },  
         moveCursorToEnd() {
             const textarea = this.$refs.postArea;
 
@@ -342,6 +406,7 @@ export default {
 </script>
 <style>
 @import url("/src/css/message.css");
+
 .menu-title {
     margin-top: 60px;
 }
@@ -382,5 +447,42 @@ export default {
 }
 .input-group  {
     margin-top: 10px;
+}
+
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-justify { text-align: justify; }
+.ql-indent-1 { padding-left: 3em; }
+.ql-indent-2 { padding-left: 6em; }
+.ql-font-serif {
+    font-family: Georgia, serif;
+}
+
+.ql-font-monospace {
+    font-family: "Courier New", Courier, monospace;
+}
+
+/* 인용구 */
+blockquote {
+    margin: 1em 0;
+    padding-left: 1.2em;
+    border-left: 4px solid #ccc;
+    color: #666;
+    font-style: italic;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+/* 코드블록 */
+pre.ql-syntax {
+    background-color: #2d2d2d;
+    color: #f8f8f2;
+    padding: 12px;
+    border-radius: 6px;
+    font-family: 'Source Code Pro', monospace, monospace;
+    font-size: 14px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 </style>

@@ -6,7 +6,7 @@ import VueCookies from "vue-cookies";
 import '@fortawesome/fontawesome-free/css/all.css';
 import toastr from 'toastr'
 import 'toastr/build/toastr.min.css'
-
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 const app = createApp(App)
 app.use(router).use(bootstrap)

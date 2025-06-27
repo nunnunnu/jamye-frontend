@@ -44,41 +44,68 @@
             </div>
         </div>
         <div class="post-container">
-            <div
-            id = "content"
-            class="post-input"
-            contenteditable="true"
-            ref="postArea"
-            @input="syncPostContent"
-            placeholder="게시글 내용을 입력하세요..."
-            ></div>
+            <QuillEditor
+                ref="quillEditor"
+                v-model:content="postContent"
+                content-type="html"
+                :options="editorOptions"
+                @textChange="onEditorChange"
+                @selectionChange="onSelectionChange"
+                style="height: 400px;"
+            />
         </div>
         <button class="btn btn-dark btn-block" @click="createPost()">생성</button>
     </div>
 </template>
+
 <script>
 import ImageBox from './ImageBox.vue';
 import axios from '@/js/axios';
-import { base64ToFile } from '@/js/fileScripts'
+import { base64ToFile } from '@/js/fileScripts';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 export default {
     components: {
-        ImageBox
+        ImageBox,
+        QuillEditor
     },
     data() {
         return {
             groupName: null,
-            isPreviewOpen: false, // 미리보기 상태
-            previewImage: null,   // 현재 미리보기 이미지.
+            isPreviewOpen: false,
+            previewImage: null,
             imageMap: {},
-            cursorPosition: Range,
-            postContent: String,
+            cursorPosition: null,
+            postContent: '',
+            postTitle: '',
             isInputVisible: false,
             searchTerm: "",
             searchResults: [],
             selectedTags: [],
             hoverIndex: -1,
-            groupSeq: null
+            groupSeq: null,
+            editorOptions: {
+                theme: 'snow',
+                placeholder: '게시글 내용을 입력하세요...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean']
+                    ]
+                }
+            }
         }
     },
     props: {
@@ -107,45 +134,70 @@ export default {
         }
     },
     methods: {
-        syncPostContent() {
-            // contenteditable 내용 동기화
-            this.postContent = this.$refs.postArea.innerHTML
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-            // 현재 커서 위치 저장
-            this.cursorPosition = selection.getRangeAt(0);
+        onEditorChange() {
+            // 에디터 내용이 변경될 때 호출
+            this.saveCurrentSelection();
+        },
+        onSelectionChange(range) {
+            // 커서 위치가 변경될 때 호출 - null 체크 추가
+            if (range && range.index !== null && range.index !== undefined) {
+                this.cursorPosition = range;
             }
         },
-        addImageAtCursor(selectedImages) {
-            selectedImages.forEach(img => {
-                const imgUrl = this.imageMap[img];
-
-                const imgTag = `<br><img src="${imgUrl}" alt="image" width="200" height="auto"/>`;
-                
-                document.execCommand("insertHTML", false, imgTag);
-            });
-
-            this.postContent = this.$refs.postArea.innerHTML;
-            this.moveCursorToEnd()
+        saveCurrentSelection() {
+            const quill = this.getQuillInstance();
+            if (quill) {
+                const selection = quill.getSelection();
+                if (selection && selection.index !== null && selection.index !== undefined) {
+                    this.cursorPosition = selection;
+                }
+            }
         },
-        moveCursorToEnd() {
-            const textarea = this.$refs.postArea;
+        getQuillInstance() {
+            return this.$refs.quillEditor?.getQuill?.();
+        },
+        addImageAtCursor(selectedImages) {
+            // 에디터가 준비될 때까지 잠시 기다림
+            this.$nextTick(() => {
+                const quill = this.getQuillInstance();
+                if (!quill) return;
 
-            const selection = window.getSelection();
-            const range = document.createRange();
+                selectedImages.forEach((img, index) => {
+                    const imgUrl = this.imageMap[img];
+                    
+                    // 현재 커서 위치 가져오기 - null 체크 강화
+                    let range = quill.getSelection();
+                    if (!range && this.cursorPosition) {
+                        range = this.cursorPosition;
+                    }
+                    if (!range || range.index === null || range.index === undefined) {
+                        range = { index: quill.getLength(), length: 0 };
+                    }
+                    
+                    // 이미지 삽입 위치 계산 (여러 이미지일 경우 순차적으로 삽입)
+                    const insertIndex = range.index + index;
+                    
+                    // 이미지 삽입
+                    quill.insertEmbed(insertIndex, 'image', imgUrl);
+                });
 
-            // 커서를 맨 뒤로 이동
-            range.selectNodeContents(textarea);
-            range.collapse(false); // false는 끝으로, true는 시작으로
-
-            // 선택 범위 삭제 후 새 범위를 추가
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            textarea.focus();
+                // 마지막 이미지 다음으로 커서 이동
+                const finalPosition = (quill.getSelection()?.index || quill.getLength()) + selectedImages.length;
+                
+                // 안전한 커서 설정
+                setTimeout(() => {
+                    try {
+                        quill.setSelection(finalPosition, 0);
+                        quill.focus();
+                    } catch (error) {
+                        console.warn('커서 설정 중 오류:', error);
+                        quill.focus();
+                    }
+                }, 50);
+            });
         },
         createPost() {
-            if(this.postTitle == null) {
+            if(!this.postTitle || this.postTitle.trim() === '') {
                 this.$toastr.warning("게시글 제목을 입력해주세요")
                 const title = document.getElementById("post-title")          
                 if(title) {
@@ -153,10 +205,12 @@ export default {
                 }  
                 return
             }
-            if (this.postContent && this.postContent.toString() === String.toString()) {
+            
+            if (!this.postContent || this.postContent.trim() === '' || this.postContent === '<p><br></p>') {
                 this.$toastr.warning("게시글 내용을 입력해주세요")
                 return;
             }
+
             const formdata = new FormData()
             Object.entries(this.imageMap).forEach(([key, value]) => {
                 if (value instanceof File) {
@@ -166,13 +220,15 @@ export default {
                 }
             });
 
+            // HTML 내용에서 이미지 src를 랜덤 문자열로 교체
             var content = this.postContent.replace(/<img([^>]+)src="([^"]+)"([^>]*)>/g, (match, before, src, after) => {
                 const imageId = Object.keys(this.imageMap).find(key => this.imageMap[key] === src);
                 if (imageId) {
-                    return `<img${before}src="${imageId}"${after}>`;
+                    return `<br><img${before}src="${imageId}"${after} alt="image" width="400" height="auto"/>`;
                 }
                 return match;
             });
+
             const data = {
                 title: this.postTitle,
                 groupSeq: this.groupSeq,
@@ -184,11 +240,10 @@ export default {
 
             formdata.append('data', JSON.stringify(data));
 
-            axios.post("/api/post/board", formdata
-                , {
-                    headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
-                    }
+            axios.post("/api/post/board", formdata, {
+                headers: {
+                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                }
             }).then((r) => {
                 this.$router.push({ 
                     name: 'boardJamye',
@@ -268,7 +323,6 @@ export default {
             }).then(r => {
                 this.searchResults = r.data.data
             })   
-                
         },
         addTag(tag) {
             const duplicateCheck = this.selectedTags.filter(it => it.tagName == tag.tagName)
@@ -281,31 +335,51 @@ export default {
         removeTag(index) {
             this.selectedTags.splice(index, 1);
         }
-  }
+    }
 }
 </script>
+
 <style>
 @import url("/src/css/tag.css");
+
 .btn-post {
     margin-top: 5px;
 }
+
 .post-container {
-  width: 100%;
-  max-width: 600px;
-  height: 900px;
-  margin: 0 auto;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    margin-bottom: 20px;
 }
 
-.post-input {
-  width: 100%;
-  height: 880px;
-  resize: none;
-  overflow-y: auto;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
+/* Quill 에디터 커스텀 스타일 */
+.ql-editor {
+    min-height: 300px;
+    font-size: 16px;
 }
 
+.ql-toolbar {
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
 
+.ql-container {
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    max-height: 300px;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .ql-toolbar {
+        padding: 8px;
+    }
+    
+    .ql-toolbar .ql-formats {
+        margin-right: 8px;
+    }
+}
 </style>
