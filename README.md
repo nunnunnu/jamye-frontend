@@ -6,7 +6,7 @@
 
 백엔드 주소: https://jamye-backend.o-r.kr
 
-구글 플레이스토어: (심사중)
+구글 플레이스토어: https://play.google.com/store/apps/details?id=com.jamye.android&pcampaignid=web_share
 
   
 잼얘가챠는 친구들과의 추억을 메시지나 게시글 형식으로 저장하고,
