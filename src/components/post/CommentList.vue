@@ -78,14 +78,14 @@ export default {
         }
     },
     created() {
-        this.userSeq = this.$cookies.get('sequence');
+        this.userSeq = localStorage.getItem('sequence');
         this.getCommentList()
     },
     methods: {
         getCommentList() {
             axios.get(`/api/comment/${this.groupSeq}/${this.postSeq}`, {
               headers: {
-                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then(r => {
                 this.comments = r.data.data
@@ -101,7 +101,7 @@ export default {
                 replySeq: this.replyUserSeq
             }, {
               headers: {
-                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then(() => {
             this.getCommentList()
@@ -125,14 +125,14 @@ export default {
                 comment: comment.comment
             }, {
               headers: {
-                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           })
         },
         deleteComment(commentSeq) {
             axios.delete(`/api/comment/${this.groupSeq}/${this.postSeq}/${commentSeq}`, {
               headers: {
-                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then( () => {
             this.getCommentList()

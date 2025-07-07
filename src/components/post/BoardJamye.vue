@@ -7,7 +7,7 @@
             <h1 class="title">{{ board.title }}</h1>
         </div>
         <div class="create-user">작성자: {{ board.createdUserNickName }}</div>
-        <div class="editModeOpen" v-if="!isEditing && board.createdUserSequence == $cookies.get('sequence')">
+        <div class="editModeOpen" v-if="!isEditing && board.createdUserSequence === localStorage.getItem('sequence')">
             <button @click="editMode" class="btn btn-dark btn-area">수정</button>
             <button @click="deletePost" class="btn btn-dark btn-area">삭제</button>
             <div class="tag-list">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div v-else-if="isEditing && board.createdUserSequence == $cookies.get('sequence')">
+        <div v-else-if="isEditing && board.createdUserSequence === localStorage.getItem('sequence')">
             <button type="button" class="btn btn-dark btn-area" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
             <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
             <button @click="toggleInput" class="btn btn-dark btn-area">
@@ -159,7 +159,7 @@ export default {
         } else {
             axios.get(`/api/post/${this.groupSeq}/${this.postSeq}`, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -208,7 +208,7 @@ export default {
             axios.post(`/api/post/board/${this.groupSeq}/${this.postSeq}`, formdata,
                 {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        Authorization: `Bearer `+localStorage.getItem('accessToken')
                     }
                 }
             ).then(r => {
@@ -311,7 +311,7 @@ export default {
         deletePost() {
             axios.delete(`/api/post/${this.groupSeq}/${this.postSeq}`, {
               headers: {
-                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then( () => {
                 this.$router.push("/jamye-list")
@@ -385,7 +385,7 @@ export default {
             const safeParam = encodeURIComponent(this.searchTerm);
             axios.get(`/api/post/tag/all/${this.groupSeq}?keyword=${safeParam}`, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 },
                 skipLoading: true 
             }).then(r => {

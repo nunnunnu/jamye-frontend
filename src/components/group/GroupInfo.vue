@@ -182,10 +182,10 @@ export default {
             this.$router.push("/login")
             return
         }
-        this.userSequence = this.$cookies.get("sequence")
+        this.userSequence = localStorage.getItem("sequence")
         axios.get("/api/group/"+this.seq, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -202,7 +202,7 @@ export default {
         deleteGroupVote() {
             axios.delete("/api/group/"+this.seq, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -210,8 +210,8 @@ export default {
                     this.$toastr.success("그룹이 삭제 완료되었습니다")
                     this.$router.push("/groups")
                     this.voteInfo = null
-                    if(this.$cookies.get("groupSeq") == this.seq) {
-                        this.$cookies.remove("groupSeq")
+                    if(localStorage.getItem("groupSeq") == this.seq) {
+                        localStorage.removeItem("groupSeq")
                     }
                 } else {
                     this.$toastr.success("삭제 투표가 시작되었습니다. 과반수 이상 동의시 모든 그룹 내 모든 게시글이 삭제됩니다.")
@@ -224,7 +224,7 @@ export default {
         getInviteCode() {
             axios.get("/api/group/invite/"+this.seq, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r=> {
@@ -238,7 +238,7 @@ export default {
         isGroupDeletionVoteInProgress() {
             axios.get("/api/group/vote-info/"+this.seq, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(r => {
                 this.voteInfo = r.data.data
@@ -247,7 +247,7 @@ export default {
         editUserName() {
             axios.get("/api/group/user/" + this.groupInfo.groupSequence, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -257,7 +257,7 @@ export default {
         resetGroup() {
             axios.get("/api/group/"+this.seq, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -284,7 +284,7 @@ export default {
             }
             axios.post("/api/group/"+this.seq, formdata, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(r => {
                 const group = r.data.data

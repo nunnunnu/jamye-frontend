@@ -20,7 +20,7 @@
 
                 axios.get("/discord/oauth/callback?code="+code, {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        Authorization: `Bearer `+localStorage.getItem('accessToken')
                     }
             })
                 .then((r)=>{

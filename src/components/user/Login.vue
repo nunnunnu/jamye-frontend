@@ -59,13 +59,13 @@ export default {
             }
         },
         created() {
-            if(this.$cookies.get("accessToken")!=null){
+            if(localStorage.getItem("accessToken")!=null){
                 this.$toastr.warning("이미 로그인되었습니다.")
                 this.$router.go(-1);
             }
-            if(this.$cookies.get("saveId") !==null) {
+            if(localStorage.getItem("saveId") !==null) {
                 this.idSave=true
-                this.id = this.$cookies.get("saveId")
+                this.id = localStorage.getItem("saveId")
             }
             
         },
@@ -112,20 +112,20 @@ export default {
                             return;
                         }
                         
-                        this.$cookies.set('accessToken', accessToken);
-                        this.$cookies.set('refreshToken', refreshToken);
-                        this.$cookies.set('id', response.data.data.id);
-                        this.$cookies.set('sequence', response.data.data.sequence);
+                        localStorage.setItem('accessToken', accessToken);
+                        localStorage.setItem('refreshToken', refreshToken);
+                        localStorage.setItem('id', response.data.data.id);
+                        localStorage.setItem('sequence', response.data.data.sequence);
                         if(this.idSave) {
-                            this.$cookies.set("saveId", response.data.data.id)
+                            localStorage.setItem("saveId", response.data.data.id)
                         } else {
-                            this.$cookies.remove("saveId")
+                            localStorage.removeItem("saveId")
                         }
                         this.$emit("isLoginChange", true)
                         this.id = null
                         this.pwd = null
-                        if (this.$cookies.get('beforePage') != null) {
-                            this.$cookies.remove('beforePage');
+                        if (localStorage.getItem('beforePage') != null) {
+                            localStorage.removeItem('beforePage');
                             this.$router.push("/");
                         } else {
                             this.$router.go(-1);
@@ -134,7 +134,7 @@ export default {
                     .catch(error => {
                         if (error.response) {
                             this.$toastr.error(error.response.data.message);
-                            this.id = this.$cookies.get("saveId")
+                            this.id = localStorage.getItem("saveId")
                             this.pwd = null
                         } else {
                             console.log("login error:", JSON.stringify(error));
@@ -194,10 +194,10 @@ export default {
                                             return;
                                         }
                                         
-                                        self.$cookies.set('accessToken', accessToken);
-                                        self.$cookies.set('refreshToken', refreshToken);
-                                        self.$cookies.set('id', response.data.data.id);
-                                        self.$cookies.set('sequence', response.data.data.sequence);
+                                        localStorage.setItem('accessToken', accessToken);
+                                        localStorage.setItem('refreshToken', refreshToken);
+                                        localStorage.setItem('id', response.data.data.id);
+                                        localStorage.setItem('sequence', response.data.data.sequence);
                                         self.$emit("isLoginChange", true)
                                         console.log("status:" + state)
                                         // setTimeout(() => {
@@ -242,10 +242,10 @@ export default {
                         return;
                     }
                     
-                    this.$cookies.set('accessToken', accessToken);
-                    this.$cookies.set('refreshToken', refreshToken);
-                    this.$cookies.set('id', response.data.data.id);
-                    this.$cookies.set('sequence', response.data.data.sequence);
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
+                    localStorage.setItem('id', response.data.data.id);
+                    localStorage.setItem('sequence', response.data.data.sequence);
                     this.$emit("isLoginChange", true)
                     setTimeout(() => {
                         this.$router.push("/");

@@ -450,7 +450,7 @@ export default {
         }
     },
     created() {
-        this.groupSeq = this.$cookies.get("groupSeq")
+        this.groupSeq = localStorage.getItem("groupSeq")
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
@@ -460,7 +460,7 @@ export default {
         } else {
             axios.get("/api/group/name/" + this.groupSeq, {
               headers: {
-              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then(r => {
             this.groupName = r.data.data.name
@@ -491,7 +491,7 @@ export default {
             const nicknameParam = [...this.nicknames].join(',');
             axios.post("/api/post/message-text?sendUser=" + nicknameParam, formdata, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -930,7 +930,7 @@ export default {
             
                 axios.post("/api/post/message", formdata, {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        Authorization: `Bearer `+localStorage.getItem('accessToken')
                     }
                 }).then((r) => {
                     this.$router.push({ 
@@ -943,7 +943,7 @@ export default {
         groupUserList() {
             axios.get("/api/group/users/" + this.groupSeq, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -1312,7 +1312,7 @@ export default {
             const safeParam = encodeURIComponent(this.searchTerm);
             axios.get(`/api/post/tag/all/${this.groupSeq}?keyword=${safeParam}`, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 },
                 skipLoading: true 
             }).then(r => {

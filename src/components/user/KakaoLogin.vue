@@ -36,10 +36,10 @@ export default {
                 return;
             }
             
-            this.$cookies.set('accessToken', accessToken);
-            this.$cookies.set('refreshToken', refreshToken);
-            this.$cookies.set('id', response.data.data.id);
-            this.$cookies.set('sequence', response.data.data.sequence);
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('id', response.data.data.id);
+            localStorage.setItem('sequence', response.data.data.sequence);
             this.$emit("isLoginChange", true)
             console.log("status:" + state)
             // setTimeout(() => {

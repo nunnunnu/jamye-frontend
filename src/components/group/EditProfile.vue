@@ -94,7 +94,7 @@ export default{
             }
             axios.post(`/api/group/${this.selectGroup.groupSequence}/${this.groupNickNameInfo.groupUserSequence}?nickName=${this.newNickName}`, formData, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+localStorage.getItem('accessToken'),
                 }
             })
             .then(() => {

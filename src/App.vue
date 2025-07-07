@@ -40,8 +40,8 @@ export default {
           this.connectWebSocket()
           this.socketRead()
           console.log("1차 테스트 - firebase")
-          const accessToken = this.$cookies.get('accessToken')
-          const fcmToken = this.$cookies.get("fcmToken")
+          const accessToken = localStorage.getItem('accessToken')
+          const fcmToken = localStorage.getItem("fcmToken")
           cordovaSetFcmToken(accessToken, fcmToken)
         } else {
           if (this.stompClient && this.stompClient.connected) {
@@ -54,7 +54,7 @@ export default {
       }
     },
     created() {
-        this.isLogin = this.$cookies.get('accessToken') !== null;
+        this.isLogin = localStorage.getItem('accessToken') !== null;
         if(this,this.isLogin) {
           this.socketRead()
 
@@ -77,7 +77,7 @@ export default {
       socketRead() {
         axios.get('/api/user/no-read', {
               headers: {
-              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           })
           .then(response => {
@@ -88,7 +88,7 @@ export default {
           });
           axios.get('/api/group/all/delete-vote-info', {
               headers: {
-              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           })
           .then(r => {
@@ -110,7 +110,7 @@ export default {
         console.log("🔹 WebSocket 연결 시도...");
         const socket = new SockJS(BASE_URL + '/ws');  
         this.stompClient = Stomp.over(socket)
-        const userSeq = this.$cookies.get('sequence');
+        const userSeq = localStorage.getItem('sequence');
         this.stompClient.connect(
           {},
           () => {

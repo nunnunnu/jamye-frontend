@@ -41,11 +41,11 @@ export default {
         leaveGroup() {
             axios.post("/api/group/leave/" + this.group.groupSequence, {}, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+localStorage.getItem('accessToken'),
                 }
             }).then(() => {
-                if(this.$cookies.get("groupSeq") == this.group.groupSequence) {
-                    this.$cookies.remove("groupSeq")
+                if(localStorage.getItem("groupSeq") == this.group.groupSequence) {
+                    localStorage.removeItem("groupSeq")
                 }
                 const modalInstance = Modal.getInstance(document.getElementById('leaveGroup'))
                 if (modalInstance) modalInstance.hide()

@@ -40,7 +40,7 @@ export default {
         getNotiftList() {
             axios.get("/api/user/notify", {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                        Authorization: `Bearer `+localStorage.getItem('accessToken'),
                     }
             }).then(r => {
                 this.notifyList = r.data.data
@@ -154,7 +154,7 @@ export default {
 
                                             axios.get("/discord/oauth/callback?code="+code, {
                                                 headers: {
-                                                    Authorization: `Bearer `+self.$cookies.get('accessToken')
+                                                    Authorization: `Bearer `+ localStorage.getItem('accessToken')
                                                 }
                                         })
                                             .then((r)=>{
@@ -167,14 +167,14 @@ export default {
                                                     self.$router.push("/notify-box")
                                                 } else {
                                                     console.log("디스코드 redirect 웹 ver")
-                                                    this.$cookies.set('accessToken', accessToken)
+                                                    localStorage.setItem('accessToken', accessToken)
                                                 }
                                         }
                                     });
                     })
                 }).catch(() => this.$toastr.error("현재 디스코드 연동을 사용할 수 없습니다. 운영자에게 문의해주세요."))
                 console.log("성공")
-                this.$cookies.set('accessToken', accessToken)
+                localStorage.setItem('accessToken', accessToken)
             } else {
                 axios.get("/discord/client-id").then(r => {
                     const url = `${authUrl}?client_id=${r.data.data}&response_type=${response_type}&redirect_uri=${redirect_uri}&scope=${scope}`;

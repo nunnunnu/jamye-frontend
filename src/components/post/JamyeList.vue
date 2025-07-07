@@ -138,7 +138,7 @@ export default{
         }
     },
     created() {
-        this.groupSeq = this.$cookies.get("groupSeq")
+        this.groupSeq = localStorage.getItem("groupSeq")
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 조회 가능합니다.")
             this.$router.push("/login")
@@ -149,7 +149,7 @@ export default{
         } else {
             axios.get("/api/group/name/" + this.groupSeq, {
               headers: {
-              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then(r => {
             this.groupName = r.data.data.name
@@ -167,7 +167,7 @@ export default{
                 + (this.types == null || this.types.size == 0 ? "" : `&types=${Array.from(this.types).join(", ")}`)
             , {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        Authorization: `Bearer `+localStorage.getItem('accessToken')
                     },
                     skipLoading: true 
                 }).then(r => {
@@ -203,7 +203,7 @@ export default{
 
                 axios.get(`/api/group/${this.groupSeq}/all-post/count`, {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        Authorization: `Bearer `+localStorage.getItem('accessToken')
                     },
                     skipLoading: true 
                 }).then(r => {
@@ -248,7 +248,7 @@ export default{
         tagList() {
             axios.get(`/api/post/tag/${this.groupSeq}?page=${this.tagPage}`, {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        Authorization: `Bearer `+localStorage.getItem('accessToken')
                     }
             }).then(r => {
                 r.data.data.content.forEach(item => this.tags.add(item))

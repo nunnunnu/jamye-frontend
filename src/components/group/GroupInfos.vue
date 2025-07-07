@@ -69,7 +69,7 @@ export default {
         loadMyGroupList() {
             axios.get("/api/group/list", {
                 headers: {
-                    Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
                 }
             })
             .then((response) => {

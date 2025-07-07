@@ -51,7 +51,7 @@ export default {
         }
         axios.get("/api/user", {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
         }).then(r => {
             this.userInfo = r.data.data
@@ -67,7 +67,7 @@ export default {
                 password: this.originPassword
             }, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+localStorage.getItem('accessToken'),
             }}).then(() => {
                 this.passwordChecked = true
             })
@@ -86,7 +86,7 @@ export default {
                 oldPassword: this.originPassword
             }, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+localStorage.getItem('accessToken'),
             }}).then(() => {
                 this.$toastr.success("비밀번호 변경 성공")
                 this.$router.push("/")

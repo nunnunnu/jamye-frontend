@@ -101,10 +101,10 @@ export default {
             this.$router.push("/login")
             return
         }
-        this.userSeq = this.$cookies.get("sequence")
+        this.userSeq = localStorage.getItem("sequence")
         axios.get("/api/user", {
             headers: {
-                Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                Authorization: `Bearer `+localStorage.getItem('accessToken'),
             }
         }).then(r => {
             this.userInfo = r.data.data
@@ -116,16 +116,16 @@ export default {
         logout() {
             axios.post("/api/user/logout", {}, {
               headers: {
-                Authorization: `Bearer ${this.$cookies.get('accessToken')}`,
-                refreshToken: this.$cookies.get("refreshToken")
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                refreshToken: localStorage.getItem("refreshToken")
               },
             })
             this.$emit('handleLogout');
-            this.$cookies.remove("accessToken")
-            this.$cookies.remove("refreshToken")
-            this.$cookies.remove("id")
-            this.$cookies.remove("sequence")
-            this.$cookies.remove("groupSeq")
+            localStorage.removeItem("accessToken")
+            localStorage.removeItem("refreshToken")
+            localStorage.removeItem("id")
+            localStorage.removeItem("sequence")
+            localStorage.removeItem("groupSeq")
             this.$router.push("/")
             this.$emit("groupSelect", null)
             this.$emit('isLoginChange', false)
@@ -133,7 +133,7 @@ export default {
         loadMyGroupList() {
             axios.get("/api/group/list", {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then((response) => {
@@ -148,7 +148,7 @@ export default {
             this.selectGroup = group
             axios.get("/api/group/user/" + group.groupSequence, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -163,13 +163,11 @@ export default {
                 password: this.passwordCheck
             }, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+localStorage.getItem('accessToken'),
                 }
             }).then(() => {
                 this.$toastr.success("탈퇴되었습니다.")
-                this.$cookies.keys().forEach(cookie => {
-                    this.$cookies.remove(cookie);
-                });
+                localStorage.clear();
                 this.$emit('isLoginChange', false)
                 this.$router.push("/")
                 if (this.stompClient && this.stompClient.connected) {

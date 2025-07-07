@@ -142,13 +142,13 @@ export default {
         },
         groupSelect(group) {
             this.$emit("groupSelect", group)
-            this.$cookies.set("groupSeq", group.groupSequence)
+            localStorage.setItem("groupSeq", group.groupSequence)
             this.getGroupInfo(group.groupSequence)
         },
         groupList() {
             axios.get("/api/group/list", {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then (r => {
                 this.groupInfos = r.data.data
@@ -162,7 +162,7 @@ export default {
     
             axios.get("/api/post/lucky-draw/" + this.currentGroup.groupSequence, {
             headers: {
-                    Authorization: `Bearer ` + this.$cookies.get('accessToken')
+                    Authorization: `Bearer ` + localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -217,7 +217,7 @@ export default {
         onBeg() {
             axios.post(`/api/group/${this.currentGroup.groupSequence}/panhandling`, {}, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(() => {
                 this.$toastr.success("잼얘 독촉 성공")
@@ -231,12 +231,12 @@ export default {
             console.log(groupSeq)
             axios.get("/api/group/name/" + groupSeq, {
               headers: {
-              Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then(r => {
                 this.currentGroup = r.data.data
           }).catch(() => {
-            this.$cookies.remove("groupSeq")
+            localStorage.removeItem("groupSeq")
           }) 
         }
     },
@@ -247,7 +247,7 @@ export default {
         }
     },
     created() {
-        const groupSeq = this.$cookies.get("groupSeq")
+        const groupSeq = localStorage.getItem("groupSeq")
         if(groupSeq != null) {
             this.getGroupInfo(groupSeq)
         }

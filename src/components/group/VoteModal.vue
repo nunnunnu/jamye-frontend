@@ -53,7 +53,7 @@ export default {
         voteAdd(voteType) {
             axios.post(`/api/group/vote/${voteType}/${this.groupSeq}`,  {
                 headers: {
-                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
             }}).then(
                 this.$toastr.success("그룹 삭제 투표가 완료되었습니다.")
             ).catch(this.$toastr.error("그룹 삭제 투표에 참가할 수 없습니다."))

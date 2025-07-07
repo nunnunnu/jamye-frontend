@@ -97,7 +97,7 @@ export default {
             }
             axios.get("/api/group/group-info/"+this.inviteCodeCopy, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(resposne => {
@@ -160,7 +160,7 @@ export default {
                 "profileImageUrl": this.profileimageSrc
             }, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(() => {
                 this.modalClose()  
@@ -175,7 +175,7 @@ export default {
         nickNameCheck() {
             axios.get(`/api/group/${this.groupInfo.groupSequence}/nick-name?nickName=${this.nickname}`, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(() => {
                 this.nickNameDupCheck = true

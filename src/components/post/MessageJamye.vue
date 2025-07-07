@@ -7,7 +7,7 @@
             <h1 class="title">{{ message.title }}</h1>
         </div>
         <div class="create-user">작성자: {{ message.createdUserNickName }}</div>
-        <div class="editModeOpen" v-if="isEditing == null && message.createdUserSequence == $cookies.get('sequence')">
+        <div class="editModeOpen" v-if="isEditing == null && message.createdUserSequence === localStorage.getItem('sequence')">
             <button @click="editMode" class="btn btn-dark btn-area">수정</button>
             <button @click="deletePost" class="btn btn-dark btn-area">삭제</button>
             <div class="tag-list">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div class="editMode" v-if="isEditing != null && message.createdUserSequence == $cookies.get('sequence')">
+        <div class="editMode" v-if="isEditing != null && message.createdUserSequence === localStorage.getItem('sequence')">
             <div>
                 <div class="row g-2">
                     <div class="col-auto">
@@ -606,7 +606,7 @@ export default {
         } else {
             axios.get(`/api/post/${this.groupSeq}/${this.postSeq}`, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -650,7 +650,7 @@ export default {
             ,
                 {
                     headers: {
-                        Authorization: `Bearer `+this.$cookies.get('accessToken')
+                        Authorization: `Bearer `+localStorage.getItem('accessToken')
                     }
                 }
             ).catch(e => {
@@ -1003,7 +1003,7 @@ export default {
         groupNickNameInfo() {
             axios.get("/api/group/users/" + this.groupSeq, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -1048,7 +1048,7 @@ export default {
                 "createInfo": Array.from(this.addNickNameSet)
             }, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {
@@ -1377,7 +1377,7 @@ export default {
         deletePost() {
             axios.delete(`/api/post/${this.groupSeq}/${this.postSeq}`, {
               headers: {
-                Authorization: `Bearer ${this.$cookies.get('accessToken')}`
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then( () => {
                 this.$router.push("/jamye-list")
@@ -1451,7 +1451,7 @@ export default {
             const safeParam = encodeURIComponent(this.searchTerm);
             axios.get(`/api/post/tag/all/${this.groupSeq}?keyword=${safeParam}`, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 },
                 skipLoading: true 
             }).then(r => {
@@ -1583,7 +1583,7 @@ export default {
             const nicknameParam = Object.values(this.nickNameMap).map(user => user.nickName);
             axios.post("/api/post/message-text?sendUser=" + nicknameParam, formdata, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             })
             .then(r => {

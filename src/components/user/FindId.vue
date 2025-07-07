@@ -55,7 +55,7 @@
         }
     },
     created() {
-       this.isLogin = this.$cookies.get('accessToken') !== null;
+       this.isLogin = localStorage.getItem('accessToken') !== null;
         if(this.isLogin) {
           this.$toastr.warning("이미 로그인 하셨습니다.")
           this.$router.push("/")

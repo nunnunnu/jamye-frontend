@@ -98,7 +98,7 @@ export default {
 
             axios.post("/api/group", formdata, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken')
+                    Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(() => {
                 const modalInstance = Modal.getInstance(document.getElementById('exampleModal1'))
