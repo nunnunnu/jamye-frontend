@@ -58,7 +58,7 @@ export default {
         readNotify(notify) {
             axios.post("/api/user/notify/" + notify.notifySeq, {}, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+ localStorage.getItem('accessToken'),
                 }
         }).then(() => {
             notify.isRead = true
@@ -70,7 +70,7 @@ export default {
         goToPost(groupSeq, postSeq) {
             axios.get(`/api/post/title/${groupSeq}/${postSeq}`, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+ localStorage.getItem('accessToken'),
                 }}
             ).then(r => {
                 const postInfo = r.data.data
@@ -96,7 +96,7 @@ export default {
         allNotifyRead() {
             axios.post("/api/user/notify/read/all", {}, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+ localStorage.getItem('accessToken'),
                 }})
                 .then(() => {
                     this.isNoRead = false
@@ -107,7 +107,7 @@ export default {
         allReadNotifyDelete() {
             axios.delete("/api/user/notify/read/delete", {}, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+ localStorage.getItem('accessToken'),
                 }})
                 .then(() => {
                     this.getNotiftList()
@@ -116,7 +116,7 @@ export default {
         deleteNotify(notifySeq) {
             axios.delete("/api/user/notify/delete/" + notifySeq, {}, {
                 headers: {
-                    Authorization: `Bearer `+this.$cookies.get('accessToken'),
+                    Authorization: `Bearer `+ localStorage.getItem('accessToken'),
                 }})
                 .then(() => {
                     this.getNotiftList()
@@ -129,7 +129,7 @@ export default {
             
             const scope = "identify"
             console.log("window.cordova:"+window.cordova)
-            const accessToken =this.$cookies.get('accessToken');
+            const accessToken = localStorage.getItem('accessToken');
             if (typeof window.cordova !== 'undefined') {
                 const state = 'app';
                 axios.get("/discord/client-id").then(r => {

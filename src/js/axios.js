@@ -5,7 +5,9 @@ import { toast } from '@/main';
 
 let activeRequests = 0;
 let loadingCallback = null;
-console.log("BASE_URL:"+BASE_URL)
+
+console.log("BASE_URL:" + BASE_URL);
+
 const instance = axios.create({
   baseURL: BASE_URL
 });
@@ -27,54 +29,56 @@ instance.interceptors.response.use((response) => {
   if (activeRequests === 0 && loadingCallback) loadingCallback(false); // 로딩 종료
   return response;
 }, async (error) => {
-    activeRequests--;
-    console.log("error:"+JSON.stringify(error.response))
-    if (error.response && error.response.status === 403) {
-      const match = document.cookie.match('(^|;) ?refreshToken=([^;]*)(;|$)');
-      const refreshToken = match ? match[2] : null;
-      if(refreshToken == null) {
-        toast.error("로그인을 먼저 해주세요")
-          document.cookie = encodeURIComponent("accessToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-          document.cookie = encodeURIComponent("refreshToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-          document.cookie = encodeURIComponent("id") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-          document.cookie = encodeURIComponent("sequence") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-          document.cookie = encodeURIComponent("groupSeq") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-          
-          router.push("/login");
-          return
-      }
-      try {
-        const refreshResponse = await instance.post('/api/user/refresh', {
-          refreshToken: refreshToken
-        });
-        var date = new Date();
-        date.setTime(date.getTime() + 24 * 60 * 60 * 1000); 
-        document.cookie = encodeURIComponent("accessToken") + '=' + encodeURIComponent(refreshResponse.data.data.accessToken) + ';expires=' + date.toUTCString() + ';path=/';
-        
-        error.config.headers['Authorization'] = `Bearer ${refreshResponse.data.data.accessToken}`
-        return instance.request(error.config)
-      } catch (refreshError) {
-        if(refreshError.response.data.code == 'NON_EXISTENT_USER') {
-          toast.error("잘못된 접근입니다. 다시 로그인해주세요")
-        } else if(refreshError.response.data.code == 'SESSION_EXPIRED') {
-          toast.error("다시 로그인해주세요.")
-        }
-        
-        document.cookie = encodeURIComponent("accessToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-        document.cookie = encodeURIComponent("refreshToken") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-        document.cookie = encodeURIComponent("id") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-        document.cookie = encodeURIComponent("sequence") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-        document.cookie = encodeURIComponent("groupSeq") + '=; expires=Thu, 01 JAN 1999 00:00:10 GMT';
-        
-        router.push("/login");
-        return
-      }
-    } else if(error.response.status >= 500){
-      toast.error("알수없는 오류입니다. 운영자에게 문의해주세요.")
+  activeRequests--;
+  console.log("error:" + JSON.stringify(error.response));
+
+  if (error.response && error.response.status === 403) {
+    const refreshToken = localStorage.getItem('refreshToken'); // 수정함
+    if (refreshToken == null) {
+      toast.error("로그인을 먼저 해주세요");
+
+      localStorage.removeItem("accessToken"); // 수정함
+      localStorage.removeItem("refreshToken"); // 수정함
+      localStorage.removeItem("id"); // 수정함
+      localStorage.removeItem("sequence"); // 수정함
+      localStorage.removeItem("groupSeq"); // 수정함
+
+      router.push("/login");
+      return;
     }
-      
-    if (activeRequests === 0 && loadingCallback) loadingCallback(false); 
-    return Promise.reject(error);
+
+    try {
+      const refreshResponse = await instance.post('/api/user/refresh', {
+        refreshToken: refreshToken
+      });
+
+      const newAccessToken = refreshResponse.data.data.accessToken;
+      localStorage.setItem("accessToken", newAccessToken); // 수정함
+
+      error.config.headers['Authorization'] = `Bearer ${newAccessToken}`; // 수정함
+      return instance.request(error.config);
+    } catch (refreshError) {
+      if (refreshError.response?.data?.code === 'NON_EXISTENT_USER') {
+        toast.error("잘못된 접근입니다. 다시 로그인해주세요");
+      } else if (refreshError.response?.data?.code === 'SESSION_EXPIRED') {
+        toast.error("다시 로그인해주세요.");
+      }
+
+      localStorage.removeItem("accessToken"); // 수정함
+      localStorage.removeItem("refreshToken"); // 수정함
+      localStorage.removeItem("id"); // 수정함
+      localStorage.removeItem("sequence"); // 수정함
+      localStorage.removeItem("groupSeq"); // 수정함
+
+      router.push("/login");
+      return;
+    }
+  } else if (error.response?.status >= 500) {
+    toast.error("알수없는 오류입니다. 운영자에게 문의해주세요.");
+  }
+
+  if (activeRequests === 0 && loadingCallback) loadingCallback(false);
+  return Promise.reject(error);
 });
 
 export default instance;

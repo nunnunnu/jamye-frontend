@@ -7,7 +7,7 @@
             <h1 class="title">{{ message.title }}</h1>
         </div>
         <div class="create-user">작성자: {{ message.createdUserNickName }}</div>
-        <div class="editModeOpen" v-if="isEditing == null && message.createdUserSequence === localStorage.getItem('sequence')">
+        <div class="editModeOpen" v-if="isEditing == null && message.createdUserSequence == userSeq">
             <button @click="editMode" class="btn btn-dark btn-area">수정</button>
             <button @click="deletePost" class="btn btn-dark btn-area">삭제</button>
             <div class="tag-list">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div class="editMode" v-if="isEditing != null && message.createdUserSequence === localStorage.getItem('sequence')">
+        <div class="editMode" v-if="isEditing != null && message.createdUserSequence == useqSeq">
             <div>
                 <div class="row g-2">
                     <div class="col-auto">
@@ -588,7 +588,8 @@ export default {
             searchTerm: "",
             searchResults: [],
             messageImage: null,
-            replyOriginMessage: null
+            replyOriginMessage: null,
+            userSeq: null,
         }   
     },
     props: {
@@ -604,6 +605,7 @@ export default {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
         } else {
+            this.userSeq = localStorage.getItem("sequence")
             axios.get(`/api/post/${this.groupSeq}/${this.postSeq}`, {
                 headers: {
                     Authorization: `Bearer `+localStorage.getItem('accessToken')

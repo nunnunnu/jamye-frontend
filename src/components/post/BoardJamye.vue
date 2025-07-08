@@ -7,7 +7,7 @@
             <h1 class="title">{{ board.title }}</h1>
         </div>
         <div class="create-user">작성자: {{ board.createdUserNickName }}</div>
-        <div class="editModeOpen" v-if="!isEditing && board.createdUserSequence === localStorage.getItem('sequence')">
+        <div class="editModeOpen" v-if="!isEditing && board.createdUserSequence == userSeq">
             <button @click="editMode" class="btn btn-dark btn-area">수정</button>
             <button @click="deletePost" class="btn btn-dark btn-area">삭제</button>
             <div class="tag-list">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div v-else-if="isEditing && board.createdUserSequence === localStorage.getItem('sequence')">
+        <div v-else-if="isEditing && board.createdUserSequence == userSeq">
             <button type="button" class="btn btn-dark btn-area" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
             <image-box :type="'POST'" :cursorPosition= "this.cursorPosition" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @addImageAtCursor="addImageAtCursor"></image-box>
             <button @click="toggleInput" class="btn btn-dark btn-area">
@@ -102,6 +102,7 @@ export default {
     data() {
         return {
             board: {},
+            userSeq: null,
             isEditing: false,
             previewImage: null,
             isPreviewOpen: false,
@@ -157,6 +158,7 @@ export default {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
         } else {
+            this.sequence = localStorage.getItem('sequence');
             axios.get(`/api/post/${this.groupSeq}/${this.postSeq}`, {
                 headers: {
                     Authorization: `Bearer `+localStorage.getItem('accessToken')
@@ -172,7 +174,6 @@ export default {
                 this.$router.push("/jamye-list")
             })
         }
-
     },
     methods: {
         editMode() {
