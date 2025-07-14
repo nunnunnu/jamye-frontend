@@ -173,6 +173,7 @@ export default {
                 this.$toastr.error("잘못된 게시글 번호입니다.")
                 this.$router.push("/jamye-list")
             })
+            this.userSeq = localStorage.getItem('sequence');
         }
     },
     methods: {
