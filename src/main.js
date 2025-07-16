@@ -8,11 +8,16 @@ import toastr from 'toastr'
 import 'toastr/build/toastr.min.css'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
+import Vue3Tour from 'vue3-tour'
+import 'vue3-tour/dist/vue3-tour.css'
+
+
 const app = createApp(App)
 app.use(router).use(bootstrap)
 app.config.globalProperties.$http = axios
 app.use(VueCookies)
 app.$cookies.config("7d");
+app.use(Vue3Tour)
 app.mount('#app')
 
 toastr.options = {

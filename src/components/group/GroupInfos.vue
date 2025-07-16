@@ -1,10 +1,16 @@
 <template>
     <div class="b-container">
+        <v-tour
+        name="navbarTour"
+        :steps="firstSteps"
+        @finish="handleFinish"
+        @skip="handleSkip"
+      />
         <h2 class="title">그룹 정보</h2>
         <div>
             <div class="group-header">
                 <h4 class="title">내 그룹</h4>
-                <button type="button" class="btn btn-outline-danger btn-sm" @click="groupAdd">+</button>
+                <button type="button" class="btn btn-outline-danger btn-sm step1-group-create" @click="groupAdd">+</button>
             </div>
         </div>
         <div class="group-info-box-container" v-if="groups.length != 0">
@@ -35,6 +41,7 @@
 <script>
 import axios from '@/js/axios';
 import { imageUrl } from '@/js/fileScripts';
+import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
 
 export default {
     components: {
@@ -43,7 +50,14 @@ export default {
         return {
             groups: {},
             groupinfo: null,
-            userSequence: null
+            userSequence: null,
+            firstSteps: [
+                {
+                    target: ".step1-group-create",
+                    content: "초대코드가 없다면 그룹을 생성해보세요.",
+                    params: { placement: "bottom" }
+                }
+            ],
         };
     },
     props: {
@@ -62,6 +76,11 @@ export default {
         if(this.groups == 0) {
             this.$toastr.warning("소속된 그룹이 없습니다. 그룹 생성 페이지로 이동합니다.")
             this.$router.push("/add")
+        }
+    },
+      mounted() {
+        if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_CREATE) {
+        this.$tours['navbarTour'].start();
         }
     },
     methods: {
@@ -88,6 +107,12 @@ export default {
         },
         groupAdd() {
             this.$router.push("/add")
+        },
+        handleFinish() {
+            setStep(TutorialStep.GROUP_CREATE);
+        },
+        handleSkip() {
+            setStep(TutorialStep.DONE);
         },
     }
 };

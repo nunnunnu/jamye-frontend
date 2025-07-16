@@ -4,3 +4,4 @@ src/js/config.js
 jamye-app/plugins/
 jamye-app/platforms/
 jamye-app/www/
+.aider*

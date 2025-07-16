@@ -47,6 +47,7 @@
 <script>
 import { redirectBaseUrl } from '@/js/config';
 import axios from 'axios'
+import { setStep, TutorialStep } from '@/js/tutorialHelper'
 
 export default {
         name: 'loginPage',
@@ -92,6 +93,17 @@ export default {
             // })
         },
         methods: {
+            onLoginSuccess() {
+                const firstLogin = !localStorage.getItem('tutorialState')
+                if (firstLogin) {
+                    this.$toastr.success("잼얘가챠 첫 시작을 환영합니다.")
+                    setStep(TutorialStep.WELCOME)
+                    this.$router.push("/")
+                } else {
+                    this.$router.push("/")
+                }
+                return
+            },
             submitForm() {
                 if (this.id == null || this.id === undefined || this.pwd == null || this.pwd === undefined) {
                     this.$toastr.warning("아이디 혹은 비밀번호를 입력하지 않으셨습니다.");
@@ -100,7 +112,6 @@ export default {
                         id: this.id,
                         password: this.pwd
                     }
-                    console.log("무ㅓ지?")
                     axios.post('/api/user/login', param)
                     .then(response => {
                         const token = response.data.data.token;
@@ -124,6 +135,9 @@ export default {
                         this.$emit("isLoginChange", true)
                         this.id = null
                         this.pwd = null
+
+                        this.onLoginSuccess()
+                        
                         if (localStorage.getItem('beforePage') != null) {
                             localStorage.removeItem('beforePage');
                             this.$router.push("/");

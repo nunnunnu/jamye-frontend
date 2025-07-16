@@ -23,6 +23,7 @@
     "vue-cookie": "^1.1.4",
     "vue-cookies": "^1.8.4",
     "vue-router": "^4.0.13",
+    "vue3-tour": "^1.0.3",
     "vue3-websocket": "^2.2.0"
   },
   "devDependencies": {

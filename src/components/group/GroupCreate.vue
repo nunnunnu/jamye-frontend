@@ -1,4 +1,10 @@
 <template>
+    <v-tour
+        name="navbarTour"
+        :steps="firstSteps"
+        @finish="handleFinish"
+        @skip="handleSkip"
+      />
     <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -55,6 +61,8 @@
 import { Modal } from 'bootstrap';
 import axios from '@/js/axios';
 import { base64ToFile } from '@/js/fileScripts';
+import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
+
 export default {
     data() {
         return {
@@ -63,7 +71,29 @@ export default {
             groupName: '',
             nickname: '',
             step: 1,
-            profileimageSrc: null
+            profileimageSrc: null,
+            firstSteps: [
+                {
+                    target: ".step4-group-create",
+                    content: "프로필 사진을 넣는 곳입니다.",
+                    params: { placement: "bottom" }
+                },
+                {
+                    target: ".step5-group-create",
+                    content: "그룹 명을 넣는 곳입니다.",
+                    params: { placement: "bottom" }
+                },
+                {
+                    target: ".step6-group-create",
+                    content: "그룹 설명을 넣는 곳입니다.",
+                    params: { placement: "bottom" }
+                }
+            ],
+        }
+    },
+    mounted() {
+        if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_CREATE) {
+        this.$tours['navbarTour'].start();
         }
     },
     methods: {
@@ -138,7 +168,13 @@ export default {
             this.groupName = '';
             this.nickname = '';
             this.imageSrc = null;
-        }
+        },
+        handleFinish() {
+            setStep(TutorialStep.GROUP_CREATE);
+        },
+        handleSkip() {
+            setStep(TutorialStep.DONE);
+        },
     }
 }
 </script>

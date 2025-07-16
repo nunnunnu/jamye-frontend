@@ -1,12 +1,18 @@
 <template>
     <div class="b-container">
+        <v-tour
+            name="navbarTour"
+            :steps="firstSteps"
+            @finish="handleFinish"
+            @skip="handleSkip"
+        />
         <h2 class="title">그룹 추가</h2>
         <div class="group-add">
-            <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal1">
+            <button type="button" class="btn btn-dark btn-block btn-group step2-group-create" data-bs-toggle="modal" data-bs-target="#exampleModal1">
                 그룹 생성
             </button>
                 <GroupCreate @createModalClose="createModalClose"></GroupCreate>
-            <button type="button" class="btn btn-dark btn-block btn-group" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+            <button type="button" class="btn btn-dark btn-block btn-group step3-group-create" data-bs-toggle="modal" data-bs-target="#exampleModal2">
                 초대코드 입력
             </button>
                 <inviteGroup v-show="groupInviteModal" @inviteModalClose="inviteModalClose" :inviteCode="inviteCode"></inviteGroup>
@@ -17,18 +23,37 @@
 import GroupCreate from './GroupCreate.vue';
 import InviteGroup from './InviteGroup.vue';
 import { Modal } from 'bootstrap';
+import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
 
 export default {
     components: {
         GroupCreate,
         InviteGroup
     },
+    mounted() {
+        console.log('Current step:', getCurrentStep())
+        if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_CREATE) {
+        this.$tours['navbarTour'].start();
+        }
+    },
     data() {
         return {
             groupCreateModal: null,
             groupInviteModal: false,
             groupAdd: null,
-            inviteCode: null
+            inviteCode: null,
+            firstSteps: [
+                {
+                    target: ".step2-group-create",
+                    content: "초대코드가 없다면 그룹을 생성해보세요.",
+                    params: { placement: "bottom" }
+                },
+                {
+                    target: ".step3-group-create",
+                    content: "초대코드가 있다면 초대코드를 사용해 그룹에 가입해보세요",
+                    params: { placement: "bottom" }
+                }
+            ],
         };
     },
     props: {
@@ -73,7 +98,12 @@ export default {
         inviteModalOpen() {
             this.groupInviteModal = true
         },
-
+        handleFinish() {
+            setStep(TutorialStep.GROUP_CREATE);
+        },
+        handleSkip() {
+            setStep(TutorialStep.DONE);
+        },
     }
 };
 </script>
