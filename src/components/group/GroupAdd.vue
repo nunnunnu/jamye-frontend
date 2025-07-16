@@ -31,9 +31,9 @@ export default {
         InviteGroup
     },
     mounted() {
-        console.log('Current step:', getCurrentStep())
         if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_CREATE) {
-        this.$tours['navbarTour'].start();
+            console.log('start')
+            this.$tours['navbarTour'].start();
         }
     },
     data() {
@@ -51,6 +51,31 @@ export default {
                 {
                     target: ".step3-group-create",
                     content: "초대코드가 있다면 초대코드를 사용해 그룹에 가입해보세요",
+                    params: { placement: "bottom" }
+                },
+                {
+                    target: ".step4-group-create",
+                    content: "그룹의 프로필 사진을 넣는 곳입니다.",
+                    params: { placement: "right" }
+                },
+                {
+                    target: ".step5-group-create",
+                    content: "그룹 명을 넣는 곳입니다.",
+                    params: { placement: "bottom" }
+                },
+                {
+                    target: ".step6-group-create",
+                    content: "그룹 설명을 넣는 곳입니다.",
+                    params: { placement: "bottom" }
+                },
+                {
+                    target: ".step7-group-create",
+                    content: "회원님이 그룹에서 사용할 프로필 사진을 넣는 곳입니다. ",
+                    params: { placement: "bottom" }
+                },
+                {
+                    target: ".step8-group-create",
+                    content: "회원님이 그룹에서 사용할 닉네임을 넣는 곳입니다. ",
                     params: { placement: "bottom" }
                 }
             ],

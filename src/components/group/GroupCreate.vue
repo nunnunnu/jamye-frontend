@@ -1,10 +1,4 @@
 <template>
-    <v-tour
-        name="navbarTour"
-        :steps="firstSteps"
-        @finish="handleFinish"
-        @skip="handleSkip"
-      />
     <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -18,17 +12,17 @@
                         <!-- 그룹 정보 입력 화면 -->
                         <div class="upload-container">
                             <input type="file" id="imageUpload" accept="image/*" @change="previewImage" style="display: none;">
-                            <label for="imageUpload" class="upload-label">
+                            <label for="imageUpload" class="upload-label step4-group-create">
                                 <img v-if="imageSrc" :src="imageSrc" alt="Image Preview" class="image-preview" />
                                 <span v-else class="upload-icon">+</span>
                             </label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="groupName" class="group-name form-control" placeholder=" " v-model="groupName" />
+                            <input type="text" id="groupName" class="group-name step5-group-create form-control" placeholder=" " v-model="groupName" />
                             <label for="groupName" class="placeholder-label">그룹 명<span class="required">*</span></label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="groupDescription" v-model="groupDescription" class="group-description form-control group-description" placeholder=" " />
+                            <input type="text" id="groupDescription" v-model="groupDescription" class="group-description step6-group-create form-control group-description" placeholder=" " />
                             <label for="groupDescription" class="placeholder-label2">그룹 설명(200자)</label>
                         </div>
                     </template>
@@ -36,20 +30,20 @@
                         <!-- 내 프로필 생성 화면 -->
                         <div class="upload-container">
                             <input type="file" id="profileImageUpload" accept="image/*" @change="profilePreviewImage" style="display: none;">
-                            <label for="profileImageUpload" class="upload-label">
+                            <label for="profileImageUpload" class="upload-label step7-group-create">
                                 <img v-if="profileimageSrc" :src="profileimageSrc" alt="Image Preview" class="image-preview" />
                                 <span v-else class="upload-icon">+</span>
                             </label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="nickname" />
+                            <input type="text" id="nickname" class="nickname group-name form-control step8-group-create" placeholder=" " v-model="nickname" />
                             <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
                         </div>
                     </template>
                 </div>
                 <div class="modal-footer">
                     <button v-if="step === 1" type="button" class="btn btn-dark btn-block" @click="next">다음</button>
-                    <button v-if="step === 2" type="button" class="btn btn-dark btn-block" @click="create">생성</button>
+                    <button v-if="step === 2" type="button" class="btn btn-dark btn-block step9-group-create" @click="create">생성</button>
 
                 </div>
             </div>
@@ -61,7 +55,6 @@
 import { Modal } from 'bootstrap';
 import axios from '@/js/axios';
 import { base64ToFile } from '@/js/fileScripts';
-import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
 
 export default {
     data() {
@@ -72,29 +65,9 @@ export default {
             nickname: '',
             step: 1,
             profileimageSrc: null,
-            firstSteps: [
-                {
-                    target: ".step4-group-create",
-                    content: "프로필 사진을 넣는 곳입니다.",
-                    params: { placement: "bottom" }
-                },
-                {
-                    target: ".step5-group-create",
-                    content: "그룹 명을 넣는 곳입니다.",
-                    params: { placement: "bottom" }
-                },
-                {
-                    target: ".step6-group-create",
-                    content: "그룹 설명을 넣는 곳입니다.",
-                    params: { placement: "bottom" }
-                }
-            ],
         }
     },
     mounted() {
-        if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_CREATE) {
-        this.$tours['navbarTour'].start();
-        }
     },
     methods: {
         next() {
@@ -168,13 +141,7 @@ export default {
             this.groupName = '';
             this.nickname = '';
             this.imageSrc = null;
-        },
-        handleFinish() {
-            setStep(TutorialStep.GROUP_CREATE);
-        },
-        handleSkip() {
-            setStep(TutorialStep.DONE);
-        },
+        }
     }
 }
 </script>
