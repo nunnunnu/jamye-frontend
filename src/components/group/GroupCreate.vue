@@ -44,7 +44,6 @@
                 <div class="modal-footer">
                     <button v-if="step === 1" type="button" class="btn btn-dark btn-block" @click="next">다음</button>
                     <button v-if="step === 2" type="button" class="btn btn-dark btn-block step9-group-create" @click="create">생성</button>
-
                 </div>
             </div>
         </div>
@@ -57,6 +56,7 @@ import axios from '@/js/axios';
 import { base64ToFile } from '@/js/fileScripts';
 
 export default {
+    name: 'GroupCreate',
     data() {
         return {
             imageSrc: null,
@@ -67,15 +67,16 @@ export default {
             profileimageSrc: null,
         }
     },
-    mounted() {
-    },
     methods: {
         next() {
             if(this.groupName == '' || this.groupName == null || this.groupName == undefined) {
                 this.$toastr.warning("그룹 명을 입력하지않으셨습니다.")
                 return
             }
-            this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
+            this.step = 2;
+            
+            // 부모 컴포넌트에 단계 변경 알림 (즉시 emit)
+            this.$emit('stepChanged', this.step);
         },
         create() {
             if(this.nickname == '' || this.nickname == null || this.nickname == undefined) {
@@ -110,10 +111,9 @@ export default {
                 this.$toastr.success("생성 완료!");
                 this.$router.push("/groups")
             })
-            
-            
         },
         modalClose() {
+            this.resetForm();
             this.$emit("createModalClose", false)
         },
         previewImage(event) {
@@ -141,6 +141,18 @@ export default {
             this.groupName = '';
             this.nickname = '';
             this.imageSrc = null;
+            this.profileimageSrc = null;
+            this.step = 1;
+        },
+        // 투어를 위한 수동 다음 단계 호출
+        tourNext() {
+            if (this.step === 1) {
+                // 임시로 그룹명 입력 (투어용)
+                if (!this.groupName) {
+                    this.groupName = "테스트 그룹";
+                }
+                this.next();
+            }
         }
     }
 }
@@ -180,49 +192,49 @@ export default {
     outline: solid #d7d7d7;
     height: 50px;
     border-radius: 15px;
-    padding-right: 10px; /* 오른쪽 여백 추가 */
-    padding-left: 10px; /* 왼쪽 여백 추가 */
+    padding-right: 10px;
+    padding-left: 10px;
 }
 .group-description {
-    margin-top: 10px; /* 여백 수정 */
+    margin-top: 10px;
     background-color: #f0f0f0;
     outline: solid #d7d7d7;
     height: 100px;
     border-radius: 15px;
-    padding-left: 10px; /* 왼쪽 여백 추가 */
+    padding-left: 10px;
 }
 .placeholder-label {
     position: absolute;
     left: 30px;
-    top: 52%; /* 중앙 정렬 */
+    top: 52%;
     transform: translateY(-50%);
-    color: gray; /* 그룹 명 색상 변경 */
-    pointer-events: none; /* 클릭 방지 */
+    color: gray;
+    pointer-events: none;
     transition: 0.2s ease all;
-    text-align: right; /* 오른쪽 정렬 추가 */
+    text-align: right;
 }
 .placeholder-label2 {
     position: absolute;
     left: 30px;
-    top: 70%; /* 중앙 정렬 */
+    top: 70%;
     transform: translateY(-50%);
-    color: gray; /* 그룹 명 색상 변경 */
-    pointer-events: none; /* 클릭 방지 */
+    color: gray;
+    pointer-events: none;
     transition: 0.2s ease all;
-    text-align: right; /* 오른쪽 정렬 추가 */
+    text-align: right;
 }
 .placeholder-label3 {
     position: absolute;
     left: 30px;
-    top: 80%; /* 중앙 정렬 */
+    top: 80%;
     transform: translateY(-50%);
-    color: gray; /* 그룹 명 색상 변경 */
-    pointer-events: none; /* 클릭 방지 */
+    color: gray;
+    pointer-events: none;
     transition: 0.2s ease all;
-    text-align: right; /* 오른쪽 정렬 추가 */
+    text-align: right;
 }
 .required {
-    color: red; /* * 색상 */
+    color: red;
 }
 .group-name:focus + .placeholder-label + .placeholder-label2,
 .group-name:not(:placeholder-shown) + .placeholder-label {
@@ -237,6 +249,16 @@ export default {
     opacity: 0;
 }
 input::placeholder {
-    color: transparent; /* 기본 placeholder 숨기기 */
+    color: transparent;
+}
+
+/* 투어 하이라이트 스타일 */
+.step4-group-create,
+.step5-group-create,
+.step6-group-create,
+.step7-group-create,
+.step8-group-create {
+    position: relative;
+    z-index: 1;
 }
 </style>
