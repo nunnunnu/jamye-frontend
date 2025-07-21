@@ -12,23 +12,23 @@
                     <template v-if="step === 1">
                         <!-- 초대코드 입력 화면 -->
                         <div class="form-group">
-                            <input type="text" id="groupName" class="group-name form-control" placeholder="ㅑㅜ" v-model="inviteCodeCopy" />
+                            <input type="text" id="groupName" class="group-name form-control step-invite-code-input" placeholder="ㅑㅜ" v-model="inviteCodeCopy" />
                             <label for="groupName" class="placeholder-label">초대코드<span class="required">*</span></label>
                         </div> 
                     </template>
                     <template v-if="step === 2">
                         <!-- 그룹 정보 확인 -->
-                        <div class="upload-container">
+                        <div class="upload-container step-invite-group-info">
                             <label for="profileImageUpload" class="upload-label">
                                 <img v-if="groupInfo.imageUrl != null" :src="imageUrl(groupInfo.imageUrl)" alt="Image Preview" class="image-preview" />
                                 <!-- <span v-else class="upload-icon">+</span> -->
                             </label>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group step-invite-group-info">
                             <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="groupInfo.name" disabled/>
                             <label for="nickname" class="placeholder-label3">{{ groupInfo.name }}</label>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group step-invite-group-info">
                             <input type="text" id="groupDescription" v-model="groupDescription" class="group-description form-control group-description" placeholder=" " disabled/>
                             <label for="groupDescription" class="placeholder-label2">{{ groupInfo.description }}</label>
                         </div>
@@ -36,15 +36,15 @@
                     <template v-if="step === 3">
                         <div class="upload-container">
                             <input type="file" id="profileImageUpload" accept="image/*" @change="profilePreviewImage" style="display: none;">
-                            <label for="profileImageUpload" class="upload-label">
+                            <label for="profileImageUpload" class="upload-label step-invite-profile-image">
                                 <img v-if="profileimageSrc" :src="profileimageSrc" alt="Image Preview" class="image-preview" />
                                 <span v-else class="upload-icon">+</span>
                             </label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="nickname" class="nickname group-name form-control" placeholder="닉네임" v-model="nickname" />
+                            <input type="text" id="nickname" class="nickname group-name form-control step-invite-nickname" placeholder="닉네임" v-model="nickname" />
                             <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
-                            <button class="btn btn-dark btn-dup" @click="nickNameCheck">중복 체크</button>
+                            <button class="btn btn-dark btn-dup step-invite-nickname" @click="nickNameCheck">중복 체크</button>
                         </div>
                     </template>
                 </div>
@@ -102,7 +102,10 @@ export default {
             })
             .then(resposne => {
                 this.groupInfo = resposne.data.data
-                this.step = 2; // '다음' 버튼 클릭 시 다음 단계로 이동
+                this.step = 2;
+                
+                // 부모 컴포넌트에 단계 변경 알림
+                this.$emit('inviteStepChanged', this.step);
             })
             .catch(e => {
                 this.$toastr.error(e.response.data.message)
@@ -111,13 +114,17 @@ export default {
         },
         nextTwo() {            
             this.step = 3;
-
+            
+            // 부모 컴포넌트에 단계 변경 알림
+            this.$emit('inviteStepChanged', this.step);
         },
         back() {            
             this.step = 1;
             this.inviteCodeCopy = null
             this.groupInfo = null
-
+            
+            // 부모 컴포넌트에 단계 변경 알림
+            this.$emit('inviteStepChanged', this.step);
         },
         previewImage(event) {
             const file = event.target.files[0];
@@ -144,8 +151,10 @@ export default {
             this.groupName = '';
             this.nickname = '';
             this.imageSrc = null;
+            this.step = 1;
         },
         modalClose() {
+            this.resetForm();
             this.$emit("inviteModalClose", false)
         },
         create() {
@@ -282,5 +291,14 @@ input::placeholder {
 }
 .btn-dup{
     margin-top: 5px;
+}
+
+/* 투어 하이라이트 스타일 */
+.step-invite-code-input,
+.step-invite-group-info,
+.step-invite-profile-image,
+.step-invite-nickname {
+    position: relative;
+    z-index: 1;
 }
 </style>
