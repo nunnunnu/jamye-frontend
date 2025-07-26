@@ -105,11 +105,11 @@ export default {
                     Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(() => {
-                const modalInstance = Modal.getInstance(document.getElementById('exampleModal1'))
-                if (modalInstance) modalInstance.hide()
-                this.modalClose()
-                this.$toastr.success("생성 완료!");
-                this.$router.push("/groups")
+                // 성공 메시지만 표시
+                this.$toastr.success("그룹 생성 완료!");
+                
+                // 부모 컴포넌트에 nextTour 이벤트 발생 (모달 닫기와 페이지 이동은 부모에서 처리)
+                this.$emit("nextTour");
             })
         },
         modalClose() {

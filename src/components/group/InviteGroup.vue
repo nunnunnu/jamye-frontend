@@ -175,7 +175,7 @@ export default {
                 this.modalClose()  
                 const modalInstance = Modal.getInstance(document.getElementById('exampleModal2'))
                 if (modalInstance) modalInstance.hide()
-                
+                this.$emit("nextTour")
                 this.$router.push("/groups")
             }).catch(e => {
                 this.$toastr.error(e.response.data.message)

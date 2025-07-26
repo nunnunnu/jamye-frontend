@@ -3,12 +3,12 @@
     <div class="container px-5">
       <v-tour
         name="navbarTour"
-        :steps="firstSteps"
+        :steps="currentSteps"
         @finish="handleFinish"
         @skip="handleSkip"
       />
 
-      <a class="navbar-brand fw-bold" href="#page-top" @click="home">잼얘 가챠</a>
+      <a class="navbar-brand fw-bold step3-group-list" href="#page-top" @click="home">잼얘 가챠</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -48,14 +48,37 @@ export default {
   name: "NavBar",
   data() {
     return {
-      firstSteps: [
+      welcomeSteps: [
         {
           target: ".navbar-group-btn",
           content: "먼저 그룹을 생성해야 잼얘가챠를 사용할 수 있어요! 그룹화면으로 이동해보세요!",
           params: { placement: "bottom" }
         }
       ],
+      groupListCheckSteps: [
+        {
+          target: ".step3-group-list",
+          content: "그룹이 생겼어요! 이제 그룹의 가챠에 잼얘를 생성해볼까요?",
+          params: { 
+            placement: "bottom",
+            enableScrolling: false
+          }
+        }
+      ]
     };
+  },
+  computed: {
+    currentSteps() {
+      const currentStep = getCurrentStep();
+      if (currentStep === TutorialStep.WELCOME) {
+        console.log("welcomeSteps");
+        return this.welcomeSteps;
+      } else if (currentStep === TutorialStep.GROUP_LIST_CHECK) {
+        console.log("groupListCheckSteps");
+        return this.groupListCheckSteps;
+      }
+      return this.welcomeSteps; // 기본값
+    }
   },
   props: {
     isLogin: { type: Boolean, required: true },
@@ -76,6 +99,10 @@ export default {
     if (this.isLogin && getCurrentStep() === TutorialStep.WELCOME) {
       this.$tours['navbarTour'].start();
     }
+
+    if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_LIST_CHECK) {
+      this.$tours['navbarTour'].start();
+    }
   },
   methods: {
     login() {
@@ -91,12 +118,12 @@ export default {
         if (getCurrentStep() === TutorialStep.WELCOME) {
             setStep(TutorialStep.GROUP_CREATE)
             this.$nextTick(() => {
-            // 다음 페이지로 이동한 후 투어 시작
-            this.$router.push("/groups").then(() => {
-                this.$nextTick(() => {
-                this.$tours['    m']?.start()
+                // 다음 페이지로 이동한 후 투어 시작
+                this.$router.push("/groups").then(() => {
+                    this.$nextTick(() => {
+                        this.$tours['navbarTour']?.start()
+                    })
                 })
-            })
             })
         } else {
             this.$router.push("/groups");

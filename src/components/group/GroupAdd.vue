@@ -11,7 +11,7 @@
             <button type="button" class="btn btn-dark btn-block btn-group step2-group-create" data-bs-toggle="modal" data-bs-target="#exampleModal1">
                 그룹 생성
             </button>
-                <GroupCreate ref="groupCreate" @createModalClose="createModalClose" @stepChanged="onStepChanged"></GroupCreate>
+                <GroupCreate ref="groupCreate" @createModalClose="createModalClose" @stepChanged="onStepChanged" @nextTour="nextTour"></GroupCreate>
             <button type="button" class="btn btn-dark btn-block btn-group step3-group-create" data-bs-toggle="modal" data-bs-target="#exampleModal2">
                 초대코드 입력
             </button>
@@ -25,6 +25,7 @@ import GroupCreate from './GroupCreate.vue';
 import InviteGroup from './InviteGroup.vue';
 import { Modal } from 'bootstrap';
 import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
+
 
 export default {
     components: {
@@ -206,6 +207,63 @@ export default {
                         }, 100);
                     }
                 });
+            }
+        },
+        // 모든 투어 중지
+        stopAllTours() {
+            if (this.$tours['navbarTour'] && this.$tours['navbarTour'].isRunning) {
+                this.$tours['navbarTour'].stop();
+            }
+        },
+        nextTour() {
+            console.log("nextTour 시작");
+            
+            // 모든 투어 중지
+            this.stopAllTours();
+            
+            // 자식 컴포넌트의 modalClose 호출하여 폼 리셋
+            if (this.$refs.groupCreate) {
+                this.$refs.groupCreate.modalClose();
+            }
+            
+            // 모달 완전히 닫기
+            this.forceCloseModal('exampleModal1');
+            
+            // 투어 상태를 그룹 목록 확인 단계로 설정
+            setStep(TutorialStep.GROUP_LIST_CHECK);
+            
+            // 약간의 딜레이 후 페이지 이동
+            setTimeout(() => {
+                console.log("페이지 이동: /groups");
+                this.$router.push("/groups");
+            }, 500); // 딜레이를 조금 더 늘림
+        },
+        forceCloseModal(modalId) {
+            console.log(`모달 강제 닫기: ${modalId}`);
+            
+            const modalElement = document.getElementById(modalId);
+            if (modalElement) {
+                const modalInstance = Modal.getInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+                
+                // backdrop 강제 제거 (여러 개 있을 수 있음)
+                setTimeout(() => {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    console.log(`backdrop 개수: ${backdrops.length}`);
+                    backdrops.forEach(backdrop => {
+                        backdrop.remove();
+                        console.log("backdrop 제거됨");
+                    });
+                    
+                    // body 클래스 정리
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                    
+                    console.log("body 스타일 정리 완료");
+                }, 100);
             }
         }
     }

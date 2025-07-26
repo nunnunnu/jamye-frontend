@@ -6,7 +6,7 @@
       <div v-if="loading" class="loading-overlay">
         <div class="spinner"></div>
       </div>
-      <router-view :isLogin="isLogin" @isLoginChange="isLoginChange" @groupSelect="groupSelect" @handleLogout="handleLogout" @connectWebSocket="connectWebSocket"></router-view>
+      <router-view :key="$route.fullPath" :isLogin="isLogin" @isLoginChange="isLoginChange" @groupSelect="groupSelect" @handleLogout="handleLogout" @connectWebSocket="connectWebSocket"></router-view>
     </div>
   </div>
   // <v-tour name="group-tour" :steps="[]" />

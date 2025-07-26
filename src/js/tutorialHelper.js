@@ -5,16 +5,20 @@ const STORAGE_KEY = 'tutorialState'
 export const TutorialStep = {
   WELCOME: '0',
   GROUP_CREATE: '1',
-  POST_CREATE: '2',
-  INVITE_MEMBER: '3',
-  DRAW: '4',
+  GROUP_LIST_CHECK: '2',
+  BOARD_POST_CREATE: '3',
+  MESSAGE_POST_CREATE: '4',
+  INVITE_MEMBER: '5',
+  DRAW: '6',
   DONE: 'DONE'
 }
 
 const STEP_FLOW = [
   TutorialStep.WELCOME,
   TutorialStep.GROUP_CREATE,
-  TutorialStep.POST_CREATE,
+  TutorialStep.GROUP_LIST_CHECK,
+  TutorialStep.BOARD_POST_CREATE,
+  TutorialStep.MESSAGE_POST_CREATE,
   TutorialStep.INVITE_MEMBER,
   TutorialStep.DRAW,
   TutorialStep.DONE
