@@ -12,39 +12,41 @@
                     <template v-if="step === 1">
                         <!-- 초대코드 입력 화면 -->
                         <div class="form-group">
-                            <input type="text" id="groupName" class="group-name form-control step-invite-code-input" placeholder="ㅑㅜ" v-model="inviteCodeCopy" />
+                            <input type="text" id="groupName" class="group-name form-control invite-code-input" placeholder="ㅑㅜ" v-model="inviteCodeCopy" />
                             <label for="groupName" class="placeholder-label">초대코드<span class="required">*</span></label>
                         </div> 
                     </template>
                     <template v-if="step === 2">
                         <!-- 그룹 정보 확인 -->
-                        <div class="upload-container step-invite-group-info">
-                            <label for="profileImageUpload" class="upload-label">
-                                <img v-if="groupInfo.imageUrl != null" :src="imageUrl(groupInfo.imageUrl)" alt="Image Preview" class="image-preview" />
-                                <!-- <span v-else class="upload-icon">+</span> -->
-                            </label>
-                        </div>
-                        <div class="form-group step-invite-group-info">
-                            <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="groupInfo.name" disabled/>
-                            <label for="nickname" class="placeholder-label3">{{ groupInfo.name }}</label>
-                        </div>
-                        <div class="form-group step-invite-group-info">
-                            <input type="text" id="groupDescription" v-model="groupDescription" class="group-description form-control group-description" placeholder=" " disabled/>
-                            <label for="groupDescription" class="placeholder-label2">{{ groupInfo.description }}</label>
+                        <div class="group-info-section">
+                            <div class="upload-container">
+                                <label for="profileImageUpload" class="upload-label">
+                                    <img v-if="groupInfo.imageUrl != null" :src="imageUrl(groupInfo.imageUrl)" alt="Image Preview" class="image-preview" />
+                                    <!-- <span v-else class="upload-icon">+</span> -->
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="groupInfo.name" disabled/>
+                                <label for="nickname" class="placeholder-label3">{{ groupInfo.name }}</label>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="groupDescription" v-model="groupDescription" class="group-description form-control group-description" placeholder=" " disabled/>
+                                <label for="groupDescription" class="placeholder-label2">{{ groupInfo.description }}</label>
+                            </div>
                         </div>
                     </template>
                     <template v-if="step === 3">
                         <div class="upload-container">
                             <input type="file" id="profileImageUpload" accept="image/*" @change="profilePreviewImage" style="display: none;">
-                            <label for="profileImageUpload" class="upload-label step-invite-profile-image">
+                            <label for="profileImageUpload" class="upload-label invite-profile-image">
                                 <img v-if="profileimageSrc" :src="profileimageSrc" alt="Image Preview" class="image-preview" />
                                 <span v-else class="upload-icon">+</span>
                             </label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="nickname" class="nickname group-name form-control step-invite-nickname" placeholder="닉네임" v-model="nickname" />
+                            <input type="text" id="nickname" class="nickname group-name form-control invite-nickname-input" placeholder="닉네임" v-model="nickname" />
                             <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
-                            <button class="btn btn-dark btn-dup step-invite-nickname" @click="nickNameCheck">중복 체크</button>
+                            <button class="btn btn-dark btn-dup nickname-duplicate-btn" @click="nickNameCheck">중복 체크</button>
                         </div>
                     </template>
                 </div>
@@ -52,7 +54,7 @@
                     <button v-if="step === 1" type="button" class="btn btn-dark btn-block" @click="nextOne">다음</button>
                     <div v-if="step === 2" class="mt-3 d-flex justify-content-between">
                         <button type="button" class="btn btn-dark btn-block" @click="back" >이전</button>
-                        <button type="button" class="btn btn-dark btn-block" @click="nextTwo" >다음</button>
+                        <button type="button" class="btn btn-dark btn-block invite-next-btn" @click="nextTwo" >다음</button>
                     </div>
                     <div v-if="step === 3">
                         <button v-if="nickNameDupCheck" type="button" class="btn btn-dark btn-block"  data-bs-dismiss="modal" aria-label="Close" @click="create">가입</button>
@@ -175,7 +177,7 @@ export default {
                 this.modalClose()  
                 const modalInstance = Modal.getInstance(document.getElementById('exampleModal2'))
                 if (modalInstance) modalInstance.hide()
-                this.$emit("nextTour")
+                
                 this.$router.push("/groups")
             }).catch(e => {
                 this.$toastr.error(e.response.data.message)
@@ -230,49 +232,49 @@ export default {
     outline: solid #d7d7d7;
     height: 50px;
     border-radius: 15px;
-    padding-right: 10px; /* 오른쪽 여백 추가 */
-    padding-left: 10px; /* 왼쪽 여백 추가 */
+    padding-right: 10px;
+    padding-left: 10px;
 }
 .group-description {
-    margin-top: 10px; /* 여백 수정 */
+    margin-top: 10px;
     background-color: #f0f0f0;
     outline: solid #d7d7d7;
     height: 100px;
     border-radius: 15px;
-    padding-left: 10px; /* 왼쪽 여백 추가 */
+    padding-left: 10px;
 }
 .placeholder-label {
     position: absolute;
     left: 30px;
-    top: 52%; /* 중앙 정렬 */
+    top: 52%;
     transform: translateY(-50%);
-    color: gray; /* 그룹 명 색상 변경 */
-    pointer-events: none; /* 클릭 방지 */
+    color: gray;
+    pointer-events: none;
     transition: 0.2s ease all;
-    text-align: right; /* 오른쪽 정렬 추가 */
+    text-align: right;
 }
 .placeholder-label2 {
     position: absolute;
     left: 30px;
-    top: 70%; /* 중앙 정렬 */
+    top: 70%;
     transform: translateY(-50%);
-    color: gray; /* 그룹 명 색상 변경 */
-    pointer-events: none; /* 클릭 방지 */
+    color: gray;
+    pointer-events: none;
     transition: 0.2s ease all;
-    text-align: right; /* 오른쪽 정렬 추가 */
+    text-align: right;
 }
 .placeholder-label3 {
     position: absolute;
     left: 30px;
     top: -65%;
     transform: translateY(-50%);
-    color: gray; /* 그룹 명 색상 변경 */
-    pointer-events: none; /* 클릭 방지 */
+    color: gray;
+    pointer-events: none;
     transition: 0.2s ease all;
-    text-align: right; /* 오른쪽 정렬 추가 */
+    text-align: right;
 }
 .required {
-    color: red; /* * 색상 */
+    color: red;
 }
 .group-name:focus + .placeholder-label + .placeholder-label2,
 .group-name:not(:placeholder-shown) + .placeholder-label {
@@ -287,18 +289,26 @@ export default {
     opacity: 0;
 }
 input::placeholder {
-    color: transparent; /* 기본 placeholder 숨기기 */
+    color: transparent;
 }
 .btn-dup{
     margin-top: 5px;
 }
 
-/* 투어 하이라이트 스타일 */
-.step-invite-code-input,
-.step-invite-group-info,
-.step-invite-profile-image,
-.step-invite-nickname {
+/* 투어 하이라이트를 위한 스타일 */
+.invite-code-input,
+.group-info-section,
+.invite-next-btn,
+.invite-profile-image,
+.invite-nickname-input,
+.nickname-duplicate-btn {
     position: relative;
     z-index: 1;
+}
+
+.group-info-section {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.02);
 }
 </style>

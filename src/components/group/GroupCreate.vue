@@ -51,9 +51,9 @@
 </template>
 
 <script>
-import { Modal } from 'bootstrap';
 import axios from '@/js/axios';
 import { base64ToFile } from '@/js/fileScripts';
+import { Modal } from 'bootstrap';
 
 export default {
     name: 'GroupCreate',
@@ -105,15 +105,42 @@ export default {
                     Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(() => {
-                // 성공 메시지만 표시
+                // 성공 메시지 표시
                 this.$toastr.success("그룹 생성 완료!");
                 
-                // 부모 컴포넌트에 nextTour 이벤트 발생 (모달 닫기와 페이지 이동은 부모에서 처리)
-                this.$emit("nextTour");
+                // 모달 완전히 닫기
+                this.closeModalCompletely();
+                
+                // 부모 컴포넌트에 완료 이벤트 발생
+                this.$emit("groupCreateComplete");
             })
         },
-        modalClose() {
+        closeModalCompletely() {
+            // 모달 인스턴스 가져오기
+            const modalElement = document.getElementById('exampleModal1');
+            const modalInstance = Modal.getInstance(modalElement);
+            
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            
+            // 모달 백드롭 제거
+            this.$nextTick(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                // body에서 modal 관련 클래스 제거
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            });
+            
+            // 폼 리셋
             this.resetForm();
+        },
+        modalClose() {
+            this.closeModalCompletely();
             this.$emit("createModalClose", false)
         },
         previewImage(event) {

@@ -2,20 +2,38 @@
     <div class="b-container">
         <v-tour
             name="navbarTour"
-            :steps="currentSteps"
+            :steps="firstSteps"
+            @finish="handleFinish"
+            @skip="handleSkip"
+        />
+        <v-tour
+            name="groupCreateTour"
+            :steps="groupCreateSteps"
+            @finish="handleFinish"
+            @skip="handleSkip"
+        />
+        <v-tour
+            name="inviteCodeTour"
+            :steps="inviteCodeSteps"
             @finish="handleFinish"
             @skip="handleSkip"
         />
         <h2 class="title">그룹 추가</h2>
         <div class="group-add">
-            <button type="button" class="btn btn-dark btn-block btn-group step2-group-create" data-bs-toggle="modal" data-bs-target="#exampleModal1">
+            <button type="button" class="btn btn-dark btn-block btn-group step2-group-create" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#exampleModal1"
+                    @click="startGroupCreateTour">
                 그룹 생성
             </button>
-                <GroupCreate ref="groupCreate" @createModalClose="createModalClose" @stepChanged="onStepChanged" @nextTour="nextTour"></GroupCreate>
-            <button type="button" class="btn btn-dark btn-block btn-group step3-group-create" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                <GroupCreate ref="groupCreate" @createModalClose="createModalClose" @stepChanged="onStepChanged"></GroupCreate>
+            <button type="button" class="btn btn-dark btn-block btn-group step3-group-create" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#exampleModal2"
+                    @click="startInviteCodeTour">
                 초대코드 입력
             </button>
-                <inviteGroup v-show="groupInviteModal" @inviteModalClose="inviteModalClose" :inviteCode="inviteCode"></inviteGroup>
+                <inviteGroup ref="inviteGroup" v-show="groupInviteModal" @inviteModalClose="inviteModalClose" @inviteStepChanged="onInviteStepChanged" :inviteCode="inviteCode"></inviteGroup>
         </div>
     </div>
 </template>
@@ -26,17 +44,16 @@ import InviteGroup from './InviteGroup.vue';
 import { Modal } from 'bootstrap';
 import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
 
-
 export default {
     components: {
         GroupCreate,
         InviteGroup
     },
     mounted() {
-        // DOM이 완전히 렌더링된 후 투어 시작
+        // DOM이 완전히 렌더링된 후 전체 투어 시작 (최초 접근시)
         this.$nextTick(() => {
             if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_CREATE) {
-                console.log('start tour');
+                console.log('start overview tour');
                 // 약간의 지연을 주어 모든 컴포넌트가 렌더링되도록 함
                 setTimeout(() => {
                     this.$tours['navbarTour'].start();
@@ -50,8 +67,10 @@ export default {
             groupInviteModal: false,
             groupAdd: null,
             inviteCode: null,
-            currentModalStep: 1, // 모달 내부 스텝 추적
-            baseSteps: [
+            currentModalStep: 1,
+            currentInviteStep: 1,
+            // 전체 개요 투어 (최초 접근시만)
+            firstSteps: [
                 {
                     target: ".step2-group-create",
                     content: "초대코드가 없다면 그룹을 생성해보세요.",
@@ -67,7 +86,10 @@ export default {
                         placement: "bottom",
                         enableScrolling: false
                     }
-                },
+                }
+            ],
+            // 그룹 생성 전용 투어
+            groupCreateSteps: [
                 {
                     target: ".step4-group-create",
                     content: "그룹의 프로필 사진을 넣는 곳입니다.",
@@ -92,9 +114,7 @@ export default {
                         placement: "bottom",
                         enableScrolling: false
                     }
-                }
-            ],
-            step2Steps: [
+                },
                 {
                     target: ".step7-group-create",
                     content: "회원님이 그룹에서 사용할 프로필 사진을 넣는 곳입니다.",
@@ -111,17 +131,60 @@ export default {
                         enableScrolling: false
                     }
                 }
+            ],
+            // 초대코드 전용 투어
+            inviteCodeSteps: [
+                {
+                    target: ".invite-code-input",
+                    content: "가입할 그룹의 초대코드를 입력해주세요.",
+                    params: { 
+                        placement: "bottom",
+                        enableScrolling: false
+                    },
+                    before: this.openInviteCodeModal
+                },
+                {
+                    target: ".group-info-section",
+                    content: "가입할 그룹의 정보를 확인해주세요. 가입하고자 하는 그룹이 맞나요?",
+                    params: { 
+                        placement: "bottom",
+                        enableScrolling: false
+                    }
+                },
+                {
+                    target: ".invite-next-btn",
+                    content: "그룹 정보를 확인했다면 다음 단계로 진행해주세요.",
+                    params: { 
+                        placement: "top",
+                        enableScrolling: false
+                    }
+                },
+                {
+                    target: ".invite-profile-image",
+                    content: "가입될 그룹에서 사용할 프로필 사진을 설정해주세요.",
+                    params: { 
+                        placement: "bottom",
+                        enableScrolling: false
+                    }
+                },
+                {
+                    target: ".invite-nickname-input",
+                    content: "가입될 그룹에서 사용할 닉네임을 입력해주세요. 그룹에서 이미 사용중인 닉네임은 사용할 수 없으니 중복체크를 해주세요.",
+                    params: { 
+                        placement: "bottom",
+                        enableScrolling: false
+                    }
+                },
+                {
+                    target: ".nickname-duplicate-btn",
+                    content: "닉네임 중복체크를 반드시 진행해주세요.",
+                    params: { 
+                        placement: "top",
+                        enableScrolling: false
+                    }
+                }
             ]
         };
-    },
-    computed: {
-        currentSteps() {
-            if (this.currentModalStep === 1) {
-                return this.baseSteps;
-            } else {
-                return [...this.baseSteps, ...this.step2Steps];
-            }
-        }
     },
     props: {
         isLogin: {
@@ -158,10 +221,11 @@ export default {
         },
         createModalClose() {
             this.groupCreateModal = false;
-            this.currentModalStep = 1; // 모달 닫힐 때 스텝 리셋
+            this.currentModalStep = 1;
         },
         inviteModalClose() {
             this.groupInviteModal = false
+            this.currentInviteStep = 1;
         },
         inviteModalOpen() {
             this.groupInviteModal = true
@@ -171,6 +235,38 @@ export default {
         },
         handleSkip() {
             setStep(TutorialStep.DONE);
+        },
+        // 그룹 생성 투어 시작
+        startGroupCreateTour() {
+            // 다른 투어가 진행중이면 중지
+            this.stopAllTours();
+            
+            // 그룹 생성 전용 투어 시작
+            setTimeout(() => {
+                this.$tours['groupCreateTour'].start();
+            }, 200); // 모달이 열릴 시간을 고려한 딜레이
+        },
+        // 초대코드 투어 시작
+        startInviteCodeTour() {
+            // 다른 투어가 진행중이면 중지
+            this.stopAllTours();
+            
+            // 초대코드 전용 투어 시작
+            setTimeout(() => {
+                this.$tours['inviteCodeTour'].start();
+            }, 200);
+        },
+        // 모든 투어 중지
+        stopAllTours() {
+            if (this.$tours['navbarTour'].isRunning) {
+                this.$tours['navbarTour'].stop();
+            }
+            if (this.$tours['groupCreateTour'].isRunning) {
+                this.$tours['groupCreateTour'].stop();
+            }
+            if (this.$tours['inviteCodeTour'].isRunning) {
+                this.$tours['inviteCodeTour'].stop();
+            }
         },
         // 그룹 생성 모달을 여는 메서드
         openGroupCreateModal() {
@@ -189,7 +285,24 @@ export default {
                 }
             });
         },
-        // 자식 컴포넌트에서 스텝 변경 알림을 받는 메서드
+        // 초대코드 모달을 여는 메서드
+        openInviteCodeModal() {
+            return new Promise((resolve) => {
+                const modalElement = document.getElementById('exampleModal2');
+                if (modalElement) {
+                    const modal = new Modal(modalElement);
+                    modal.show();
+                    
+                    // 모달이 완전히 열릴 때까지 대기
+                    modalElement.addEventListener('shown.bs.modal', () => {
+                        resolve();
+                    }, { once: true });
+                } else {
+                    resolve();
+                }
+            });
+        },
+        // 자식 컴포넌트에서 스텝 변경 알림을 받는 메서드 (그룹 생성)
         onStepChanged(step) {
             this.currentModalStep = step;
             
@@ -197,72 +310,34 @@ export default {
             if (step === 2) {
                 this.$nextTick(() => {
                     // 투어가 진행 중이라면 step7-group-create로 이동
-                    if (this.$tours['navbarTour'].isRunning) {
+                    if (this.$tours['groupCreateTour'].isRunning) {
                         // 현재 투어를 일시 중지하고 새로운 스텝으로 이동
-                        this.$tours['navbarTour'].stop();
+                        this.$tours['groupCreateTour'].stop();
                         
                         // 약간의 지연 후 step7부터 시작
                         setTimeout(() => {
-                            this.$tours['navbarTour'].start(5); // step7-group-create는 인덱스 5
+                            this.$tours['groupCreateTour'].start(3); // step7-group-create는 인덱스 3
                         }, 100);
                     }
                 });
             }
         },
-        // 모든 투어 중지
-        stopAllTours() {
-            if (this.$tours['navbarTour'] && this.$tours['navbarTour'].isRunning) {
-                this.$tours['navbarTour'].stop();
-            }
-        },
-        nextTour() {
-            console.log("nextTour 시작");
+        // 자식 컴포넌트에서 스텝 변경 알림을 받는 메서드 (초대코드)
+        onInviteStepChanged(step) {
+            this.currentInviteStep = step;
             
-            // 모든 투어 중지
-            this.stopAllTours();
-            
-            // 자식 컴포넌트의 modalClose 호출하여 폼 리셋
-            if (this.$refs.groupCreate) {
-                this.$refs.groupCreate.modalClose();
-            }
-            
-            // 모달 완전히 닫기
-            this.forceCloseModal('exampleModal1');
-            
-            // 투어 상태를 그룹 목록 확인 단계로 설정
-            setStep(TutorialStep.GROUP_LIST_CHECK);
-            
-            // 약간의 딜레이 후 페이지 이동
-            setTimeout(() => {
-                console.log("페이지 이동: /groups");
-                this.$router.push("/groups");
-            }, 500); // 딜레이를 조금 더 늘림
-        },
-        forceCloseModal(modalId) {
-            console.log(`모달 강제 닫기: ${modalId}`);
-            
-            const modalElement = document.getElementById(modalId);
-            if (modalElement) {
-                const modalInstance = Modal.getInstance(modalElement);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
+            // 초대코드 투어가 진행 중이라면 해당 스텝으로 이동
+            if (this.$tours['inviteCodeTour'].isRunning) {
+                this.$tours['inviteCodeTour'].stop();
                 
-                // backdrop 강제 제거 (여러 개 있을 수 있음)
                 setTimeout(() => {
-                    const backdrops = document.querySelectorAll('.modal-backdrop');
-                    console.log(`backdrop 개수: ${backdrops.length}`);
-                    backdrops.forEach(backdrop => {
-                        backdrop.remove();
-                        console.log("backdrop 제거됨");
-                    });
-                    
-                    // body 클래스 정리
-                    document.body.classList.remove('modal-open');
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-                    
-                    console.log("body 스타일 정리 완료");
+                    if (step === 2) {
+                        // 그룹 정보 확인 단계 (인덱스 1)
+                        this.$tours['inviteCodeTour'].start(1);
+                    } else if (step === 3) {
+                        // 프로필 생성 단계 (인덱스 3)
+                        this.$tours['inviteCodeTour'].start(3);
+                    }
                 }, 100);
             }
         }

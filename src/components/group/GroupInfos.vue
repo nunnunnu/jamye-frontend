@@ -52,12 +52,14 @@
 <script>
 import axios from '@/js/axios';
 import { imageUrl } from '@/js/fileScripts';
-import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
+import { getCurrentStep, TutorialStep } from "@/js/tutorialHelper";
+import { Modal } from 'bootstrap'; // Import Modal when it's actually used
 
 export default {
     data() {
         return {
             groups: [],
+            inviteCode: null, // Add inviteCode to data
             // 전체 개요 투어 (최초 접근시만)
             firstSteps: [
                 {
@@ -68,7 +70,10 @@ export default {
                         enableScrolling: false
                     }
                 }
-            ]
+            ],
+            // Add missing step arrays to avoid reference errors
+            groupCreateSteps: [],
+            inviteCodeSteps: []
         };
     },
     props: {
@@ -117,6 +122,15 @@ export default {
         goToGroup(groupSeq) {
             this.$router.push(`/group${groupSeq}`);
         },
+        // Add missing methods referenced by v-tour
+        handleFinish() {
+            // Handle tour finish
+            console.log('Tour finished');
+        },
+        handleSkip() {
+            // Handle tour skip
+            console.log('Tour skipped');
+        }
     }
 };
 </script>
