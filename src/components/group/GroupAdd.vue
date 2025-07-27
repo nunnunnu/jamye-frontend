@@ -112,6 +112,11 @@ export default {
     this.setupFinishButtonListener();
     // DOM 이벤트 리스너로 Next 버튼 클릭 감지
     this.setupNextButtonListener();
+    
+    // isTourActive 변경 감지
+    this.$watch('isTourActive', (newVal, oldVal) => {
+        console.log('isTourActive changed from', oldVal, 'to', newVal);
+    });
 });
     },
     data() {
@@ -305,6 +310,11 @@ export default {
         },
         // 그룹 생성 투어 시작
         startGroupCreateTour() {
+            // tutorialState가 1이 아니면 투어 실행하지 않음
+            if (getCurrentStep() !== TutorialStep.GROUP_CREATE) {
+                return;
+            }
+            
             if (this.isTourActive && !this.isTargetAllowed('step2-group-create')) return;
             
             // 다른 투어가 진행중이면 중지
@@ -320,6 +330,11 @@ export default {
         },
         // 초대코드 투어 시작
         startInviteCodeTour() {
+            // tutorialState가 1이 아니면 투어 실행하지 않음
+            if (getCurrentStep() !== TutorialStep.GROUP_CREATE) {
+                return;
+            }
+            
             if (this.isTourActive && !this.isTargetAllowed('step3-group-create')) return;
             
             // 다른 투어가 진행중이면 중지
@@ -327,10 +342,12 @@ export default {
             this.isTourActive = true;
             this.currentTourTarget = 'step3-group-create';
             this.childStep = 1; // childStep 초기화
+            console.log('InviteCode tour started, childStep:', this.childStep);
             
             // 초대코드 전용 투어 시작
             setTimeout(() => {
                 this.$tours['inviteCodeTour'].start();
+                console.log('InviteCode tour started, isRunning:', this.$tours['inviteCodeTour'].isRunning);
             }, 200);
         },
         // 모든 투어 중지
@@ -439,26 +456,35 @@ export default {
                         const allButtons = document.querySelectorAll('button');
                         allButtons.forEach(button => {
                             const buttonText = button.textContent.trim();
-                            console.log('Found button:', buttonText, button);
                             
                             // Vue Tour의 Next 버튼 감지
                             if (buttonText === 'Next' && button.classList.contains('v-step__button-next') && 
                                 !button.hasAttribute('data-next-listener-added')) {
                                 button.setAttribute('data-next-listener-added', 'true');
                                 button.addEventListener('click', () => {
-                                    console.log('Vue Tour Next button clicked');
-                                    this.childStep++;
-                                    console.log('childStep increased to:', this.childStep);
                                     
-                                    // childStep에 따른 클릭 방지 해제
-                                    if (this.childStep === 3) { // step6-group-create에서 해제
-                                        console.log('Releasing click prevention at childStep 3');
-                                        this.isTourActive = false;
-                                        this.currentTourTarget = null;
-                                    } else if (this.childStep === 5) { // step8-group-create에서 해제
-                                        console.log('Releasing click prevention at childStep 5');
-                                        this.isTourActive = false;
-                                        this.currentTourTarget = null;
+                                    if (this.currentTourTarget === 'step2-group-create') {
+                                        this.childStep++;
+                                        
+                                        // GroupCreate 투어의 childStep에 따른 클릭 방지 해제
+                                        if (this.childStep === 3) { // step6-group-create에서 해제
+                                            this.isTourActive = false;
+                                            this.currentTourTarget = null;
+                                        } else if (this.childStep === 5) { // step8-group-create에서 해제
+                                            this.isTourActive = false;
+                                            this.currentTourTarget = null;
+                                        }
+                                    } else if (this.currentTourTarget === 'step3-group-create') {
+                                        this.childStep++;
+                                        
+                                        // InviteCode 투어의 childStep에 따른 클릭 방지 해제
+                                        if (this.childStep === 2) { // invite-code-input에서 바로 해제
+                                            this.isTourActive = false;
+                                            this.currentTourTarget = null;
+                                        } else if (this.childStep === 4) { // invite-profile-image에서 다시 클릭 방지 활성화
+                                            this.isTourActive = true;
+                                            this.currentTourTarget = 'step3-group-create';
+                                        }
                                     }
                                 });
                             }
@@ -510,12 +536,10 @@ export default {
         },
         // 자식 컴포넌트에서 스텝 변경 알림을 받는 메서드 (그룹 생성)
         onStepChanged(step) {
-            console.log('onStepChanged called with step:', step);
             this.currentModalStep = step;
             
             // childStep 증가
             this.childStep++;
-            console.log('GroupCreate childStep:', this.childStep, 'isTourActive before:', this.isTourActive);
             
             // 스텝이 2로 변경되면 투어를 업데이트하고 step7으로 이동
             if (step === 2) {
@@ -535,25 +559,19 @@ export default {
             
             // childStep에 따른 클릭 방지 해제
             if (this.childStep === 3) { // step6-group-create에서 해제
-                console.log('Releasing click prevention at childStep 3');
                 this.isTourActive = false;
                 this.currentTourTarget = null;
             } else if (this.childStep === 5) { // step8-group-create에서 해제
-                console.log('Releasing click prevention at childStep 5');
                 this.isTourActive = false;
                 this.currentTourTarget = null;
             }
-            
-            console.log('isTourActive after:', this.isTourActive);
         },
         // 자식 컴포넌트에서 스텝 변경 알림을 받는 메서드 (초대코드)
         onInviteStepChanged(step) {
-            console.log('onInviteStepChanged called with step:', step);
             this.currentInviteStep = step;
             
             // childStep 증가
             this.childStep++;
-            console.log('InviteCode childStep:', this.childStep, 'isTourActive before:', this.isTourActive);
             
             // 초대코드 투어가 진행 중이라면 해당 스텝으로 이동
             if (this.$tours['inviteCodeTour'].isRunning) {
@@ -570,22 +588,17 @@ export default {
                 }, 100);
             }
             
-            // childStep에 따른 클릭 방지 해제
+            // childStep에 따른 클릭 방지 해제/활성화
             if (this.childStep === 2) { // invite-code-input에서 바로 해제
-                console.log('Releasing click prevention at childStep 2');
                 this.isTourActive = false;
                 this.currentTourTarget = null;
-            } else if (this.childStep === 4) { // invite-next-btn에서 해제
-                console.log('Releasing click prevention at childStep 4');
-                this.isTourActive = false;
-                this.currentTourTarget = null;
+            } else if (this.childStep === 4) { // invite-profile-image에서 다시 클릭 방지 활성화
+                this.isTourActive = true;
+                this.currentTourTarget = 'step3-group-create';
             } else if (this.childStep === 6) { // nickname-duplicate-btn에서 해제
-                console.log('Releasing click prevention at childStep 6');
                 this.isTourActive = false;
                 this.currentTourTarget = null;
             }
-            
-            console.log('isTourActive after:', this.isTourActive);
         }
     }
 };
@@ -611,6 +624,7 @@ export default {
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 9998;
     cursor: not-allowed;
+    pointer-events: auto;
 }
 
 /* 투어 스타일 커스터마이징 */

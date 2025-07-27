@@ -9,9 +9,6 @@
       <router-view :key="$route.fullPath" :isLogin="isLogin" @isLoginChange="isLoginChange" @groupSelect="groupSelect" @handleLogout="handleLogout" @connectWebSocket="connectWebSocket"></router-view>
     </div>
   </div>
-  // <v-tour name="group-tour" :steps="[]" />
-  // <v-tour name="post-tour" :steps="[]" />
-  // <v-tour name="invite-tour" :steps="[]" />
   <FooterView />
 </template>
 

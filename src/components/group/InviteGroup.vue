@@ -21,17 +21,16 @@
                         <div class="group-info-section">
                             <div class="upload-container">
                                 <label for="profileImageUpload" class="upload-label">
-                                    <img v-if="groupInfo.imageUrl != null" :src="imageUrl(groupInfo.imageUrl)" alt="Image Preview" class="image-preview" />
-                                    <!-- <span v-else class="upload-icon">+</span> -->
+                                    <img v-if="groupInfo && groupInfo.imageUrl != null" :src="imageUrl(groupInfo.imageUrl)" alt="Image Preview" class="image-preview" />
+                                    <span v-else class="upload-icon">+</span>
                                 </label>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" v-if="groupInfo && groupInfo.name != null">
                                 <input type="text" id="nickname" class="nickname group-name form-control" placeholder=" " v-model="groupInfo.name" disabled/>
-                                <label for="nickname" class="placeholder-label3">{{ groupInfo.name }}</label>
+                                <label for="nickname" class="placeholder-label3">{{ groupInfo ? groupInfo.name : '' }}</label>
                             </div>
-                            <div class="form-group">
-                                <input type="text" id="groupDescription" v-model="groupDescription" class="group-description form-control group-description" placeholder=" " disabled/>
-                                <label for="groupDescription" class="placeholder-label2">{{ groupInfo.description }}</label>
+                            <div class="form-group" v-if="groupInfo && groupInfo.description != null">
+                                <div class="group-description-display">{{ groupInfo ? groupInfo.description : '' }}</div>
                             </div>
                         </div>
                     </template>
@@ -43,9 +42,11 @@
                                 <span v-else class="upload-icon">+</span>
                             </label>
                         </div>
-                        <div class="form-group">
-                            <input type="text" id="nickname" class="nickname group-name form-control invite-nickname-input" placeholder="닉네임" v-model="nickname" />
-                            <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
+                        <div class="form-group nickname-container">
+                            <div class="input-wrapper">
+                                <input type="text" id="nickname" class="nickname group-name form-control invite-nickname-input" placeholder="닉네임" v-model="nickname" />
+                                <label for="nickname" class="placeholder-label3">닉네임<span class="required">*</span></label>
+                            </div>
                             <button class="btn btn-dark btn-dup nickname-duplicate-btn" @click="nickNameCheck">중복 체크</button>
                         </div>
                     </template>
@@ -70,6 +71,7 @@
 import axios from '@/js/axios';
 import { Modal } from 'bootstrap';
 import { imageUrl } from '@/js/fileScripts';
+import { setStep, TutorialStep } from "@/js/tutorialHelper";
 export default {
     data() {
         return {
@@ -123,6 +125,9 @@ export default {
             this.step = 3;
             
             // 부모 컴포넌트에 단계 변경 알림
+            this.$emit('inviteStepChanged', this.step);
+            
+            // 그룹 정보 확인 단계에서 다시 클릭 방지 활성화
             this.$emit('inviteStepChanged', this.step);
         },
         back() {            
@@ -208,13 +213,22 @@ export default {
                 // 모달 완전히 닫기
                 this.closeModalCompletely();
                 
+                setStep(TutorialStep.GROUP_LIST_CHECK);
+                
                 // /groups로 리다이렉트
-                this.$router.push("/groups");
+                this.$router.push('/groups').then(() => {
+                    // 페이지 이동 후 그룹 목록 새로고침 이벤트 발생
+                    this.$emit("groupCreateComplete");
+                });
             }).catch(e => {
                 this.$toastr.error(e.response.data.message)
             })
         },
         nickNameCheck() {
+            if(this.nickname == null || this.nickname == '' || this.nickname == undefined) {
+                this.$toastr.warning("가입할 그룹에서 사용할 프로필을 작성해주세요")
+                return
+            }
             axios.get(`/api/group/${this.groupInfo.groupSequence}/nick-name?nickName=${this.nickname}`, {
                 headers: {
                     Authorization: `Bearer `+localStorage.getItem('accessToken')
@@ -296,13 +310,18 @@ export default {
 }
 .placeholder-label3 {
     position: absolute;
-    left: 30px;
-    top: -65%;
+    left: 15px;
+    top: 50%;
     transform: translateY(-50%);
     color: gray;
     pointer-events: none;
     transition: 0.2s ease all;
-    text-align: right;
+    text-align: left;
+    background-color: #f0f0f0;
+    padding: 0 5px;
+    z-index: 1;
+    font-size: 12px;
+    white-space: nowrap;
 }
 .required {
     color: red;
@@ -318,6 +337,26 @@ export default {
 .nickname:focus + .placeholder-label3,
 .nickname:not(:placeholder-shown) + .placeholder-label3 {
     opacity: 0;
+}
+
+/* 닉네임 input 스타일 수정 */
+.invite-nickname-input {
+    background-color: #f0f0f0 !important;
+    border: 2px solid #d7d7d7 !important;
+    transition: all 0.3s ease;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+.invite-nickname-input:focus {
+    background-color: #f0f0f0 !important;
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.invite-nickname-input:hover {
+    background-color: #f0f0f0 !important;
+    border-color: #007bff !important;
 }
 input::placeholder {
     color: transparent;
@@ -341,5 +380,31 @@ input::placeholder {
     padding: 10px;
     border-radius: 10px;
     background-color: rgba(0, 0, 0, 0.02);
+}
+
+.nickname-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.group-description-display {
+    margin-top: 10px;
+    background-color: #f0f0f0;
+    outline: solid #d7d7d7;
+    min-height: 100px;
+    border-radius: 15px;
+    padding: 15px;
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+    font-size: 14px;
+    color: #333;
 }
 </style>

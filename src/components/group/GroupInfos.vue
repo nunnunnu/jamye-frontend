@@ -170,7 +170,7 @@ export default {
             this.$router.push(`/group${groupSeq}`);
         },
         goToHome() {
-            setStep(TutorialStep.DONE);
+            setStep(TutorialStep.BOARD_POST_CREATE);
             this.showGroupCreatedMessage = false;
             this.$router.push('/');
         },

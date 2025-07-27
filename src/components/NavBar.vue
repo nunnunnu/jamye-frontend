@@ -54,16 +54,6 @@ export default {
           content: "먼저 그룹을 생성해야 잼얘가챠를 사용할 수 있어요! 그룹화면으로 이동해보세요!",
           params: { placement: "bottom" }
         }
-      ],
-      groupListCheckSteps: [
-        {
-          target: ".step3-group-list",
-          content: "그룹이 생겼어요! 이제 그룹의 가챠에 잼얘를 생성해볼까요?",
-          params: { 
-            placement: "bottom",
-            enableScrolling: false
-          }
-        }
       ]
     };
   },
@@ -73,10 +63,8 @@ export default {
       if (currentStep === TutorialStep.WELCOME) {
         console.log("welcomeSteps");
         return this.welcomeSteps;
-      } else if (currentStep === TutorialStep.GROUP_LIST_CHECK) {
-        return this.groupListCheckSteps;
       }
-      return this.welcomeSteps; // 기본값
+      return this.welcomeSteps; 
     }
   },
   props: {
@@ -96,10 +84,6 @@ export default {
   },
   mounted() {
     if (this.isLogin && getCurrentStep() === TutorialStep.WELCOME) {
-      this.$tours['navbarTour'].start();
-    }
-
-    if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_LIST_CHECK) {
       this.$tours['navbarTour'].start();
     }
   },
