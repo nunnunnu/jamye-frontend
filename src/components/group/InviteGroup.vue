@@ -94,9 +94,15 @@ export default {
         imageUrl,
         nextOne() {
             if(this.inviteCodeCopy == '' || this.inviteCodeCopy == null || this.inviteCodeCopy == undefined) {
-                this.$toastr.warning("그룹 명을 입력하지않으셨습니다.")
+                this.$toastr.warning("초대코드를 입력하지않으셨습니다.")
                 return
             }
+            
+            // API 호출 전에 먼저 step 변경 알림 (클릭 방지 해제를 위해)
+            this.step = 2;
+            console.log('Emitting inviteStepChanged with step:', this.step);
+            this.$emit('inviteStepChanged', this.step);
+            
             axios.get("/api/group/group-info/"+this.inviteCodeCopy, {
                 headers: {
                     Authorization: `Bearer `+localStorage.getItem('accessToken')
@@ -104,13 +110,12 @@ export default {
             })
             .then(resposne => {
                 this.groupInfo = resposne.data.data
-                this.step = 2;
-                
-                // 부모 컴포넌트에 단계 변경 알림
-                this.$emit('inviteStepChanged', this.step);
             })
             .catch(e => {
                 this.$toastr.error(e.response.data.message)
+                // API 실패 시 step을 다시 1로 되돌리기
+                this.step = 1;
+                this.$emit('inviteStepChanged', this.step);
             })
             
         },

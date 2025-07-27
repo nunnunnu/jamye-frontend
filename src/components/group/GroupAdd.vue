@@ -110,6 +110,8 @@ export default {
     this.setupSkipButtonListener();
     // DOM 이벤트 리스너로 피니시 버튼 클릭 감지
     this.setupFinishButtonListener();
+    // DOM 이벤트 리스너로 Next 버튼 클릭 감지
+    this.setupNextButtonListener();
 });
     },
     data() {
@@ -120,6 +122,7 @@ export default {
             inviteCode: null,
             currentModalStep: 1,
             currentInviteStep: 1,
+            childStep: 0,
             isTourActive: false,
             currentTourTarget: null,
             // 전체 개요 투어 (최초 접근시만)
@@ -230,7 +233,7 @@ export default {
                 },
                 {
                     target: ".nickname-duplicate-btn",
-                    content: "닉네임 중복체크를 반드시 진행해주세요.",
+                    content: "닉네임 중복체크를 통과해야 그룹에 가입할 수 있습니다.",
                     params: { 
                         placement: "top",
                         enableScrolling: false
@@ -308,6 +311,7 @@ export default {
             this.stopAllTours();
             this.isTourActive = true;
             this.currentTourTarget = 'step2-group-create';
+            this.childStep = 1; // childStep 초기화
             
             // 그룹 생성 전용 투어 시작
             setTimeout(() => {
@@ -322,6 +326,7 @@ export default {
             this.stopAllTours();
             this.isTourActive = true;
             this.currentTourTarget = 'step3-group-create';
+            this.childStep = 1; // childStep 초기화
             
             // 초대코드 전용 투어 시작
             setTimeout(() => {
@@ -423,6 +428,51 @@ export default {
                 subtree: true
             });
         },
+        
+        // Next 버튼 클릭 감지
+        setupNextButtonListener() {
+            // MutationObserver를 사용해서 DOM 변경을 감지
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                                                // 모든 버튼을 확인
+                        const allButtons = document.querySelectorAll('button');
+                        allButtons.forEach(button => {
+                            const buttonText = button.textContent.trim();
+                            console.log('Found button:', buttonText, button);
+                            
+                            // Vue Tour의 Next 버튼 감지
+                            if (buttonText === 'Next' && button.classList.contains('v-step__button-next') && 
+                                !button.hasAttribute('data-next-listener-added')) {
+                                button.setAttribute('data-next-listener-added', 'true');
+                                button.addEventListener('click', () => {
+                                    console.log('Vue Tour Next button clicked');
+                                    this.childStep++;
+                                    console.log('childStep increased to:', this.childStep);
+                                    
+                                    // childStep에 따른 클릭 방지 해제
+                                    if (this.childStep === 3) { // step6-group-create에서 해제
+                                        console.log('Releasing click prevention at childStep 3');
+                                        this.isTourActive = false;
+                                        this.currentTourTarget = null;
+                                    } else if (this.childStep === 5) { // step8-group-create에서 해제
+                                        console.log('Releasing click prevention at childStep 5');
+                                        this.isTourActive = false;
+                                        this.currentTourTarget = null;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // body 전체를 관찰
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        },
 
         // 그룹 생성 모달을 여는 메서드
         openGroupCreateModal() {
@@ -460,7 +510,12 @@ export default {
         },
         // 자식 컴포넌트에서 스텝 변경 알림을 받는 메서드 (그룹 생성)
         onStepChanged(step) {
+            console.log('onStepChanged called with step:', step);
             this.currentModalStep = step;
+            
+            // childStep 증가
+            this.childStep++;
+            console.log('GroupCreate childStep:', this.childStep, 'isTourActive before:', this.isTourActive);
             
             // 스텝이 2로 변경되면 투어를 업데이트하고 step7으로 이동
             if (step === 2) {
@@ -478,15 +533,27 @@ export default {
                 });
             }
             
-            // next 버튼을 눌렀을 때 클릭 방지 해제
-            if (step === 2) {
+            // childStep에 따른 클릭 방지 해제
+            if (this.childStep === 3) { // step6-group-create에서 해제
+                console.log('Releasing click prevention at childStep 3');
+                this.isTourActive = false;
+                this.currentTourTarget = null;
+            } else if (this.childStep === 5) { // step8-group-create에서 해제
+                console.log('Releasing click prevention at childStep 5');
                 this.isTourActive = false;
                 this.currentTourTarget = null;
             }
+            
+            console.log('isTourActive after:', this.isTourActive);
         },
         // 자식 컴포넌트에서 스텝 변경 알림을 받는 메서드 (초대코드)
         onInviteStepChanged(step) {
+            console.log('onInviteStepChanged called with step:', step);
             this.currentInviteStep = step;
+            
+            // childStep 증가
+            this.childStep++;
+            console.log('InviteCode childStep:', this.childStep, 'isTourActive before:', this.isTourActive);
             
             // 초대코드 투어가 진행 중이라면 해당 스텝으로 이동
             if (this.$tours['inviteCodeTour'].isRunning) {
@@ -502,6 +569,23 @@ export default {
                     }
                 }, 100);
             }
+            
+            // childStep에 따른 클릭 방지 해제
+            if (this.childStep === 2) { // invite-code-input에서 바로 해제
+                console.log('Releasing click prevention at childStep 2');
+                this.isTourActive = false;
+                this.currentTourTarget = null;
+            } else if (this.childStep === 4) { // invite-next-btn에서 해제
+                console.log('Releasing click prevention at childStep 4');
+                this.isTourActive = false;
+                this.currentTourTarget = null;
+            } else if (this.childStep === 6) { // nickname-duplicate-btn에서 해제
+                console.log('Releasing click prevention at childStep 6');
+                this.isTourActive = false;
+                this.currentTourTarget = null;
+            }
+            
+            console.log('isTourActive after:', this.isTourActive);
         }
     }
 };
