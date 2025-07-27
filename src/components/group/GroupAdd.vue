@@ -1,5 +1,8 @@
 <template>
     <div class="b-container">
+        <!-- 투어 오버레이 -->
+        <div v-if="isTourActive" class="tour-overlay" @click="preventClick"></div>
+
         <v-tour
             name="navbarTour"
             :steps="firstSteps"
@@ -23,14 +26,16 @@
             <button type="button" class="btn btn-dark btn-block btn-group step2-group-create" 
                     data-bs-toggle="modal" 
                     data-bs-target="#exampleModal1"
-                    @click="startGroupCreateTour">
+                    @click="startGroupCreateTour"
+                    :disabled="isTourActive && !isTargetAllowed('step2-group-create')">
                 그룹 생성
             </button>
-                <GroupCreate ref="groupCreate" @createModalClose="createModalClose" @stepChanged="onStepChanged"></GroupCreate>
+                <GroupCreate ref="groupCreate" @createModalClose="createModalClose" @stepChanged="onStepChanged" @groupCreateComplete="handleGroupCreateComplete"></GroupCreate>
             <button type="button" class="btn btn-dark btn-block btn-group step3-group-create" 
                     data-bs-toggle="modal" 
                     data-bs-target="#exampleModal2"
-                    @click="startInviteCodeTour">
+                    @click="startInviteCodeTour"
+                    :disabled="isTourActive && !isTargetAllowed('step3-group-create')">
                 초대코드 입력
             </button>
                 <inviteGroup ref="inviteGroup" v-show="groupInviteModal" @inviteModalClose="inviteModalClose" @inviteStepChanged="onInviteStepChanged" :inviteCode="inviteCode"></inviteGroup>
@@ -42,7 +47,7 @@
 import GroupCreate from './GroupCreate.vue';
 import InviteGroup from './InviteGroup.vue';
 import { Modal } from 'bootstrap';
-import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
+import { getCurrentStep, TutorialStep } from "@/js/tutorialHelper";
 
 export default {
     components: {
@@ -54,12 +59,58 @@ export default {
         this.$nextTick(() => {
             if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_CREATE) {
                 console.log('start overview tour');
+                this.isTourActive = true;
                 // 약간의 지연을 주어 모든 컴포넌트가 렌더링되도록 함
                 setTimeout(() => {
                     this.$tours['navbarTour'].start();
                 }, 100);
             }
         });
+        
+        this.$nextTick(() => {
+        Object.keys(this.$tours).forEach(tourName => {
+        const tour = this.$tours[tourName];
+        
+        // 투어 객체가 존재하고 이벤트 리스너를 등록할 수 있는지 확인
+        if (tour) {
+            console.log(`Setting up event listeners for tour: ${tourName}`, tour);
+            
+            // 모든 가능한 이벤트를 시도
+            const events = ['finish', 'skip', 'stop', 'end', 'close', 'cancel'];
+            
+            if (typeof tour.on === 'function') {
+                events.forEach(eventName => {
+                    tour.on(eventName, () => {
+                        console.log(`Tour ${tourName} ${eventName} event triggered`);
+                        if (eventName === 'finish') {
+                            this.handleFinish();
+                        } else {
+                            this.handleSkip();
+                        }
+                    });
+                });
+            } else if (typeof tour.$on === 'function') {
+                events.forEach(eventName => {
+                    tour.$on(eventName, () => {
+                        console.log(`Tour ${tourName} ${eventName} event triggered (alternative method)`);
+                        if (eventName === 'finish') {
+                            this.handleFinish();
+                        } else {
+                            this.handleSkip();
+                        }
+                    });
+                });
+            } else {
+                console.warn(`Tour '${tourName}' doesn't have on or $on method`);
+            }
+        }
+    });
+    
+    // DOM 이벤트 리스너로 스킵 버튼 클릭 감지
+    this.setupSkipButtonListener();
+    // DOM 이벤트 리스너로 피니시 버튼 클릭 감지
+    this.setupFinishButtonListener();
+});
     },
     data() {
         return {
@@ -69,6 +120,8 @@ export default {
             inviteCode: null,
             currentModalStep: 1,
             currentInviteStep: 1,
+            isTourActive: false,
+            currentTourTarget: null,
             // 전체 개요 투어 (최초 접근시만)
             firstSteps: [
                 {
@@ -231,15 +284,30 @@ export default {
             this.groupInviteModal = true
         },
         handleFinish() {
-            setStep(TutorialStep.GROUP_CREATE);
+            this.isTourActive = false;
+            this.currentTourTarget = null;
+            this.stopAllTours();
         },
         handleSkip() {
-            setStep(TutorialStep.DONE);
+            console.log("handleSkip");
+            this.isTourActive = false;
+            this.currentTourTarget = null;
+            this.stopAllTours();
+        },
+        handleGroupCreateComplete() {
+            // 그룹 생성 완료 시 호출됨
+            this.isTourActive = false;
+            this.currentTourTarget = null;
+            this.stopAllTours();
         },
         // 그룹 생성 투어 시작
         startGroupCreateTour() {
+            if (this.isTourActive && !this.isTargetAllowed('step2-group-create')) return;
+            
             // 다른 투어가 진행중이면 중지
             this.stopAllTours();
+            this.isTourActive = true;
+            this.currentTourTarget = 'step2-group-create';
             
             // 그룹 생성 전용 투어 시작
             setTimeout(() => {
@@ -248,8 +316,12 @@ export default {
         },
         // 초대코드 투어 시작
         startInviteCodeTour() {
+            if (this.isTourActive && !this.isTargetAllowed('step3-group-create')) return;
+            
             // 다른 투어가 진행중이면 중지
             this.stopAllTours();
+            this.isTourActive = true;
+            this.currentTourTarget = 'step3-group-create';
             
             // 초대코드 전용 투어 시작
             setTimeout(() => {
@@ -258,16 +330,100 @@ export default {
         },
         // 모든 투어 중지
         stopAllTours() {
-            if (this.$tours['navbarTour'].isRunning) {
+            if (this.$tours['navbarTour'] && this.$tours['navbarTour'].isRunning) {
                 this.$tours['navbarTour'].stop();
             }
-            if (this.$tours['groupCreateTour'].isRunning) {
+            if (this.$tours['groupCreateTour'] && this.$tours['groupCreateTour'].isRunning) {
                 this.$tours['groupCreateTour'].stop();
             }
-            if (this.$tours['inviteCodeTour'].isRunning) {
+            if (this.$tours['inviteCodeTour'] && this.$tours['inviteCodeTour'].isRunning) {
                 this.$tours['inviteCodeTour'].stop();
             }
+            
+            // 투어 상태 완전 초기화
+            this.isTourActive = false;
+            this.currentTourTarget = null;
         },
+        // 투어 중 클릭 허용 대상 확인
+        isTargetAllowed(target) {
+            return this.currentTourTarget === target;
+        },
+        // 클릭 방지 함수
+        preventClick(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        },
+        
+        // 스킵 버튼 클릭 감지
+        setupSkipButtonListener() {
+            // MutationObserver를 사용해서 DOM 변경을 감지
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        // 스킵 버튼이 추가되었는지 확인
+                        const skipButtons = Array.from(document.querySelectorAll('[data-v-step="skip"], .v-tour__skip, button[class*="skip"]'));
+                        // 텍스트로 "Skip"을 포함하는 버튼도 찾기
+                        const allButtons = document.querySelectorAll('.v-tour button');
+                        allButtons.forEach(button => {
+                            if (button.textContent.includes('Skip') && !skipButtons.includes(button)) {
+                                skipButtons.push(button);
+                            }
+                        });
+                        skipButtons.forEach(button => {
+                            if (!button.hasAttribute('data-skip-listener-added')) {
+                                button.setAttribute('data-skip-listener-added', 'true');
+                                button.addEventListener('click', () => {
+                                    console.log('Skip button clicked via DOM listener');
+                                    this.handleSkip();
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // body 전체를 관찰
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        },
+        
+        // 피니시 버튼 클릭 감지
+        setupFinishButtonListener() {
+            // MutationObserver를 사용해서 DOM 변경을 감지
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        // 피니시 버튼이 추가되었는지 확인
+                        const finishButtons = Array.from(document.querySelectorAll('[data-v-step="finish"], .v-tour__finish, button[class*="finish"]'));
+                        // 텍스트로 "Finish"를 포함하는 버튼도 찾기
+                        const allButtons = document.querySelectorAll('.v-tour button');
+                        allButtons.forEach(button => {
+                            if (button.textContent.includes('Finish') && !finishButtons.includes(button)) {
+                                finishButtons.push(button);
+                            }
+                        });
+                        finishButtons.forEach(button => {
+                            if (!button.hasAttribute('data-finish-listener-added')) {
+                                button.setAttribute('data-finish-listener-added', 'true');
+                                button.addEventListener('click', () => {
+                                    console.log('Finish button clicked via DOM listener');
+                                    this.handleFinish();
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // body 전체를 관찰
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        },
+
         // 그룹 생성 모달을 여는 메서드
         openGroupCreateModal() {
             return new Promise((resolve) => {
@@ -321,6 +477,12 @@ export default {
                     }
                 });
             }
+            
+            // next 버튼을 눌렀을 때 클릭 방지 해제
+            if (step === 2) {
+                this.isTourActive = false;
+                this.currentTourTarget = null;
+            }
         },
         // 자식 컴포넌트에서 스텝 변경 알림을 받는 메서드 (초대코드)
         onInviteStepChanged(step) {
@@ -353,6 +515,18 @@ export default {
     justify-content: center;
     border-radius: 15px;
     font-size: 30px;
+}
+
+/* 투어 오버레이 */
+.tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+    cursor: not-allowed;
 }
 
 /* 투어 스타일 커스터마이징 */

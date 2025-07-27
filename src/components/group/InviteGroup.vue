@@ -57,7 +57,7 @@
                         <button type="button" class="btn btn-dark btn-block invite-next-btn" @click="nextTwo" >다음</button>
                     </div>
                     <div v-if="step === 3">
-                        <button v-if="nickNameDupCheck" type="button" class="btn btn-dark btn-block"  data-bs-dismiss="modal" aria-label="Close" @click="create">가입</button>
+                        <button v-if="nickNameDupCheck" type="button" class="btn btn-dark btn-block" @click="create">가입</button>
                         <button v-else type="button" class="btn btn-dark btn-block"  disabled>가입</button>
                     </div>
                 </div> 
@@ -156,8 +156,32 @@ export default {
             this.step = 1;
         },
         modalClose() {
-            this.resetForm();
+            this.closeModalCompletely();
             this.$emit("inviteModalClose", false)
+        },
+        closeModalCompletely() {
+            // 모달 인스턴스 가져오기
+            const modalElement = document.getElementById('exampleModal2');
+            const modalInstance = Modal.getInstance(modalElement);
+            
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            
+            // 모달 백드롭 제거
+            this.$nextTick(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                // body에서 modal 관련 클래스 제거
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            });
+            
+            // 폼 리셋
+            this.resetForm();
         },
         create() {
             if(this.nickname == null) {
@@ -174,11 +198,13 @@ export default {
                     Authorization: `Bearer `+localStorage.getItem('accessToken')
                 }
             }).then(() => {
-                this.modalClose()  
-                const modalInstance = Modal.getInstance(document.getElementById('exampleModal2'))
-                if (modalInstance) modalInstance.hide()
+                this.$toastr.success("그룹 가입 완료!");
                 
-                this.$router.push("/groups")
+                // 모달 완전히 닫기
+                this.closeModalCompletely();
+                
+                // /groups로 리다이렉트
+                this.$router.push("/groups");
             }).catch(e => {
                 this.$toastr.error(e.response.data.message)
             })

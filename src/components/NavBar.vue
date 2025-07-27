@@ -74,7 +74,6 @@ export default {
         console.log("welcomeSteps");
         return this.welcomeSteps;
       } else if (currentStep === TutorialStep.GROUP_LIST_CHECK) {
-        console.log("groupListCheckSteps");
         return this.groupListCheckSteps;
       }
       return this.welcomeSteps; // 기본값
@@ -137,6 +136,15 @@ export default {
     },
     handleSkip() {
       setStep(TutorialStep.DONE);
+    },
+        // 투어 중 클릭 허용 대상 확인
+    isTargetAllowed(target) {
+      return this.currentTourTarget === target;
+    },
+    // 클릭 방지 함수
+    preventClick(event) {
+      event.preventDefault();
+      event.stopPropagation();
     },
   },
 };

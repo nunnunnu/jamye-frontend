@@ -54,6 +54,7 @@
 import axios from '@/js/axios';
 import { base64ToFile } from '@/js/fileScripts';
 import { Modal } from 'bootstrap';
+import { setStep, TutorialStep } from "@/js/tutorialHelper";
 
 export default {
     name: 'GroupCreate',
@@ -111,8 +112,14 @@ export default {
                 // 모달 완전히 닫기
                 this.closeModalCompletely();
                 
-                // 부모 컴포넌트에 완료 이벤트 발생
-                this.$emit("groupCreateComplete");
+                // 투어 단계 업데이트
+                setStep(TutorialStep.GROUP_LIST_CHECK);
+                
+                // /groups로 리다이렉트
+                this.$router.push('/groups').then(() => {
+                    // 페이지 이동 후 그룹 목록 새로고침 이벤트 발생
+                    this.$emit("groupCreateComplete");
+                });
             })
         },
         closeModalCompletely() {
