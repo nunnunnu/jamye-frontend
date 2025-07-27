@@ -43,6 +43,7 @@
 import { onMounted } from "vue";
 import * as bootstrap from "bootstrap";
 import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
+import { setupGlobalTourEventListeners } from '@/js/tourEventListeners';
 
 export default {
   name: "NavBar",
@@ -83,6 +84,10 @@ export default {
     });
   },
   mounted() {
+    // 전역 투어 이벤트 리스너 설정
+    setupGlobalTourEventListeners(this);
+    
+    // tutorialState가 1이 아니면 투어 실행하지 않음
     if (this.isLogin && getCurrentStep() === TutorialStep.WELCOME) {
       this.$tours['navbarTour'].start();
     }
@@ -99,14 +104,15 @@ export default {
     },
     groups() {
         if (getCurrentStep() === TutorialStep.WELCOME) {
+            // 현재 투어를 완전히 중지
+            if (this.$tours['navbarTour'] && this.$tours['navbarTour'].isRunning) {
+                this.$tours['navbarTour'].stop();
+            }
+            
             setStep(TutorialStep.GROUP_CREATE)
             this.$nextTick(() => {
-                // 다음 페이지로 이동한 후 투어 시작
-                this.$router.push("/groups").then(() => {
-                    this.$nextTick(() => {
-                        this.$tours['navbarTour']?.start()
-                    })
-                })
+                // 다음 페이지로 이동
+                this.$router.push("/groups");
             })
         } else {
             this.$router.push("/groups");

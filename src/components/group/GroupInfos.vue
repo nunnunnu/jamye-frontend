@@ -71,6 +71,7 @@ import axios from '@/js/axios';
 import { imageUrl } from '@/js/fileScripts';
 import { getCurrentStep, setStep, TutorialStep } from "@/js/tutorialHelper";
 import { Modal } from 'bootstrap'; // Import Modal when it's actually used
+import { setupGlobalTourEventListeners, cleanupGlobalTourEventListeners } from '@/js/tourEventListeners';
 
 export default {
     data() {
@@ -125,6 +126,8 @@ export default {
         this.loadMyGroupList();
     },
     mounted() {
+        setupGlobalTourEventListeners(this);
+        
         if (this.isLogin && getCurrentStep() === TutorialStep.GROUP_CREATE) {
             this.isTourActive = true;
             this.$tours['navbarTour'].start();
@@ -148,6 +151,9 @@ export default {
             }
         });
     });
+    },
+    beforeUnmount() {
+        cleanupGlobalTourEventListeners();
     },
     methods: {
         imageUrl,
