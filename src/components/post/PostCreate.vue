@@ -5,7 +5,7 @@
             <input type="text" class="form-control" name="post-title" id="post-title" v-model="postTitle" placeholder="게시글 제목">
         </div>
         <div class="btn-post">
-            <button type="button" class="btn btn-dark btn-imgbox btn-area" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
+            <button type="button" class="btn btn-dark btn-imgbox btn-area" id="image-box-btn" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
             <button @click="toggleInput" class="btn btn-dark btn-area">
                 {{ isInputVisible ? "입력완료" : "태그 추가" }}
             </button>
@@ -43,7 +43,7 @@
                 </div>
             </div>
         </div>
-        <div class="post-container">
+        <div class="post-container" id="post-content-area">
             <QuillEditor
                 ref="quillEditor"
                 v-model:content="postContent"
@@ -55,6 +55,9 @@
             />
         </div>
         <button class="btn btn-dark btn-block" @click="createPost()">생성</button>
+
+        <!-- VueTour 컴포넌트 -->
+        <v-tour name="postTutorial" :steps="steps" :options="tourOptions" :callbacks="tourCallbacks"></v-tour>
     </div>
 </template>
 
@@ -85,6 +88,7 @@ export default {
             selectedTags: [],
             hoverIndex: -1,
             groupSeq: null,
+            tutorialState: 0, // 튜토리얼 상태 관리용
             editorOptions: {
                 theme: 'snow',
                 placeholder: '게시글 내용을 입력하세요...',
@@ -105,6 +109,83 @@ export default {
                         ['clean']
                     ]
                 }
+            },
+            steps: [
+                {
+                    target: '#post-title',
+                    content: '게시글의 제목을 입력해주세요',
+                    params: {
+                        placement: 'bottom'
+                    }
+                },
+                {
+                    target: '#post-content-area',
+                    content: '게시글의 내용을 입력해주세요',
+                    params: {
+                        placement: 'top'
+                    }
+                },
+                {
+                    target: '#image-box-btn',
+                    content: '이미지를 첨부하고 싶다면 첨부하고 싶은 위치에서 이미지보관함을 클릭해주세요',
+                    params: {
+                        placement: 'bottom'
+                    }
+                },
+                {
+                    target: '#imagePreviewContainer',
+                    content: '게시글에 첨부하고 싶은 이미지를 *모두* 선택해주세요.',
+                    params: {
+                        placement: 'top'
+                    },
+                    before: () => {
+                        // 모달이 열려있지 않다면 열기
+                        const modal = document.getElementById('imageModal');
+                        if (modal && !modal.classList.contains('show')) {
+                            // Bootstrap 5 방식으로 모달 열기
+                            modal.click();
+                            // 또는 jQuery가 있다면: $('#imageModal').modal('show');
+                        }
+                    }
+                },
+                {
+                    target: '.btn-primary',
+                    content: '삽입 버튼을 눌러 삽입해주세요. 삽입버튼이 선택이 안된다면 게시글 내용의 원하는 위치를 다시 선택해주세요(창을 닫아도 업로드한 이미지는 유지됩니다)',
+                    params: {
+                        placement: 'top'
+                    }
+                }
+            ],
+            tourOptions: {
+                useKeyboardNavigation: false,
+                labels: {
+                    buttonSkip: '건너뛰기',
+                    buttonPrevious: '이전',
+                    buttonNext: '다음',
+                    buttonStop: '완료'
+                }
+            },
+            tourCallbacks: {
+                onStop: () => {
+                    // 튜토리얼 종료 시 모달 닫기
+                    const modal = document.getElementById('imageModal');
+                    if (modal && modal.classList.contains('show')) {
+                        const closeBtn = modal.querySelector('.btn-close');
+                        if (closeBtn) {
+                            closeBtn.click();
+                        }
+                    }
+                },
+                onSkip: () => {
+                    // 튜토리얼 건너뛰기 시 모달 닫기
+                    const modal = document.getElementById('imageModal');
+                    if (modal && modal.classList.contains('show')) {
+                        const closeBtn = modal.querySelector('.btn-close');
+                        if (closeBtn) {
+                            closeBtn.click();
+                        }
+                    }
+                }
             }
         }
     },
@@ -117,6 +198,10 @@ export default {
     },
     created() {
         this.groupSeq = localStorage.getItem("groupSeq")
+        
+        // tutorialState 확인 (예시로 localStorage에서 가져온다고 가정)
+        this.tutorialState = parseInt(localStorage.getItem("tutorialState")) || 0;
+        
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
             this.$router.push("/login")
@@ -131,6 +216,14 @@ export default {
           }).then(r => {
             this.groupName = r.data.data.name
           })
+        }
+    },
+    mounted() {
+        // tutorialState가 3이면 튜토리얼 시작
+        if (this.tutorialState === 3) {
+            this.$nextTick(() => {
+                this.$tours['postTutorial'].start();
+            });
         }
     },
     methods: {

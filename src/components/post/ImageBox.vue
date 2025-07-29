@@ -1,60 +1,60 @@
 <template>
     <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="imageModalLabel">이미지 임시보관함</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                <label for="imageUploadInput" class="form-label">이미지 업로드</label>
-                                <input class="form-control" accept="image/*" type="file" id="imageUploadInput" @change="handleImageUpload" multiple>
-                                </div>
-                                <div class="row g-3" id="imagePreviewContainer">
-                                    <div
-                                        class="card position-relative"
-                                        style="width: 18rem; cursor: pointer;"
-                                        v-for="[key, value] in Object.entries(this.localImageUidMap)"
-                                        :key="key"
-                                        @click="toggleSelection(key)" 
-                                    >
-                                        <div v-if="value != null">
-                                            <!-- 체크박스 -->
-                                            <input
-                                            type="checkbox"
-                                            class="form-check-input position-absolute"
-                                            style="top: 10px; left: 10px; z-index: 1;"
-                                            :checked="selectedImages.includes(key)"
-                                            readonly
-                                            />
-                                            <!-- 이미지 -->
-                                            <img :src="value" class="card-img-top" alt="Uploaded Image" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    v-if="(this.imageKey != null && this.imageSeq != null) || this.cursorPosition != null"
-                                    class="btn btn-primary me-2"
-                                    :disabled="selectedImages.length === 0"
-                                    @click="insertSelectedImages"
-                                >
-                                    삽입
-                                </button>
-                                <button
-                                    class="btn btn-danger"
-                                    :disabled="selectedImages.length === 0"
-                                    @click="deleteSelectedImages"
-                                >
-                                    삭제
-                                </button>
-                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">닫기</button>
-                            </div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">이미지 임시보관함</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="imageUploadInput" class="form-label">이미지 업로드</label>
+                        <input class="form-control" accept="image/*" type="file" id="imageUploadInput" @change="handleImageUpload" multiple>
+                    </div>
+                    <div class="row g-3" id="imagePreviewContainer">
+                        <div
+                            class="card position-relative"
+                            style="width: 18rem; cursor: pointer;"
+                            v-for="[key, value] in Object.entries(this.localImageUidMap)"
+                            :key="key"
+                            @click="toggleSelection(key)" 
+                        >
+                            <div v-if="value != null">
+                                <!-- 체크박스 -->
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input position-absolute"
+                                    style="top: 10px; left: 10px; z-index: 1;"
+                                    :checked="selectedImages.includes(key)"
+                                    readonly
+                                />
+                                <!-- 이미지 -->
+                                <img :src="value" class="card-img-top" alt="Uploaded Image" />
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        v-if="(this.imageKey != null && this.imageSeq != null) || this.cursorPosition != null"
+                        class="btn btn-primary me-2"
+                        :disabled="selectedImages.length === 0"
+                        @click="insertSelectedImages"
+                    >
+                        삽입
+                    </button>
+                    <button
+                        class="btn btn-danger"
+                        :disabled="selectedImages.length === 0"
+                        @click="deleteSelectedImages"
+                    >
+                        삭제
+                    </button>
+                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 <script>
 import { v4 as uuidv4 } from "uuid";
@@ -118,8 +118,8 @@ export default {
                 this.selectedImages = []
             } else if(this.type == 'POST') {
                 this.$emit('addImageAtCursor', this.selectedImages)
+                this.selectedImages = [] // 선택된 이미지 초기화
             }
-
         },
         deleteSelectedImages() {
             const usedImages = this.selectedImages.filter((key) => {
@@ -160,5 +160,4 @@ export default {
         },
     }
 }
-
 </script>
