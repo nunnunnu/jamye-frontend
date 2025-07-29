@@ -1,12 +1,28 @@
 <template>
     <b-container>
       <header class="masthead">
+            <!-- vueTour 컴포넌트 추가 -->
+            <v-tour
+                name="mainHomeTour"
+                :steps="tourSteps"
+                @finish="handleTourFinish"
+                @skip="handleTourSkip"
+            />
+            
+            <!-- 모달 내부 투어 -->
+            <v-tour
+                name="modalTour"
+                :steps="modalTourSteps"
+                @finish="handleModalTourFinish"
+                @skip="handleModalTourSkip"
+            />
+            
             <div class="container px-5">
-                <div v-if="isLogin" class="dropdown" @click="groupList">
-                    <a v-if="currentGroup==null" class="btn btn-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div v-if="isLogin" class="dropdown">
+                    <a v-if="currentGroup==null" class="btn btn-dark dropdown-toggle group-select-btn" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" @click="groupList">
                         그룹을 선택해주세요.
                     </a>
-                    <a v-else class="btn btn-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a v-else class="btn btn-dark dropdown-toggle group-select-btn" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" @click="groupList">
                         {{ currentGroup.name }}
                     </a>
                     <ul class="dropdown-menu">
@@ -19,7 +35,6 @@
                             <li><a> 가입된 그룹이 없습니다 </a></li>
                         </div>    
                     </ul>
-                    
                 </div>
                 <div class="row gx-5 align-items-center">
                     <div class="col-lg-6">
@@ -32,8 +47,8 @@
                             <div v-if="this.isLogin">
                                 <div v-if="currentGroup != null" class="mt-3 d-flex justify-content-between">
                                     <button type="button" class="btn btn-dark custom-btn" @click="luckyDraw">뽑기</button>
-                                    <button type="button" class="btn btn-dark custom-btn" data-bs-toggle="modal" data-bs-target="#jamye-create">잼얘 넣기</button>
-                                        <div class="modal fade" id="jamye-create" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <button type="button" class="btn btn-dark custom-btn jamye-create-btn" data-bs-toggle="modal" data-bs-target="#jamye-create">잼얘 넣기</button>
+                                        <div class="modal fade" id="jamye-create" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" @mouseenter="checkModalTour">
                                             <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
@@ -43,12 +58,13 @@
                                                     <div class="modal-body">
                                                             <!-- 게시글 정보 입력 화면 -->
                                                             <div class="group-add">
-                                                                <button class="btn btn-dark btn-block btn-group" data-bs-dismiss="modal" aria-label="Close" @click="routerMessage()">메세지 형식</button>
-                                                                <button class="btn btn-dark btn-block btn-group" data-bs-dismiss="modal" aria-label="Close" @click="routerPost()">
+                                                                <button class="btn btn-dark btn-block btn-group board-type-btn" data-bs-dismiss="modal" aria-label="Close" @click="routerPost()">
                                                                     게시글 형식
                                                                 </button>
+                                                                <button class="btn btn-dark btn-block btn-group message-type-btn" data-bs-dismiss="modal" aria-label="Close" @click="routerMessage()">메세지 형식</button>
                                                                     <inviteGroup @inviteModalClose="inviteModalClose"></inviteGroup>
                                                             </div>
+                                                            
                                                     </div>
                                                 </div>
                                             </div>
@@ -116,6 +132,8 @@
 import { nextTick } from 'vue';
 import axios from '@/js/axios';
 import gachaVideo from '@/assets/img/gacha.mp4'
+import { getCurrentStep, TutorialStep, setStep } from '@/js/tutorialHelper';
+import { setupGlobalTourEventListeners, cleanupGlobalTourEventListeners } from '@/js/tourEventListeners';
 
 export default {
     name: 'MainHome',
@@ -123,7 +141,35 @@ export default {
         return {
             currentGroup: null,
             groupInfos: {},
-            showBegModal: false
+            showBegModal: false,
+            tourSteps: [
+                {
+                    target: '.group-select-btn',
+                    content: '방금 생성한 그룹을 먼저 선택해보세요!',
+                    params: { 
+                        placement: 'right',
+                        enableScrolling: false
+                    }
+                },
+                {
+                    target: '.jamye-create-btn',
+                    content: '잼얘는 여기서 생성할 수 있어요',
+                    params: { 
+                        placement: 'bottom',
+                        enableScrolling: false
+                    }
+                }
+            ],
+            modalTourSteps: [
+                {
+                    target: '#jamye-create .board-type-btn',
+                    content: '잼얘는 메세지 타입과 게시글 타입이 있어요! 먼저 게시글 먼저 작성해볼까요?',
+                    params: { 
+                        placement: 'bottom',
+                        enableScrolling: false
+                    }
+                }
+            ]
         }
     },
     methods: {
@@ -136,6 +182,13 @@ export default {
             });
         },
         routerPost() {
+            // 튜토리얼 상태가 3이면 모달 투어 중지
+            if (getCurrentStep() === TutorialStep.BOARD_POST_CREATE) {
+                if (this.$tours && this.$tours['modalTour']) {
+                    this.$tours['modalTour'].stop();
+                }
+            }
+            
             nextTick(() => {
                this.$router.push({ name: 'postCreate', params: { seq: this.currentGroup.groupSequence } });
             });
@@ -144,6 +197,13 @@ export default {
             this.$emit("groupSelect", group)
             localStorage.setItem("groupSeq", group.groupSequence)
             this.getGroupInfo(group.groupSequence)
+            
+            // 튜토리얼 상태가 3이면 vueTour를 다음 단계로 진행
+            if (getCurrentStep() === TutorialStep.BOARD_POST_CREATE) {
+                if (this.$tours && this.$tours['mainHomeTour']) {
+                    this.$tours['mainHomeTour'].nextStep();
+                }
+            }
         },
         groupList() {
             axios.get("/api/group/list", {
@@ -238,6 +298,62 @@ export default {
           }).catch(() => {
             localStorage.removeItem("groupSeq")
           }) 
+        },
+        handleModalOpen() {
+            const currentStep = getCurrentStep();
+            if (currentStep === TutorialStep.BOARD_POST_CREATE) {
+                // 모달이 완전히 열린 후 투어 시작
+                setTimeout(() => {
+                    this.startModalTour();
+                }, 500);
+            }
+        },
+        startModalTour() {
+            // 타겟 요소 확인
+            const targetElement = document.querySelector('#jamye-create .board-type-btn');
+            console.log('Target element:', targetElement);
+            
+            if (targetElement && this.$tours && this.$tours['modalTour']) {
+                console.log('Starting modal tour');
+                this.$tours['modalTour'].start();
+            } else {
+                console.log('Modal tour not available or target not found');
+                // 다시 시도
+                setTimeout(() => {
+                    if (this.$tours && this.$tours['modalTour']) {
+                        console.log('Retrying modal tour');
+                        this.$tours['modalTour'].start();
+                    }
+                }, 500);
+            }
+        },
+        checkModalTour() {
+            const currentStep = getCurrentStep();
+            if (currentStep === TutorialStep.BOARD_POST_CREATE) {
+                // 마우스가 버튼 위에 올라갔을 때 투어 시작
+                setTimeout(() => {
+                    if (this.$tours && this.$tours['modalTour']) {
+                        console.log('Starting modal tour on mouse enter');
+                        this.$tours['modalTour'].start();
+                    }
+                }, 100);
+            }
+        },
+        handleTourFinish() {
+            console.log('Tour finished');
+            setStep(TutorialStep.MESSAGE_POST_CREATE);
+        },
+        handleTourSkip() {
+            console.log('Tour skipped');
+            setStep(TutorialStep.MESSAGE_POST_CREATE);
+        },
+        handleModalTourFinish() {
+            console.log('Modal Tour finished');
+            setStep(TutorialStep.MESSAGE_POST_CREATE);
+        },
+        handleModalTourSkip() {
+            console.log('Modal Tour skipped');
+            setStep(TutorialStep.MESSAGE_POST_CREATE);
         }
     },
     props: {
@@ -257,6 +373,33 @@ export default {
         }).catch(e => {
             console.log("접속테스트 성공:", e)
         })
+    },
+    mounted() {
+        // 전역 투어 이벤트 리스너 설정
+        setupGlobalTourEventListeners(this);
+        
+        // 모달 이벤트 리스너 추가
+        const jamyeCreateModal = document.getElementById('jamye-create');
+        if (jamyeCreateModal) {
+            jamyeCreateModal.addEventListener('shown.bs.modal', this.handleModalOpen);
+        }
+        
+        // 튜토리얼 상태가 3이면 투어 시작
+        if (this.isLogin && getCurrentStep() === TutorialStep.BOARD_POST_CREATE) {
+            this.$nextTick(() => {
+                if (this.$tours && this.$tours['mainHomeTour']) {
+                    this.$tours['mainHomeTour'].start();
+                }
+            });
+        }
+    },
+    beforeUnmount() {
+        // 이벤트 리스너 제거
+        cleanupGlobalTourEventListeners();
+        const jamyeCreateModal = document.getElementById('jamye-create');
+        if (jamyeCreateModal) {
+            jamyeCreateModal.removeEventListener('shown.bs.modal', this.handleModalOpen);
+        }
     }
 }
 </script>
@@ -308,5 +451,20 @@ export default {
     }
     .modal-detail button {
         margin: 0.5rem;
+    }
+    
+    /* 잼얘 넣기 버튼에 대한 vueTour 스타일 */
+    .jamye-create-btn {
+        position: relative;
+    }
+    
+    /* 모달 내부 버튼들에 대한 스타일 */
+    .board-type-btn, .message-type-btn {
+        position: relative;
+    }
+    
+    /* vueTour Skip 버튼 숨기기 */
+    :deep(.v-tour__skip) {
+        display: none !important;
     }
 </style>
