@@ -371,7 +371,6 @@ export default {
 
                 // 모든 이미지를 한 번에 삽입하기 위해 Delta 형식으로 준비
                 const insertIndex = range.index;
-                let insertDelta = quill.getContents(insertIndex, 1);
                 
                 selectedImages.forEach((img, index) => {
                     const imgUrl = this.imageMap[img];
