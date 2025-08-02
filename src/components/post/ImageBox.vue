@@ -36,7 +36,7 @@
                 </div>
                 <div class="modal-footer">
                     <button
-                        v-if="(this.imageKey != null && this.imageSeq != null) || this.cursorPosition != null"
+                        v-if="(this.imageKey != null && this.imageSeq != null) || this.cursorPosition != null || this.type === 'POST'"
                         class="btn btn-primary me-2"
                         :disabled="selectedImages.length === 0"
                         @click="insertSelectedImages"
@@ -86,8 +86,14 @@ export default {
             }
         }
     },
-    setup() {
-        
+    mounted() {
+        // 모달이 열릴 때 이벤트 감지
+        const modal = document.getElementById('imageModal');
+        if (modal) {
+            modal.addEventListener('shown.bs.modal', () => {
+                this.$emit('modalOpened');
+            });
+        }
     },
     methods: {
         toggleSelection(index) {
@@ -157,6 +163,12 @@ export default {
 
             event.target.value = ""; 
             this.$emit("imageMap", this.localImageUidMap)
+            
+            // 이미지 업로드 후 튜토리얼 다음 스텝으로 진행
+            this.$nextTick(() => {
+                // 부모 컴포넌트에서 튜토리얼 진행 이벤트 발생
+                this.$emit('imageUploaded');
+            });
         },
     }
 }
