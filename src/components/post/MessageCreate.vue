@@ -1435,22 +1435,6 @@ export default {
         removeTag(index) {
             this.selectedTags.splice(index, 1);
         },
-                addTag(tag) {
-            const duplicateCheck = this.tags.filter(it => it.tagName == tag.tagName)
-            if (duplicateCheck.length == 0) {
-                this.tags.push(tag);
-            }
-            this.searchTerm = "";
-            this.searchResults = [];
-        },
-        addTag(tag) {
-            const duplicateCheck = this.tags.filter(it => it.tagName == tag.tagName)
-            if (duplicateCheck.length == 0) {
-                this.tags.push(tag);
-            }
-            this.searchTerm = "";
-            this.searchResults = [];
-        },
         closeGuide() {
             this.showGuide = false;
         },
@@ -1663,8 +1647,6 @@ a.btn-area {
   line-height: 1.5;
   vertical-align: middle;
 }
-
-->
 
 a.btn-area {
   display: inline-block;
