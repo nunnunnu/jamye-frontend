@@ -1,5 +1,17 @@
 <template>
     <div class="b-container">
+        <!-- 게시글 생성 완료 메시지 -->
+        <div v-if="showPostCreatedMessage" class="post-created-message">
+            <div class="message-box">
+                <h4>🎉 게시글 잼얘가 생성되었어요!</h4>
+                <p>이제 메시지 잼얘를 넣어볼까요?</p>
+                <div class="message-buttons">
+                    <button type="button" class="btn btn-outline-secondary" @click="skipToHome">Skip</button>
+                    <button type="button" class="btn btn-primary" @click="goToHome">메시지 잼얘 생성하기</button>
+                </div>
+            </div>
+        </div>
+        
         <div v-if="isEditing">
             <input class="title" type="text" v-model="board.title" style="width: 100%;">
         </div>
@@ -122,6 +134,7 @@ export default {
             isInputVisible: false,
             searchTerm: "",
             searchResults: [],
+            showPostCreatedMessage: false,
             editorOptions: {
                 theme: 'snow',
                 placeholder: '게시글 내용을 입력하세요...',
@@ -159,6 +172,13 @@ export default {
             this.$router.push("/login")
         } else {
             this.sequence = localStorage.getItem('sequence');
+            
+            // tutorialState가 3이면 게시글 생성 완료 메시지 표시
+            const tutorialState = localStorage.getItem('tutorialState');
+            if (tutorialState === '3') {
+                this.showPostCreatedMessage = true;
+            }
+            
             axios.get(`/api/post/${this.groupSeq}/${this.postSeq}`, {
                 headers: {
                     Authorization: `Bearer `+localStorage.getItem('accessToken')
@@ -402,6 +422,17 @@ export default {
             }
             this.searchTerm = "";
             this.searchResults = [];
+        },
+        goToHome() {
+            // tutorialState를 다음 단계로 설정하고 메시지 잼얘 생성 페이지로 이동
+            localStorage.setItem('tutorialState', '4');
+            this.showPostCreatedMessage = false;
+            this.$router.push('/');
+        },
+        skipToHome() {
+            // tutorialState를 완료로 설정하고 메시지 숨기기
+            localStorage.setItem('tutorialState', 'done');
+            this.showPostCreatedMessage = false;
         }
     }
 }
@@ -410,7 +441,7 @@ export default {
 @import url("/src/css/message.css");
 
 .menu-title {
-    margin-top: 60px;
+    /* margin-top: 60px; */
 }
 .post-title{
     font-weight: bold;
@@ -486,5 +517,63 @@ pre.ql-syntax {
     overflow-x: auto;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+/* 게시글 생성 완료 메시지 스타일 */
+.post-created-message {
+    margin-top: 60px;
+    padding: 0;
+}
+
+.message-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.message-box h4 {
+    /* margin-bottom: 10px; */
+    font-weight: bold;
+}
+
+.message-box p {
+    /* margin-bottom: 15px; */
+    opacity: 0.9;
+}
+
+.message-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.message-buttons .btn {
+    min-width: 120px;
+    font-weight: 500;
+}
+
+.message-buttons .btn-outline-secondary {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+}
+
+.message-buttons .btn-outline-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    color: white;
+}
+
+.message-buttons .btn-primary {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: white;
+    color: white;
+}
+
+.message-buttons .btn-primary:hover {
+    background-color: white;
+    color: #667eea;
 }
 </style>

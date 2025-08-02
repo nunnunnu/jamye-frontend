@@ -9,10 +9,26 @@
                 @skip="handleTourSkip"
             />
             
+            <!-- 메시지 투어 -->
+            <v-tour
+                name="messageTour"
+                :steps="messageTourSteps"
+                @finish="handleTourFinish"
+                @skip="handleTourSkip"
+            />
+            
             <!-- 모달 내부 투어 -->
             <v-tour
                 name="modalTour"
                 :steps="modalTourSteps"
+                @finish="handleModalTourFinish"
+                @skip="handleModalTourSkip"
+            />
+            
+            <!-- 메시지 모달 투어 -->
+            <v-tour
+                name="messageModalTour"
+                :steps="messageModalTourSteps"
                 @finish="handleModalTourFinish"
                 @skip="handleModalTourSkip"
             />
@@ -160,10 +176,30 @@ export default {
                     }
                 }
             ],
+            messageTourSteps: [
+                {
+                    target: 'button[data-bs-target="#jamye-create"]',
+                    content: '이제 메세지 잼얘를 생성해볼까요?',
+                    params: { 
+                        placement: 'bottom',
+                        enableScrolling: false
+                    }
+                }
+            ],
             modalTourSteps: [
                 {
                     target: '#jamye-create .board-type-btn',
                     content: '잼얘는 메세지 타입과 게시글 타입이 있어요! 먼저 게시글 먼저 작성해볼까요?',
+                    params: { 
+                        placement: 'bottom',
+                        enableScrolling: false
+                    }
+                }
+            ],
+            messageModalTourSteps: [
+                {
+                    target: '.message-type-btn',
+                    content: '여기서 메세지 잼얘를 작성해보아요!',
                     params: { 
                         placement: 'bottom',
                         enableScrolling: false
@@ -301,7 +337,7 @@ export default {
         },
         handleModalOpen() {
             const currentStep = getCurrentStep();
-            if (currentStep === TutorialStep.BOARD_POST_CREATE) {
+            if (currentStep === TutorialStep.BOARD_POST_CREATE || currentStep === TutorialStep.MESSAGE_POST_CREATE) {
                 // 모달이 완전히 열린 후 투어 시작
                 setTimeout(() => {
                     this.startModalTour();
@@ -309,32 +345,64 @@ export default {
             }
         },
         startModalTour() {
+            const currentStep = getCurrentStep();
+            
             // 타겟 요소 확인
             const targetElement = document.querySelector('#jamye-create .board-type-btn');
             console.log('Target element:', targetElement);
             
-            if (targetElement && this.$tours && this.$tours['modalTour']) {
+            if (targetElement && this.$tours) {
                 console.log('Starting modal tour');
-                this.$tours['modalTour'].start();
+                
+                // tutorialState가 4이면 메시지 모달 투어 사용
+                if (currentStep === TutorialStep.MESSAGE_POST_CREATE) {
+                    if (this.$tours['messageModalTour']) {
+                        this.$tours['messageModalTour'].start();
+                    }
+                } else {
+                    if (this.$tours['modalTour']) {
+                        this.$tours['modalTour'].start();
+                    }
+                }
             } else {
                 console.log('Modal tour not available or target not found');
                 // 다시 시도
                 setTimeout(() => {
-                    if (this.$tours && this.$tours['modalTour']) {
+                    if (this.$tours) {
                         console.log('Retrying modal tour');
-                        this.$tours['modalTour'].start();
+                        
+                        // tutorialState가 4이면 메시지 모달 투어 사용
+                        if (currentStep === TutorialStep.MESSAGE_POST_CREATE) {
+                            if (this.$tours['messageModalTour']) {
+                                this.$tours['messageModalTour'].start();
+                            }
+                        } else {
+                            if (this.$tours['modalTour']) {
+                                this.$tours['modalTour'].start();
+                            }
+                        }
                     }
                 }, 500);
             }
         },
         checkModalTour() {
             const currentStep = getCurrentStep();
-            if (currentStep === TutorialStep.BOARD_POST_CREATE) {
+            if (currentStep === TutorialStep.BOARD_POST_CREATE || currentStep === TutorialStep.MESSAGE_POST_CREATE) {
                 // 마우스가 버튼 위에 올라갔을 때 투어 시작
                 setTimeout(() => {
-                    if (this.$tours && this.$tours['modalTour']) {
+                    if (this.$tours) {
                         console.log('Starting modal tour on mouse enter');
-                        this.$tours['modalTour'].start();
+                        
+                        // tutorialState가 4이면 메시지 모달 투어 사용
+                        if (currentStep === TutorialStep.MESSAGE_POST_CREATE) {
+                            if (this.$tours['messageModalTour']) {
+                                this.$tours['messageModalTour'].start();
+                            }
+                        } else {
+                            if (this.$tours['modalTour']) {
+                                this.$tours['modalTour'].start();
+                            }
+                        }
                     }
                 }, 100);
             }
@@ -391,6 +459,34 @@ export default {
                     this.$tours['mainHomeTour'].start();
                 }
             });
+        }
+        
+        // 튜토리얼 상태가 4이면 메시지 잼얘 생성 투어 시작
+        if (this.isLogin && getCurrentStep() === TutorialStep.MESSAGE_POST_CREATE) {
+            console.log('Starting message tour for tutorial state 4');
+            this.$nextTick(() => {
+                if (this.$tours && this.$tours['messageTour']) {
+                    console.log('Message tour available, starting...');
+                    this.$tours['messageTour'].start();
+                } else {
+                    console.log('Message tour not available:', this.$tours);
+                }
+            });
+        }
+        
+        // tutorialState 직접 확인
+        const tutorialState = localStorage.getItem('tutorialState');
+        console.log('Current tutorial state:', tutorialState);
+        if (this.isLogin && tutorialState === '4') {
+            console.log('Starting message tour for tutorial state 4 (direct check)');
+            setTimeout(() => {
+                if (this.$tours && this.$tours['messageTour']) {
+                    console.log('Message tour available, starting...');
+                    this.$tours['messageTour'].start();
+                } else {
+                    console.log('Message tour not available:', this.$tours);
+                }
+            }, 500);
         }
     },
     beforeUnmount() {
