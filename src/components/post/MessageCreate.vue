@@ -1,5 +1,101 @@
 <template>
     <div class="b-container">
+        <!-- 메시지 잼얘 가이드 모달 -->
+        <div v-if="showGuide" class="guide-overlay" @click="closeGuide">
+            <div class="guide-modal" @click.stop>
+                <div class="guide-header">
+                    <h4>📱 메시지 잼얘 만들기 가이드</h4>
+                    <button class="btn-close" @click="closeGuide">&times;</button>
+                </div>
+                <div class="guide-content">
+                    <div class="guide-step" :class="{ active: currentStep === 1 }">
+                        <div class="step-number">STEP 1</div>
+                        <h5>캡처 준비</h5>
+                        <p>변환할 카톡 캡처 이미지를 준비해주세요</p>
+                        <img src="@/assets/img/guide/message.png" alt="guide1" class="guide-image">
+                        <p class="step-note">💡 예시 이미지처럼 테마가 적용되지 않은 원본일수록 인식이 잘 됩니다</p>
+                    </div>
+                    
+                    <div class="guide-step" :class="{ active: currentStep === 2 }">
+                        <div class="step-number">STEP 2</div>
+                        <h5>프로필 닉네임 등록</h5>
+                        <p>캡처 속 대화 참여자의 닉네임을 프로필 닉네임 추가 버튼으로 등록하세요</p>
+                        <img src="@/assets/img/guide/message2.png" alt="guide1" class="guide-image">
+                        <p>예시 이미지에서 프로필 닉네임은 '양손 엄지척 무지', '화난 라이언' 입니다.</p>
+                        <img src="@/assets/img/guide/nickname.png" alt="guide1" class="guide-image">
+                        <p>프로필 닉네임 추가 버튼을 눌러 닉네임 추가 창을 엽니다.</p>
+                        <img src="@/assets/img/guide/nickname2.png" alt="guide1" class="guide-image">
+                        <p>프로필 닉네임과 매핑할 그룹 내 유저가 있다면 선택해주세요. 없다면 그냥 닉네임만 추가해주세요.</p>
+                        <p class="step-note">💡 그룹에 속한 사용자라면 그룹 프로필과 연결해 닉네임 연동 가능</p>
+                    </div>
+                    
+                    <div class="guide-step" :class="{ active: currentStep === 3 }">
+                        <div class="step-number">STEP 3</div>
+                        <h5>메시지 업로드 & 변환</h5>
+                        <p>메시지 캡처 파일을 업로드한 뒤 메시지 변환 버튼을 눌러 변환하세요</p>
+                        <img src="@/assets/img/guide/message3.png" alt="guide1" class="guide-image">
+                        <p class="step-note">💡 매칭되지 않은 닉네임은 내 메시지로 인식돼 오른쪽에 배치됩니다</p>
+                        <img src="@/assets/img/guide/message4.png" alt="guide1" class="guide-image">
+                    </div>
+                    
+                    <div class="guide-step" :class="{ active: currentStep === 4 }">
+                        <div class="step-number">STEP 4</div>
+                        <h5>위치/내용 수정</h5>
+                        <p>프로필 옆 버튼으로 전체 말풍선 이동, 수정, 삭제, 나/상대방 전환 가능</p>
+                        <video
+                            src="@/assets/img/guide/edit.mp4"
+                            class="guide-image"
+                            controls
+                            autoplay
+                            loop
+                            muted
+                            playsinline
+                        ></video>
+                    </div>
+
+                    <div class="guide-step" :class="{ active: currentStep === 5 }">
+                        <div class="step-number">STEP 5</div>
+                        <h5>위치/내용 수정</h5>
+                        <p>말풍선 옆 연결 버튼으로 말풍선을 답장으로 전환하고 원본 메세지를 연결할 수 있습니다.</p>
+                        <video
+                            src="@/assets/img/guide/reply.mp4"
+                            class="guide-image"
+                            controls
+                            autoplay
+                            loop
+                            muted
+                            playsinline
+                        ></video>
+                    </div>
+                    
+                    <div class="guide-step" :class="{ active: currentStep === 6 }">
+                        <div class="step-number">STEP 6</div>
+                        <h5>특수문자 정리</h5>
+                        <video
+                            src="@/assets/img/guide/remove.mp4"
+                            class="guide-image"
+                            controls
+                            autoplay
+                            loop
+                            muted
+                            playsinline
+                        ></video>
+                        <p>"문자 일괄 제거" 기능으로 테마 문자나 안읽은 수 표시를 제거할 수 있습니다</p>
+                    </div>
+                </div>
+                <div class="guide-footer">
+                    <button class="btn btn-outline-secondary" @click="prevStep" :disabled="currentStep === 1">이전</button>
+                    <div class="step-indicators">
+                        <span v-for="step in 6" :key="step" 
+                              class="step-dot" 
+                              :class="{ active: step === currentStep }"
+                              @click="goToStep(step)"></span>
+                    </div>
+                    <button class="btn btn-primary" @click="nextStep" v-if="currentStep < 6">다음</button>
+                    <button class="btn btn-success" @click="closeGuide" v-if="currentStep === 6">시작하기</button>
+                </div>
+            </div>
+        </div>
                 <h1 class="title fs-5" id="jamye-create1">{{ groupName }}가챠 잼얘 넣기 - 메세지 타입</h1>
                 <div class="form-group">
                     <input type="text" class="form-control" name="post-title" id="post-title" v-model="postTitle" placeholder="게시글 제목">
@@ -439,7 +535,9 @@ export default {
             searchResults: [],
             selectedTags: [],
             hoverIndex: -1,
-            groupSeq: null
+            groupSeq: null,
+            showGuide: false,
+            currentStep: 1,
         }
     },
     props: {
@@ -466,6 +564,12 @@ export default {
             this.groupName = r.data.data.name
           })
         }
+
+        // tutorialState가 4이면 가이드 표시
+        const tutorialState = localStorage.getItem('tutorialState');
+            if (tutorialState === '4') {
+                this.showGuide = true;
+            }
     },
     methods: {
         nicknameAdd() {
@@ -1330,7 +1434,39 @@ export default {
         },
         removeTag(index) {
             this.selectedTags.splice(index, 1);
-        }
+        },
+                addTag(tag) {
+            const duplicateCheck = this.tags.filter(it => it.tagName == tag.tagName)
+            if (duplicateCheck.length == 0) {
+                this.tags.push(tag);
+            }
+            this.searchTerm = "";
+            this.searchResults = [];
+        },
+        addTag(tag) {
+            const duplicateCheck = this.tags.filter(it => it.tagName == tag.tagName)
+            if (duplicateCheck.length == 0) {
+                this.tags.push(tag);
+            }
+            this.searchTerm = "";
+            this.searchResults = [];
+        },
+        closeGuide() {
+            this.showGuide = false;
+        },
+        nextStep() {
+            if (this.currentStep < 6) {
+                this.currentStep++;
+            }
+        },
+        prevStep() {
+            if (this.currentStep > 1) {
+                this.currentStep--;
+            }
+        },
+        goToStep(step) {
+            this.currentStep = step;
+        },
     }
 }
 </script>
@@ -1519,5 +1655,199 @@ export default {
 .btn-area {
     padding-top: 3px !important; 
     padding-bottom: 8px !important;
+}
+a.btn-area {
+  display: inline-block;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+->
+
+a.btn-area {
+  display: inline-block;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+/* 가이드 모달 스타일 */
+.guide-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.guide-modal {
+  background: white;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 15px 15px 0 0;
+}
+
+.guide-header h4 {
+  margin: 0;
+  font-weight: bold;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guide-content {
+  padding: 25px;
+}
+
+.guide-step {
+  display: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.guide-step.active {
+  display: block;
+}
+
+.step-number {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+.guide-step h5 {
+  color: #333;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.guide-step p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.step-note {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  font-size: 14px;
+  color: #555;
+}
+
+.guide-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-top: 1px solid #eee;
+  background: #f8f9fa;
+  border-radius: 0 0 15px 15px;
+}
+
+.step-indicators {
+  display: flex;
+  gap: 8px;
+}
+
+.step-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.step-dot.active {
+  background: #667eea;
+  transform: scale(1.2);
+}
+
+.step-dot:hover {
+  background: #667eea;
+  opacity: 0.7;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .guide-modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .guide-header {
+    padding: 15px 20px;
+  }
+  
+  .guide-content {
+    padding: 20px;
+  }
+  
+  .guide-footer {
+    padding: 15px 20px;
+  }
+}
+.guide-image {
+  display: block;
+  margin: 0 auto 18px auto;
+  max-width: 300px;
+  max-height: 220px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  background: #f8f9fa;
 }
 </style>

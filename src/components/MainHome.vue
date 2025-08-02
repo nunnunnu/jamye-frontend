@@ -1,6 +1,13 @@
 <template>
     <b-container>
-      <header class="masthead">
+        <header class="masthead">
+          <div v-if="showFirstGuide" class="first-guide-banner">
+          <span>
+              <b>잼얘가챠가 처음이신가요?</b> 먼저 <b>그룹을 생성</b>해야 잼얘가챠를 이용할 수 있습니다! 
+              <b>상단 메뉴</b>에서 <b>그룹 정보</b>로 이동해 그룹을 생성해보세요!
+          </span>
+          <button class="btn btn-outline-secondary btn-sm" @click="skipFirstGuide" style="margin-left: 16px;">Skip</button>
+          </div>
             <!-- vueTour 컴포넌트 추가 -->
             <v-tour
                 name="mainHomeTour"
@@ -140,7 +147,6 @@
                 </div>
             </div>
         </header>
-
     </b-container>
   </template>
   
@@ -158,6 +164,7 @@ export default {
             currentGroup: null,
             groupInfos: {},
             showBegModal: false,
+            showFirstGuide: false,
             tourSteps: [
                 {
                     target: '.group-select-btn',
@@ -488,6 +495,9 @@ export default {
                 }
             }, 500);
         }
+        if (tutorialState === '0' || tutorialState === null) {
+            this.showFirstGuide = true;
+        }
     },
     beforeUnmount() {
         // 이벤트 리스너 제거
@@ -496,7 +506,11 @@ export default {
         if (jamyeCreateModal) {
             jamyeCreateModal.removeEventListener('shown.bs.modal', this.handleModalOpen);
         }
-    }
+    },
+    skipFirstGuide() {
+    this.showFirstGuide = false;
+    localStorage.setItem('tutorialState', 'done');
+  },
 }
 </script>
   <style>
@@ -563,4 +577,32 @@ export default {
     :deep(.v-tour__skip) {
         display: none !important;
     }
+    .first-guide-banner {
+  width: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 18px 16px;
+  font-size: 16px;
+  text-align: center;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.first-guide-banner b {
+  color: #ffe082;
+}
+.first-guide-banner .btn {
+  margin-left: 18px;
+  background: #fff;
+  color: #764ba2;
+  border: none;
+  font-weight: bold;
+}
+.first-guide-banner .btn:hover {
+  background: #eee;
+}
 </style>
