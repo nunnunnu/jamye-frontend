@@ -496,6 +496,7 @@
 import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts'
+import { setStep, TutorialStep } from '@/js/tutorialHelper';
 
 export default {
     components: {
@@ -1437,6 +1438,7 @@ export default {
         },
         closeGuide() {
             this.showGuide = false;
+            setStep(TutorialStep.DONE)
         },
         nextStep() {
             if (this.currentStep < 6) {

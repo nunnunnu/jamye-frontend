@@ -537,8 +537,8 @@ pre.ql-syntax {
 }
 
 .message-box {
-    background: linear-gradient(135deg, #cdd6d6 0%, #e8edef 100%);
-    color: #333333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
     padding: 20px 30px;
     text-align: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -581,25 +581,25 @@ pre.ql-syntax {
 .message-buttons .btn-outline-secondary {
     background-color: transparent;
     border: 2px solid rgba(255, 255, 255, 0.5) !important;
-    color: #333333;
+    color: white;
 }
 
 .message-buttons .btn-outline-secondary:hover {
     background-color: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.8) !important;
-    color: #333333;
+    color: white;
     transform: translateY(-1px);
 }
 
 .message-buttons .btn-primary {
     background-color: rgba(255, 255, 255, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.8) !important;
-    color: #333333;
+    color: white;
 }
 
 .message-buttons .btn-primary:hover {
     background-color: white;
-    color: #333333;
+    color: #667eea;
     border-color: white !important;
     transform: translateY(-1px);
 }

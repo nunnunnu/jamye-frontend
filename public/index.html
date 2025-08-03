@@ -1,6 +1,34 @@
 <!DOCTYPE html>
 <html lang="">
   <head>
+    <!-- CSP 헤더 - WebSocket 연결을 위한 설정 -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; 
+      style-src 'self' 'unsafe-inline'; 
+      media-src *; 
+      img-src 'self' data: content:; 
+      connect-src 'self' https://jamye-backend.o-r.kr wss://jamye-backend.o-r.kr ws://jamye-backend.o-r.kr https: wss: ws:;
+      script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    ">
+    
+    <script>
+      // Cordova 스크립트 로드
+      if (window.cordova) {
+        var cordovaScript = document.createElement('script');
+        cordovaScript.src = 'cordova.js';
+        document.head.appendChild(cordovaScript);
+      }
+      
+      // 네트워크 상태 확인
+      document.addEventListener('deviceready', function() {
+        console.log('Cordova device ready');
+        
+        // 네트워크 상태 확인
+        if (navigator.connection) {
+          console.log('네트워크 상태:', navigator.connection.type);
+        }
+      }, false);
+    </script>
     <script src="cordova.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <meta charset="utf-8">

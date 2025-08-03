@@ -1,7 +1,7 @@
 <template>
     <b-container>
         <header class="masthead">
-          <div v-if="showFirstGuide" class="first-guide-banner">
+          <div v-if="showFirstGuide && isLogin" class="first-guide-banner">
           <span>
               <b>잼얘가챠가 처음이신가요?</b> 먼저 <b>그룹을 생성</b>해야 잼얘가챠를 이용할 수 있습니다! 
               <b>상단 메뉴</b>에서 <b>그룹 정보</b>로 이동해 그룹을 생성해보세요!
