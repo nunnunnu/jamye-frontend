@@ -91,8 +91,8 @@
                               :class="{ active: step === currentStep }"
                               @click="goToStep(step)"></span>
                     </div>
-                    <button class="btn btn-primary" @click="nextStep" v-if="currentStep < 6">다음</button>
-                    <button class="btn btn-success" @click="closeGuide" v-if="currentStep === 6">시작하기</button>
+                    <button class="btn btn-modal" @click="nextStep" v-if="currentStep < 6">다음</button>
+                    <button class="btn btn-modal" @click="closeGuide" v-if="currentStep === 6">시작하기</button>
                 </div>
             </div>
         </div>
@@ -1686,8 +1686,8 @@ a.btn-area {
   align-items: center;
   padding: 20px 25px;
   border-bottom: 1px solid #eee;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #cdd6d6 0%, #e8edef 100%);
+  color: #333333;
   border-radius: 15px 15px 0 0;
 }
 
@@ -1724,8 +1724,8 @@ a.btn-area {
 }
 
 .step-number {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #cdd6d6 0%, #e8edef 100%);
+  color: #333333;
   padding: 8px 16px;
   border-radius: 20px;
   font-weight: bold;
@@ -1751,7 +1751,7 @@ a.btn-area {
   background: #f8f9fa;
   padding: 12px;
   border-radius: 8px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #cdd6d6;
   font-size: 14px;
   color: #555;
 }
@@ -1781,12 +1781,12 @@ a.btn-area {
 }
 
 .step-dot.active {
-  background: #667eea;
+  background: #cdd6d6;
   transform: scale(1.2);
 }
 
 .step-dot:hover {
-  background: #667eea;
+  background: #cdd6d6;
   opacity: 0.7;
 }
 
@@ -1831,5 +1831,9 @@ a.btn-area {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.10);
   background: #f8f9fa;
+}
+
+.btn-modal {
+    background-color: #cdd6d6 !important;
 }
 </style>

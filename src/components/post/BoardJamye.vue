@@ -1,13 +1,19 @@
 <template>
     <div class="b-container">
         <!-- 게시글 생성 완료 메시지 -->
-        <div v-if="showPostCreatedMessage" class="post-created-message">
+        <div v-if="showPostCreatedMessage" 
+            class="post-created-message"
+            :class="{ 'slide-up': isClosing }">
             <div class="message-box">
                 <h4>🎉 게시글 잼얘가 생성되었어요!</h4>
                 <p>이제 메시지 잼얘를 넣어볼까요?</p>
                 <div class="message-buttons">
-                    <button type="button" class="btn btn-outline-secondary" @click="skipToHome">Skip</button>
-                    <button type="button" class="btn btn-primary" @click="goToHome">메시지 잼얘 생성하기</button>
+                    <button type="button" class="btn btn-outline-secondary" @click="skipToHome">
+                        가이드 보지않기
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="goToHome">
+                        메시지 잼얘 생성하기
+                    </button>
                 </div>
             </div>
         </div>
@@ -519,61 +525,197 @@ pre.ql-syntax {
     word-break: break-word;
 }
 
-/* 게시글 생성 완료 메시지 스타일 */
+/* 게시글 생성 완료 메시지 - 토스트 알림 스타일 */
 .post-created-message {
-    margin-top: 60px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
     padding: 0;
+    animation: slideDownToast 0.4s ease-out;
 }
 
 .message-box {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
+    background: linear-gradient(135deg, #cdd6d6 0%, #e8edef 100%);
+    color: #333333;
+    padding: 20px 30px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    margin: 0;
+    border-radius: 0 0 15px 15px;
+    position: relative;
 }
 
 .message-box h4 {
-    /* margin-bottom: 10px; */
+    margin: 0 0 10px 0;
     font-weight: bold;
+    font-size: 18px;
 }
 
 .message-box p {
-    /* margin-bottom: 15px; */
+    margin: 0 0 20px 0;
     opacity: 0.9;
+    font-size: 15px;
+    line-height: 1.4;
 }
 
 .message-buttons {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: center;
+    align-items: center;
 }
 
 .message-buttons .btn {
     min-width: 120px;
     font-weight: 500;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
 }
 
 .message-buttons .btn-outline-secondary {
-    border-color: rgba(255, 255, 255, 0.5);
-    color: white;
+    background-color: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    color: #333333;
 }
 
 .message-buttons .btn-outline-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: white;
-    color: white;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.8) !important;
+    color: #333333;
+    transform: translateY(-1px);
 }
 
 .message-buttons .btn-primary {
     background-color: rgba(255, 255, 255, 0.2);
-    border-color: white;
-    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    color: #333333;
 }
 
 .message-buttons .btn-primary:hover {
     background-color: white;
-    color: #667eea;
+    color: #333333;
+    border-color: white !important;
+    transform: translateY(-1px);
+}
+
+/* 닫기 버튼 */
+.toast-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.3s ease;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-close:hover {
+    color: white;
+}
+
+/* 슬라이드 다운 애니메이션 */
+@keyframes slideDownToast {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 슬라이드 업 애니메이션 (닫힐 때) */
+.post-created-message.slide-up {
+    animation: slideUpToast 0.3s ease-in forwards;
+}
+
+@keyframes slideUpToast {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* 페이지 컨텐츠 여백 조정 */
+.toast-active {
+    padding-top: 120px; /* 토스트 높이만큼 여백 추가 */
+    transition: padding-top 0.4s ease-out;
+}
+
+.toast-active.removing {
+    padding-top: 0;
+    transition: padding-top 0.3s ease-in;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .message-box {
+        padding: 18px 20px;
+        border-radius: 0 0 12px 12px;
+    }
+    
+    .message-box h4 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+    
+    .message-box p {
+        font-size: 14px;
+        margin-bottom: 16px;
+    }
+    
+    .message-buttons {
+        gap: 8px;
+    }
+    
+    .message-buttons .btn {
+        min-width: 100px;
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+    
+    .toast-active {
+        padding-top: 110px;
+    }
+}
+
+@media (max-width: 480px) {
+    .message-box {
+        padding: 16px;
+    }
+    
+    .message-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .message-buttons .btn {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .toast-active {
+        padding-top: 130px;
+    }
 }
 </style>

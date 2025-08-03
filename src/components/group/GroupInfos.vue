@@ -222,8 +222,8 @@ export default {
 }
 
 .message-box {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #cdd6d6 0%, #e8edef 100%);
+    color: #333333;
     padding: 20px;
     border-radius: 15px;
     text-align: center;
@@ -253,24 +253,24 @@ export default {
 
 .message-buttons .btn-outline-secondary {
     border-color: rgba(255, 255, 255, 0.5);
-    color: white;
+    color: #333333;
 }
 
 .message-buttons .btn-outline-secondary:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    border-color: white;
-    color: white;
+    border-color: #333333;
+    color: #333333;
 }
 
 .message-buttons .btn-primary {
     background-color: rgba(255, 255, 255, 0.2);
-    border-color: white;
-    color: white;
+    border-color: #333333;
+    color: #333333;
 }
 
 .message-buttons .btn-primary:hover {
     background-color: white;
-    color: #667eea;
+    color: #333333;
 }
 
 /* 투어 오버레이 */

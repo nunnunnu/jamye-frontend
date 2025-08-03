@@ -1,0 +1,189 @@
+/* 투어 스텝 전체 스타일 */
+.v-step {
+    background: linear-gradient(135deg, #cdd6d6 0%, #e8edef 100%) !important;
+    color: #333333 !important;
+    max-width: 350px !important;
+    border-radius: 15px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    padding: 0 !important;
+    pointer-events: auto !important;
+    text-align: center !important;
+    z-index: 10000 !important;
+}
+
+/* 투어 헤더 영역 */
+.v-step .v-step__header {
+    background: transparent !important;
+    padding: 20px 20px 10px 20px !important;
+    border-bottom: none !important;
+}
+
+.v-step .v-step__header h4,
+.v-step .v-step__header .v-step__title {
+    color: #333333 !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+    margin: 0 !important;
+}
+
+/* 투어 본문 내용 */
+.v-step .v-step__content {
+    padding: 20px 20px 5px 20px !important;
+    color: #333333 !important;
+    opacity: 0.9 !important;
+    line-height: 1.5 !important;
+}
+
+.v-step .v-step__content p {
+    margin: 0 !important;
+    color: 333333 !important;
+    opacity: 0.9 !important;
+}
+
+/* 투어 버튼 영역 */
+.v-step .v-step__buttons,
+.v-step .v-step__actions {
+    padding: 15px 20px 20px 20px !important;
+    background: transparent !important;
+    border-top: none !important;
+    display: flex !important;
+    gap: 10px !important;
+    justify-content: center !important;
+    margin: 0 !important;
+}
+
+/* 투어 버튼들 공통 스타일 */
+.v-step .v-step__button,
+.v-step button {
+    min-width: 100px !important;
+    font-weight: 500 !important;
+    border-radius: 5px !important;
+    padding: 8px 16px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+
+/* 다음/완료 버튼 (주요 버튼) */
+.v-step .v-step__button--next,
+.v-step .v-step__button--finish {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid #333333 !important;
+    color: #333333 !important;
+}
+
+.v-step .v-step__button--next:hover,
+.v-step .v-step__button--finish:hover {
+    background-color: #333333 !important;
+    color: #cdd6d6 !important;
+}
+
+/* 투어 화살표 (말풍선 꼬리) */
+.v-step[x-placement^="top"] .v-step__arrow,
+.v-step[data-placement^="top"] .v-step__arrow {
+    border-top-color: #cdd6d6 !important;
+}
+
+.v-step[x-placement^="bottom"] .v-step__arrow,
+.v-step[data-placement^="bottom"] .v-step__arrow {
+    border-bottom-color: #cdd6d6 !important;
+}
+
+.v-step[x-placement^="right"] .v-step__arrow,
+.v-step[data-placement^="right"] .v-step__arrow {
+    border-right-color: #cdd6d6 !important;
+}
+
+.v-step[x-placement^="left"] .v-step__arrow,
+.v-step[data-placement^="left"] .v-step__arrow {
+    border-left-color: #cdd6d6 !important;
+}
+
+/* 투어 닫기 버튼 */
+.v-step .v-step__close {
+    color: rgba(255, 255, 255, 0.8) !important;
+    position: absolute !important;
+    top: 10px !important;
+    right: 15px !important;
+    font-size: 20px !important;
+    cursor: pointer !important;
+    transition: color 0.3s ease !important;
+    background: none !important;
+    border: none !important;
+}
+
+.v-step .v-step__close:hover {
+    color: #333333 !important;
+}
+
+/* 스텝 번호/인디케이터 */
+.v-step .v-step__number,
+.v-step .v-step__indicator {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 12px !important;
+    margin-bottom: 10px !important;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+    .v-step {
+        max-width: 280px !important;
+        margin: 10px !important;
+    }
+    
+    .v-step .v-step__buttons,
+    .v-step .v-step__actions {
+        flex-direction: column !important;
+    }
+    
+    .v-step .v-step__button,
+    .v-step button {
+        min-width: 80px !important;
+        width: 100% !important;
+    }
+}
+
+/* 오버레이 배경 */
+.v-tour__mask {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 하이라이트된 요소 */
+.v-tour__target--highlighted {
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.4) !important;
+    border-radius: 8px !important;
+}
+
+/* 추가적인 일반적인 버튼 스타일 (다양한 구조 대응) */
+.v-step button:not([class*="close"]) {
+    min-width: 100px !important;
+    font-weight: 500 !important;
+    border-radius: 5px !important;
+    padding: 8px 16px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* 첫 번째 버튼 (보통 Skip/Previous) */
+.v-step button:first-of-type {
+    background-color: transparent !important;
+    border: 1px solid #333333 !important;
+    color: #333333 !important;
+}
+
+.v-step button:first-of-type:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: #333333 !important;
+    color: #333333 !important;
+}
+
+/* 마지막 버튼 (보통 Next/Finish) */
+.v-step button:last-of-type:not(:first-of-type) {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid #333333 !important;
+    color: #333333 !important;
+}
+
+.v-step button:last-of-type:not(:first-of-type):hover {
+    background-color: #333333 !important;
+    color: #cdd6d6 !important;
+}

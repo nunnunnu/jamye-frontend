@@ -158,7 +158,9 @@ export default {
 </script>
 
 <style>
-@import "@/css/styles.css";
+@import "/src/css/styles.css";
+@import "/src/css/tour.css";
+@import "/src/css/font.css";
 
 .b-container {
     max-width: 600px;
