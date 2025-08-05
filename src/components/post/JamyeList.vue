@@ -126,7 +126,18 @@ export default{
     watch: {
         types: {
             handler() {
-                this.jamyeSearch();
+                const typesArray = Array.from(this.types);
+                this.$router.push({
+                    name: this.$route.name,
+                    query: {
+                        ...this.$route.query,
+                        types: typesArray.join(','),
+                        page: 0
+                    }
+                }).then(() => {
+                    this.currentPage = 0;
+                    this.jamyeSearch();
+                });
             },
             deep: true
         },
@@ -154,6 +165,37 @@ export default{
           }).then(r => {
             this.groupName = r.data.data.name
           }) 
+        }
+        const query = this.$route.query;
+   
+        // 검색어 복원
+        if (query.keyword) {
+            this.keyword = query.keyword;
+        }
+        
+        // 페이지 복원
+        if (query.page) {
+            this.currentPage = parseInt(query.page);
+        }
+        
+        // 선택된 태그들 복원
+        if (query.selectedTags) {
+            this.selectedTags = query.selectedTags.split(',').map(tag => parseInt(tag));
+        }
+        
+        // 카테고리 있다면
+        if (query.category) {
+            this.selectedCategory = query.category;
+        }
+        
+        // 그룹시퀀스
+        if (query.groupSeq) {
+            this.groupSeq = parseInt(query.groupSeq);
+        }
+
+        console.log(query)
+        if (query.types) {
+            this.types = query.types.split(',');
         }
         this.jamyeList()
         this.tagList()
@@ -215,9 +257,20 @@ export default{
                 })
         },
         jamyeSearch() {
-            console.log(this.types)
-            this.currentPage = 0
-            this.jamyeList()
+            this.currentPage = 0;
+            
+            // URL 업데이트
+            this.$router.push({
+                name: this.$route.name,
+                query: {
+                    ...this.$route.query,
+                    keyword: this.keyword,
+                    page: 0,
+                    selectedTags: this.selectedTags.join(',')
+                }
+            });
+            
+            this.jamyeList();
         },
         movePost(type, postSeq, isViewable) {
             if(!isViewable) {
@@ -237,9 +290,19 @@ export default{
                 })
             }
         },
-        pageClick(page){
-            this.currentPage=page
-            this.jamyeList()
+        pageClick(page) {
+            this.currentPage = page;
+            
+            // URL 업데이트
+            this.$router.push({
+                name: this.$route.name,
+                query: {
+                    ...this.$route.query,
+                    page: page
+                }
+            });
+            
+            this.jamyeList();
         },
         tagNextPage() {
             this.tagPage = this.tagPage + 1
@@ -265,10 +328,20 @@ export default{
         toggleTag(tagSeq) {
             const index = this.selectedTags.indexOf(tagSeq);
             if (index === -1) {
-                this.selectedTags.push(tagSeq); // 선택 (Long 값 추가)
+                this.selectedTags.push(tagSeq);
             } else {
-                this.selectedTags.splice(index, 1); // 해제
+                this.selectedTags.splice(index, 1);
             }
+            
+            // URL 업데이트
+            this.$router.push({
+                name: this.$route.name,
+                query: {
+                    ...this.$route.query,
+                    selectedTags: this.selectedTags.join(','), // 배열을 콤마로 구분
+                    page: 0 // 태그 변경시 첫 페이지로
+                }
+            });
         },
     }
     

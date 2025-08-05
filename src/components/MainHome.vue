@@ -579,8 +579,8 @@ export default {
     }
     .first-guide-banner {
   width: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
+  background: linear-gradient(90deg, #cdd6d6 0%, #e8edef 100%);
+  color: #333333;
   padding: 18px 16px;
   font-size: 16px;
   text-align: center;
@@ -593,12 +593,12 @@ export default {
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .first-guide-banner b {
-  color: #ffe082;
+  color: #d56e6e;
 }
 .first-guide-banner .btn {
   margin-left: 18px;
   background: #fff;
-  color: #764ba2;
+  color: #ff8282;
   border: none;
   font-weight: bold;
 }

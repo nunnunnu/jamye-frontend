@@ -202,6 +202,16 @@ export default {
             this.userSeq = localStorage.getItem('sequence');
         }
     },
+    beforeRouteLeave(to, from, next) {
+        if (to.name === 'jamye-list') {
+            next({
+                name: 'jamye-list',
+                query: from.query  // 쿼리 유지
+            });
+        } else {
+            next();
+        }
+    },
     methods: {
         editMode() {
             this.isEditing = true

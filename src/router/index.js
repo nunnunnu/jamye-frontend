@@ -79,7 +79,14 @@ const routes = [
     {
         path: "/jamye-list",
         name: "jamyeList",
-        component: JamyeList
+        component: JamyeList,
+        // 쿼리 파라미터를 props로 전달 (선택사항)
+        props: route => ({
+            keyword: route.query.keyword,
+            types: route.query.types,
+            tags: route.query.tags,
+            page: route.query.page,
+        })
     },
     {
         path: "/jamye/message:postSeq",
