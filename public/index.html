@@ -1,16 +1,6 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
-    <!-- CSP 헤더 - WebSocket 연결을 위한 설정 -->
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; 
-      style-src 'self' 'unsafe-inline'; 
-      media-src *; 
-      img-src 'self' data: content:; 
-      connect-src 'self' https://jamye-backend.o-r.kr wss://jamye-backend.o-r.kr ws://jamye-backend.o-r.kr https: wss: ws:;
-      script-src 'self' 'unsafe-inline' 'unsafe-eval';
-    ">
-    
+  <head>    
     <script>
       // Cordova 스크립트 로드
       if (window.cordova) {
