@@ -497,6 +497,7 @@ import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts'
 import { setStep, TutorialStep } from '@/js/tutorialHelper';
+import { saveMessage, getAllMessages, saveNickname, getNicknames, saveImage, getAllImages } from '@/js/store'
 
 export default {
     components: {
@@ -562,7 +563,8 @@ export default {
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`
               }
           }).then(r => {
-            this.groupName = r.data.data.name
+              this.groupName = r.data.data.name
+              this.loadInitialData()
           })
         }
 
@@ -572,7 +574,52 @@ export default {
                 this.showGuide = true;
             }
     },
+    mounted() {
+        setInterval(() => {
+            this.sendMessagesFromData(this.messageResponse)
+            this.sendNickname()
+            this.sendImage()
+        }, 1 * 60 * 1000) // 5분마다
+    },
     methods: {
+        async loadInitialData() {
+            try {
+                const msgs = await getAllMessages()
+                this.messages = msgs.length ? msgs : this.messages  // DB 없으면 기존 유지
+                this.newNicknames = await getNicknames()
+                const images = await getAllImages()
+                this.imageMap = {}
+                images.forEach(img => this.imageMap[img.id] = img)
+            } catch(e) {
+                console.error('초기 데이터 로드 실패', e)
+            }
+        },
+        async sendMessagesFromData(data) {
+            for (const key in data) {
+                const chat = data[key]
+                for (const msg of chat.message) {
+                    const plainMsg = {
+                        user: chat.myMessage ? 'me' : chat.sendUser || 'unknown',
+                        text: msg.message,
+                        images: msg.imageUri || [],
+                    }
+                    await saveMessage(JSON.parse(JSON.stringify(plainMsg)))
+                }
+            }
+        },
+        async sendNickname() {
+            if (!this.userNameMap) return
+            for (const [user, nickname] of Object.entries(this.userNameMap)) {
+                await saveNickname(user, JSON.parse(JSON.stringify(nickname))) // reactive 제거
+            }
+        },
+        async sendImage() {
+            if (!this.imageMap) return
+            const plainImages = Object.values(this.imageMap).map(img => JSON.parse(JSON.stringify(img))) // reactive 제거
+            for (const image of plainImages) {
+                await saveImage(image)
+            }
+        },  
         nicknameAdd() {
             if(this.nickname == null) {
                 this.$toastr.warning("프로필 이름을 먼저 입력해주세요")
