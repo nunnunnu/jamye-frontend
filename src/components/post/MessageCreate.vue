@@ -1,5 +1,21 @@
 <template>
     <div class="b-container">
+        <div>
+            <div class="guide-overlay" v-if="showModal">
+            <div class="guide-modal">
+                <div class="guide-content">
+                    <p>작성중인 게시물이 있습니다. 불러오시겠습니까?</p>
+                    <p>아니오를 누르면 임시저장된 게시글을 다시 불러올 수 없습니다.</p>
+                    <p>불러오기 시 이미지,닉네임 매핑이 제대로 완료되었는지 확인해주세요.</p>
+                </div>
+                <div class="guide-footer">
+                    <button class="btn btn-danger" @click="onConfirmLoad">예</button>
+                    <button class="btn btn-dark" @click="onRejectLoad">아니오</button>
+                </div>
+
+            </div>
+            </div>
+        </div>
         <!-- 메시지 잼얘 가이드 모달 -->
         <div v-if="showGuide" class="guide-overlay" @click="closeGuide">
             <div class="guide-modal" @click.stop>
@@ -497,7 +513,7 @@ import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts'
 import { setStep, TutorialStep } from '@/js/tutorialHelper';
-import { saveMessage, getAllMessages, saveNickname, getNicknames, saveImage, getAllImages } from '@/js/store'
+import { saveMessage, getAllMessages, saveNickname, getNicknames, saveImage, getAllImages, hasSavedMessages, clearMessages } from '@/js/store'
 
 export default {
     components: {
@@ -540,6 +556,7 @@ export default {
             groupSeq: null,
             showGuide: false,
             currentStep: 1,
+            showModal: false,
         }
     },
     props: {
@@ -549,7 +566,7 @@ export default {
             required: true
         }
     },
-    created() {
+    async created() {
         this.groupSeq = localStorage.getItem("groupSeq")
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
@@ -558,14 +575,21 @@ export default {
             this.$toastr.warning("메세지를 작성할 그룹을 먼저 선택해주세요")
             this.$router.push("/")
         } else {
-            axios.get("/api/group/name/" + this.groupSeq, {
-              headers: {
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-              }
-          }).then(r => {
-              this.groupName = r.data.data.name
-              this.loadInitialData()
-          })
+            try {
+                const r = await axios.get("/api/group/name/" + this.groupSeq, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+                });
+                this.groupName = r.data.data.name;
+
+                const result = await hasSavedMessages();
+                console.log("hasSavedMessages result:", result);
+                if (result) {
+                console.log("hasMessage");
+                this.showModal = true; // ← this로 접근
+                }
+            } catch(e) {
+                console.error(e);
+            }
         }
 
         // tutorialState가 4이면 가이드 표시
@@ -579,9 +603,17 @@ export default {
             this.sendMessagesFromData(this.messageResponse)
             this.sendNickname()
             this.sendImage()
-        }, 1 * 30 * 1000) // 5분마다
+        }, 1 * 60 * 1000) // 5분마다
     },
     methods: {
+        async onConfirmLoad() { // 수정함
+            this.loadInitialData()
+            this.showModal = false
+        },
+        async onRejectLoad() { // 수정함
+            await clearMessages()
+            this.showModal = false
+        },
         async loadInitialData() {
             try {
                 const msgs = await getAllMessages()
@@ -1103,7 +1135,8 @@ export default {
                     headers: {
                         Authorization: `Bearer `+localStorage.getItem('accessToken')
                     }
-                }).then((r) => {
+                }).then(async (r) => {
+                    await clearMessages()
                     this.$router.push({ 
                         name: 'messageJamye',
                         params: { postSeq: r.data.data },

@@ -71,3 +71,24 @@ export async function saveImage(image) {
     const db = await getDB()
     return db.getAll('images')
 }
+
+export async function hasSavedMessages() {
+    try {
+        const msgs = await getAllMessages();
+        console.log("loaded messages:", msgs);
+        return msgs.length > 0;
+    } catch (e) {
+        console.error("hasSavedMessages error:", e);
+        return false;
+    }
+}
+
+export async function clearMessages() { // 수정함
+    const db = await getDB()
+    const store = db.transaction('messages', 'readwrite').objectStore('messages')
+    return new Promise((resolve, reject) => {
+        const req = store.clear()
+        req.onsuccess = () => resolve()
+        req.onerror = reject
+    })
+}
