@@ -21,10 +21,22 @@ export async function getDB() {
 }
 
 // 메시지 저장
-export async function saveMessage(message) {
-  const db = await getDB()
-  await db.add(STORE_NAME, message)
-}
+export async function saveMessage(chat) { // 수정함
+    const db = await getDB()
+    const store = db.transaction('messages', 'readwrite').objectStore('messages')
+
+    const plain = JSON.parse(JSON.stringify(chat, (key, value) => {
+        if (Array.isArray(value)) return [...value]
+        return value
+    }))
+
+    // keyPath 맞추기
+    if (!plain.id && chat.key) { 
+        plain.id = chat.key // 수정함
+    }
+
+    await store.put(plain) // 수정함: key 인자 제거
+} 
 
 // 모든 메시지 불러오기
 export async function getAllMessages() {

@@ -579,13 +579,14 @@ export default {
             this.sendMessagesFromData(this.messageResponse)
             this.sendNickname()
             this.sendImage()
-        }, 1 * 60 * 1000) // 5분마다
+        }, 1 * 30 * 1000) // 5분마다
     },
     methods: {
         async loadInitialData() {
             try {
                 const msgs = await getAllMessages()
-                this.messages = msgs.length ? msgs : this.messages  // DB 없으면 기존 유지
+                console.log("msgs", msgs)
+                this.messageResponse = msgs.length ? msgs : this.messageResponse  // DB 없으면 기존 유지
                 this.newNicknames = await getNicknames()
                 const images = await getAllImages()
                 this.imageMap = {}
@@ -595,16 +596,34 @@ export default {
             }
         },
         async sendMessagesFromData(data) {
+            console.log("sendMessagesFromData", data)
             for (const key in data) {
                 const chat = data[key]
-                for (const msg of chat.message) {
-                    const plainMsg = {
-                        user: chat.myMessage ? 'me' : chat.sendUser || 'unknown',
-                        text: msg.message,
-                        images: msg.imageUri || [],
-                    }
-                    await saveMessage(JSON.parse(JSON.stringify(plainMsg)))
+
+                const plainChat = {
+                    key,
+                    sendUserSeq: chat.sendUserSeq,
+                    sendUser: chat.myMessage ? null : chat.sendUser || 'unknown',
+                    message: chat.message.map((msg, idx) => ({
+                        seq: idx + 1,
+                        message: msg.message,
+                        isReply: msg.isReply || false,
+                        replyMessage: msg.replyMessage || null,
+                        replyTo: msg.replyTo || null,
+                        replyNickNameSeq: msg.replyNickNameSeq || null,
+                        imageKey: msg.imageKey || [],
+                        imageUri: msg.imageUri || [],
+                        messageSeq: msg.messageSeq || null,
+                        replyMessageSeq: msg.replyMessageSeq || null,
+                        replyToSeq: msg.replyToSeq || null,
+                        replyToKey: msg.replyToKey || null
+                    })),
+                    sendDate: chat.sendDate || null,
+                    myMessage: chat.myMessage
                 }
+
+                console.log("plainChat", plainChat)
+                await saveMessage(plainChat) // 수정함
             }
         },
         async sendNickname() {
