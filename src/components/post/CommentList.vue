@@ -11,7 +11,7 @@
         v-model="comment"
         ref="commentInput"
         placeholder="댓글을 입력하세요"
-        style="padding-top: 1.8rem; resize: none;"
+        :style="{ paddingTop: replyUserNickName ? '1.8rem' : '', resize: 'none' }"
       ></textarea>
     </div>
     <button
