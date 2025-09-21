@@ -512,7 +512,7 @@
 import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts'
-import { setStep, TutorialStep } from '@/js/tutorialHelper';
+import { getCurrentStep, setStep, TutorialStep } from '@/js/tutorialHelper';
 import { saveMessage, getAllMessages, saveNickname, getNicknames, saveImage, getAllImages, hasSavedMessages, clearMessages, saveNicknamesArray, getNicknamesArray } from '@/js/store'
 
 export default {
@@ -595,10 +595,9 @@ export default {
         }
 
         // tutorialState가 4이면 가이드 표시
-        const tutorialState = localStorage.getItem('tutorialState');
-            if (tutorialState === '4') {
-                this.showGuide = true;
-            }
+        if (getCurrentStep() === TutorialStep.MESSAGE_POST_CREATE) {
+            this.showGuide = true;
+        }
     },
     mounted() {
         setInterval(async () => {

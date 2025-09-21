@@ -143,15 +143,30 @@
     }
 }
 
+/* 투어 중 모달 배경 클릭 방지 해제 */
+body.v-tour--active .modal-backdrop {
+    display: none;
+}
+
 /* 오버레이 배경 */
 .v-tour__mask {
-    background-color: rgba(0, 0, 0, 0.5) !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9998; /* v-step is 10000 */
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    pointer-events: auto;
 }
 
 /* 하이라이트된 요소 */
 .v-tour__target--highlighted {
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.4) !important;
     border-radius: 8px !important;
+    position: relative;
+    z-index: 9999;
+    pointer-events: auto;
 }
 
 /* 추가적인 일반적인 버튼 스타일 (다양한 구조 대응) */
@@ -171,6 +186,18 @@
 }
 
 .v-step button:first-of-type:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: #333333 !important;
+    color: #333333 !important;
+}
+
+.v-step button:nth-of-type(2) {
+    background-color: transparent !important;
+    border: 1px solid #333333 !important;
+    color: #333333 !important;
+}
+
+.v-step button:nth-of-type(2):hover {
     background-color: rgba(255, 255, 255, 0.1) !important;
     border-color: #333333 !important;
     color: #333333 !important;

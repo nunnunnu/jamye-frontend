@@ -110,6 +110,7 @@ import CommentList from './CommentList.vue'
 import { base64ToFile } from '@/js/fileScripts';
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import { getCurrentStep, setStep, TutorialStep } from '@/js/tutorialHelper';
 
 export default {
     components: {
@@ -180,8 +181,7 @@ export default {
             this.sequence = localStorage.getItem('sequence');
             
             // tutorialState가 3이면 게시글 생성 완료 메시지 표시
-            const tutorialState = localStorage.getItem('tutorialState');
-            if (tutorialState === '3') {
+            if (getCurrentStep() === TutorialStep.BOARD_POST_CREATE) {
                 this.showPostCreatedMessage = true;
             }
             
@@ -441,13 +441,13 @@ export default {
         },
         goToHome() {
             // tutorialState를 다음 단계로 설정하고 메시지 잼얘 생성 페이지로 이동
-            localStorage.setItem('tutorialState', '4');
+            setStep(TutorialStep.MESSAGE_POST_CREATE);
             this.showPostCreatedMessage = false;
             this.$router.push('/');
         },
         skipToHome() {
             // tutorialState를 완료로 설정하고 메시지 숨기기
-            localStorage.setItem('tutorialState', 'done');
+            setStep(TutorialStep.DONE);
             this.showPostCreatedMessage = false;
         }
     }
@@ -547,8 +547,8 @@ pre.ql-syntax {
 }
 
 .message-box {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #cdd6d6 0%, #e8edef 100%);
+    color: #333333;
     padding: 20px 30px;
     text-align: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -590,26 +590,26 @@ pre.ql-syntax {
 
 .message-buttons .btn-outline-secondary {
     background-color: transparent;
-    border: 2px solid rgba(255, 255, 255, 0.5) !important;
-    color: white;
+    border: 1px solid #333333 !important;
+    color: #333333;
 }
 
 .message-buttons .btn-outline-secondary:hover {
     background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.8) !important;
-    color: white;
+    border-color: #333333 !important;
+    color: #333333;
     transform: translateY(-1px);
 }
 
 .message-buttons .btn-primary {
     background-color: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.8) !important;
-    color: white;
+    border: 1px solid #333333 !important;
+    color: #333333;
 }
 
 .message-buttons .btn-primary:hover {
     background-color: white;
-    color: #667eea;
+    color: #cdd6d6;
     border-color: white !important;
     transform: translateY(-1px);
 }

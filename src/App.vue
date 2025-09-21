@@ -450,4 +450,25 @@ disconnectWebSocket() {
 .btn-area {
     margin-right: 5px;
 }
+
+.tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+    cursor: not-allowed;
+}
+
+:deep(.v-tour) {
+    z-index: 10000;
+}
+
+:deep(.v-tour__target--highlighted) {
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.4);
+    position: relative;
+    z-index: 9999;
+}
 </style>

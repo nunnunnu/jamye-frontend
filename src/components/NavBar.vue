@@ -1,12 +1,8 @@
 <template>
+  <!-- 투어 오버레이 -->
+  <div v-if="isTourActive" class="tour-overlay" @click="preventClick"></div>
   <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
-    <div class="container px-5">
-      <v-tour
-        name="navbarTour"
-        :steps="currentSteps"
-        @finish="handleFinish"
-        @skip="handleSkip"
-      />
+    <div class="container px-5">  
 
       <a class="navbar-brand fw-bold step3-group-list" href="#page-top" @click="home">잼얘 가챠</a>
       <button
@@ -49,13 +45,7 @@ export default {
   name: "NavBar",
   data() {
     return {
-      welcomeSteps: [
-        {
-          target: ".navbar-group-btn",
-          content: "먼저 그룹을 생성해야 잼얘가챠를 사용할 수 있어요! 그룹화면으로 이동해보세요!",
-          params: { placement: "bottom" }
-        }
-      ]
+      isTourActive: false,
     };
   },
   computed: {
@@ -86,11 +76,6 @@ export default {
   mounted() {
     // 전역 투어 이벤트 리스너 설정
     setupGlobalTourEventListeners(this);
-    
-    // tutorialState가 1이 아니면 투어 실행하지 않음
-    if (this.isLogin && getCurrentStep() === TutorialStep.WELCOME) {
-      this.$tours['navbarTour'].start();
-    }
   },
   methods: {
     login() {
@@ -106,6 +91,7 @@ export default {
         if (getCurrentStep() === TutorialStep.WELCOME) {
             // 현재 투어를 완전히 중지
             if (this.$tours['navbarTour'] && this.$tours['navbarTour'].isRunning) {
+                this.isTourActive = false;
                 this.$tours['navbarTour'].stop();
             }
             
@@ -122,9 +108,11 @@ export default {
       this.$router.push("/notify-box");
     },
     handleFinish() {
+      this.isTourActive = false;
       setStep(TutorialStep.GROUP_CREATE);
     },
     handleSkip() {
+      this.isTourActive = false;
       setStep(TutorialStep.DONE);
     },
         // 투어 중 클릭 허용 대상 확인

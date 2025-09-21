@@ -168,7 +168,7 @@ export default {
             tourSteps: [
                 {
                     target: '.group-select-btn',
-                    content: '방금 생성한 그룹을 먼저 선택해보세요!',
+                    content: '그룹을 선택하시려면 이 버튼을 클릭하세요. 그룹을 선택해야 다음 튜토리얼을 진행할 수 있습니다.',
                     params: { 
                         placement: 'right',
                         enableScrolling: false
@@ -244,7 +244,12 @@ export default {
             // 튜토리얼 상태가 3이면 vueTour를 다음 단계로 진행
             if (getCurrentStep() === TutorialStep.BOARD_POST_CREATE) {
                 if (this.$tours && this.$tours['mainHomeTour']) {
-                    this.$tours['mainHomeTour'].nextStep();
+                    if (this.$tours['mainHomeTour'].isRunning) {
+                        this.$tours['mainHomeTour'].nextStep();
+                    } else {
+                        this.isTourActive = true;
+                        this.$tours['mainHomeTour'].start(1);
+                    }
                 }
             }
         },
@@ -398,36 +403,44 @@ export default {
                 // 마우스가 버튼 위에 올라갔을 때 투어 시작
                 setTimeout(() => {
                     if (this.$tours) {
-                        console.log('Starting modal tour on mouse enter');
+                                                console.log('Starting modal tour on mouse enter');
                         
-                        // tutorialState가 4이면 메시지 모달 투어 사용
-                        if (currentStep === TutorialStep.MESSAGE_POST_CREATE) {
-                            if (this.$tours['messageModalTour']) {
-                                this.$tours['messageModalTour'].start();
-                            }
-                        } else {
-                            if (this.$tours['modalTour']) {
-                                this.$tours['modalTour'].start();
-                            }
-                        }
-                    }
+                                                // tutorialState가 4이면 메시지 모달 투어 사용
+                                                if (currentStep === TutorialStep.MESSAGE_POST_CREATE) {
+                                                    if (this.$tours['messageModalTour']) {
+                                                        this.isTourActive = true;
+                                                                                        this.$tours['messageModalTour'].start();
+                                                                                    }
+                                                                                } else {
+                                                                                    if (this.$tours['modalTour']) {
+                                                                                        this.isTourActive = true;
+                                                                                        this.$tours['modalTour'].start();                                                    }
+                                                }                    }
                 }, 100);
             }
         },
+        preventClick(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        },
         handleTourFinish() {
             console.log('Tour finished');
+            this.isTourActive = false;
             setStep(TutorialStep.MESSAGE_POST_CREATE);
         },
         handleTourSkip() {
             console.log('Tour skipped');
+            this.isTourActive = false;
             setStep(TutorialStep.MESSAGE_POST_CREATE);
         },
         handleModalTourFinish() {
             console.log('Modal Tour finished');
+            this.isTourActive = false;
             setStep(TutorialStep.MESSAGE_POST_CREATE);
         },
         handleModalTourSkip() {
             console.log('Modal Tour skipped');
+            this.isTourActive = false;
             setStep(TutorialStep.MESSAGE_POST_CREATE);
         }
     },
@@ -461,6 +474,7 @@ export default {
         
         // 튜토리얼 상태가 3이면 투어 시작
         if (this.isLogin && getCurrentStep() === TutorialStep.BOARD_POST_CREATE) {
+            this.isTourActive = true;
             this.$nextTick(() => {
                 if (this.$tours && this.$tours['mainHomeTour']) {
                     this.$tours['mainHomeTour'].start();
@@ -471,6 +485,7 @@ export default {
         // 튜토리얼 상태가 4이면 메시지 잼얘 생성 투어 시작
         if (this.isLogin && getCurrentStep() === TutorialStep.MESSAGE_POST_CREATE) {
             console.log('Starting message tour for tutorial state 4');
+            this.isTourActive = true;
             this.$nextTick(() => {
                 if (this.$tours && this.$tours['messageTour']) {
                     console.log('Message tour available, starting...');
@@ -481,21 +496,7 @@ export default {
             });
         }
         
-        // tutorialState 직접 확인
-        const tutorialState = localStorage.getItem('tutorialState');
-        console.log('Current tutorial state:', tutorialState);
-        if (this.isLogin && tutorialState === '4') {
-            console.log('Starting message tour for tutorial state 4 (direct check)');
-            setTimeout(() => {
-                if (this.$tours && this.$tours['messageTour']) {
-                    console.log('Message tour available, starting...');
-                    this.$tours['messageTour'].start();
-                } else {
-                    console.log('Message tour not available:', this.$tours);
-                }
-            }, 500);
-        }
-        if (tutorialState === '0' || tutorialState === null) {
+        if (getCurrentStep() === TutorialStep.WELCOME) {
             this.showFirstGuide = true;
         }
     },
@@ -514,6 +515,8 @@ export default {
 }
 </script>
   <style>
+    
+
     a {
       text-decoration: none;
       color: black
@@ -605,4 +608,5 @@ export default {
 .first-guide-banner .btn:hover {
   background: #eee;
 }
+
 </style>

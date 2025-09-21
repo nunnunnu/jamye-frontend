@@ -73,6 +73,7 @@ import ImageBox from './ImageBox.vue';
 import ImagePreviewOpen from '../ImagePreviewOpen.vue';
 import axios from '@/js/axios';
 import { base64ToFile } from '@/js/fileScripts';
+import { getCurrentStep, TutorialStep } from '@/js/tutorialHelper';
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
@@ -84,6 +85,7 @@ export default {
     },
     data() {
         return {
+            isTourActive: false,
             groupName: null,
             isPreviewOpen: false,
             previewImage: null,
@@ -99,7 +101,7 @@ export default {
             selectedTags: [],
             hoverIndex: -1,
             groupSeq: null,
-            tutorialState: 0, // 튜토리얼 상태 관리용
+            
             editorOptions: {
                 theme: 'snow',
                 placeholder: '게시글 내용을 입력하세요...',
@@ -278,10 +280,12 @@ export default {
                     }
                 },
                 onStop: () => {
+                    this.isTourActive = false;
                     // 튜토리얼 종료 시 모달 닫기
                     this.closeImageModal();
                 },
                 onSkip: () => {
+                    this.isTourActive = false;
                     // 튜토리얼 건너뛰기 시 모달 닫기
                     this.closeImageModal();
                 }
@@ -298,8 +302,7 @@ export default {
     created() {
         this.groupSeq = localStorage.getItem("groupSeq")
         
-        // tutorialState 확인 (예시로 localStorage에서 가져온다고 가정)
-        this.tutorialState = parseInt(localStorage.getItem("tutorialState")) || 0;
+        
         
         if(!this.isLogin) {
             this.$toastr.warning("로그인 후 게시글 작성이 가능합니다.")
@@ -319,7 +322,8 @@ export default {
     },
     mounted() {
         // tutorialState가 3이면 튜토리얼 시작
-        if (this.tutorialState === 3) {
+        if (getCurrentStep() === TutorialStep.BOARD_POST_CREATE) {
+            this.isTourActive = true;
             this.$nextTick(() => {
                 this.$tours['postTutorial'].start();
             });
@@ -331,6 +335,10 @@ export default {
         });
     },
     methods: {
+        preventClick(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        },
         onEditorChange() {
             // 에디터 내용이 변경될 때 호출
             this.saveCurrentSelection();
