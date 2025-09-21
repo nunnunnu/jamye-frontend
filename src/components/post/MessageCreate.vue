@@ -1,12 +1,12 @@
 <template>
     <div class="b-container">
+        <div class="save-toast" v-if="showSaveToast">{{ saveToastMessage }}</div>
         <div>
             <div class="guide-overlay" v-if="showModal">
             <div class="guide-modal">
                 <div class="guide-content">
                     <p>작성중인 게시물이 있습니다. 불러오시겠습니까?</p>
                     <p>아니오를 누르면 임시저장된 게시글을 다시 불러올 수 없습니다.</p>
-                    <p>불러오기 시 이미지,닉네임 매핑이 제대로 완료되었는지 확인해주세요.</p>
                 </div>
                 <div class="guide-footer">
                     <button class="btn btn-danger" @click="onConfirmLoad">예</button>
@@ -513,7 +513,7 @@ import axios from '@/js/axios';
 import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts'
 import { setStep, TutorialStep } from '@/js/tutorialHelper';
-import { saveMessage, getAllMessages, saveNickname, getNicknames, saveImage, getAllImages, hasSavedMessages, clearMessages } from '@/js/store'
+import { saveMessage, getAllMessages, saveNickname, getNicknames, saveImage, getAllImages, hasSavedMessages, clearMessages, saveNicknamesArray, getNicknamesArray } from '@/js/store'
 
 export default {
     components: {
@@ -557,6 +557,8 @@ export default {
             showGuide: false,
             currentStep: 1,
             showModal: false,
+            showSaveToast: false,
+            saveToastMessage: '',
         }
     },
     props: {
@@ -599,13 +601,21 @@ export default {
             }
     },
     mounted() {
-        setInterval(() => {
-            this.sendMessagesFromData(this.messageResponse)
-            this.sendNickname()
-            this.sendImage()
-        }, 1 * 60 * 1000) // 5분마다
+        setInterval(async () => {
+            await this.sendMessagesFromData(this.messageResponse)
+            await this.sendNickname()
+            await this.sendImage()
+            this.showToast("임시저장되었습니다.");
+        }, 1 * 60 * 1000) // 1분마다
     },
     methods: {
+        showToast(message) {
+            this.saveToastMessage = message;
+            this.showSaveToast = true;
+            setTimeout(() => {
+                this.showSaveToast = false;
+            }, 3000); // 3초간 표시
+        },
         async onConfirmLoad() { // 수정함
             this.loadInitialData()
             this.showModal = false
@@ -616,13 +626,24 @@ export default {
         },
         async loadInitialData() {
             try {
-                const msgs = await getAllMessages()
-                console.log("msgs", msgs)
-                this.messageResponse = msgs.length ? msgs : this.messageResponse  // DB 없으면 기존 유지
-                this.newNicknames = await getNicknames()
-                const images = await getAllImages()
-                this.imageMap = {}
-                images.forEach(img => this.imageMap[img.id] = img)
+                const msgs = await getAllMessages();
+                if (msgs && msgs.length > 0) {
+                    this.messageResponse = msgs.reduce((obj, item) => {
+                        obj[item.id] = item;
+                        return obj;
+                    }, {});
+                }
+
+                this.nicknames = await getNicknamesArray();
+                this.userNameMap = await getNicknames();
+
+                const images = await getAllImages();
+                if (images && images.length > 0) {
+                    this.imageMap = images.reduce((obj, item) => {
+                        obj[item.id] = item.data;
+                        return obj;
+                    }, {});
+                }
             } catch(e) {
                 console.error('초기 데이터 로드 실패', e)
             }
@@ -659,16 +680,19 @@ export default {
             }
         },
         async sendNickname() {
-            if (!this.userNameMap) return
-            for (const [user, nickname] of Object.entries(this.userNameMap)) {
-                await saveNickname(user, JSON.parse(JSON.stringify(nickname))) // reactive 제거
+            if (this.userNameMap) {
+                for (const [user, nickname] of Object.entries(this.userNameMap)) {
+                    await saveNickname(user, nickname ? JSON.parse(JSON.stringify(nickname)) : null);
+                }
+            }
+            if (this.nicknames) {
+                await saveNicknamesArray(this.nicknames);
             }
         },
         async sendImage() {
             if (!this.imageMap) return
-            const plainImages = Object.values(this.imageMap).map(img => JSON.parse(JSON.stringify(img))) // reactive 제거
-            for (const image of plainImages) {
-                await saveImage(image)
+            for (const [id, data] of Object.entries(this.imageMap)) {
+                await saveImage({ id, data });
             }
         },  
         nicknameAdd() {
@@ -1558,6 +1582,42 @@ export default {
 <style>
 @import url("/src/css/message.css");
 @import url("/src/css/tag.css");
+
+.save-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  z-index: 10001;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0;
+  animation: toast-fade 3s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes toast-fade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  90% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+}
 
 .nicknames-container {
     display: flex;

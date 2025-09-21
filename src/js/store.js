@@ -5,16 +5,28 @@ const DB_NAME = 'chatDB'
 const STORE_NAME = 'messages'
 
 export async function getDB() {
-  return openDB(DB_NAME, 2, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true })
+  return openDB(DB_NAME, 3, {
+    upgrade(db, oldVersion) {
+      if (oldVersion < 2) {
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true })
+        }
+        if (!db.objectStoreNames.contains('nicknames')) {
+          db.createObjectStore('nicknames', { keyPath: 'user' })
+        }
+        if (!db.objectStoreNames.contains('images')) {
+          db.createObjectStore('images', { keyPath: 'id', autoIncrement: true })
+        }
       }
-      if (!db.objectStoreNames.contains('nicknames')) {
-        db.createObjectStore('nicknames', { keyPath: 'user' })
-      }
-      if (!db.objectStoreNames.contains('images')) {
-        db.createObjectStore('images', { keyPath: 'id', autoIncrement: true })
+      if (oldVersion < 3) {
+        if (db.objectStoreNames.contains('images')) {
+          db.deleteObjectStore('images');
+        }
+        db.createObjectStore('images', { keyPath: 'id' });
+
+        if (!db.objectStoreNames.contains('temp_storage')) {
+            db.createObjectStore('temp_storage', { keyPath: 'key' });
+        }
       }
     },
   })
@@ -60,6 +72,20 @@ export async function getNicknames() {
   }, {})
 }
 
+// 닉네임 배열 저장
+export async function saveNicknamesArray(nicknames) {
+    const db = await getDB();
+    const plainNicknames = JSON.parse(JSON.stringify(nicknames));
+    await db.put('temp_storage', { key: 'nicknames_array', value: plainNicknames });
+}
+
+// 닉네임 배열 불러오기
+export async function getNicknamesArray() {
+    const db = await getDB();
+    const result = await db.get('temp_storage', 'nicknames_array');
+    return result ? result.value : [];
+}
+
   // 이미지 저장
 export async function saveImage(image) {
     const db = await getDB()
@@ -85,10 +111,12 @@ export async function hasSavedMessages() {
 
 export async function clearMessages() { // 수정함
     const db = await getDB()
-    const store = db.transaction('messages', 'readwrite').objectStore('messages')
-    return new Promise((resolve, reject) => {
-        const req = store.clear()
-        req.onsuccess = () => resolve()
-        req.onerror = reject
-    })
+    const tx = db.transaction(['messages', 'nicknames', 'images', 'temp_storage'], 'readwrite');
+    await Promise.all([
+        tx.objectStore('messages').clear(),
+        tx.objectStore('nicknames').clear(),
+        tx.objectStore('images').clear(),
+        tx.objectStore('temp_storage').clear(),
+    ]);
+    await tx.done;
 }

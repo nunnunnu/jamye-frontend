@@ -383,17 +383,66 @@ disconnectWebSocket() {
   }
 }
 
-#toast-container > .toast-warning {
-  background-color: #f6ffa2 !important; /* 노란색 배경 */
-  color: #000 !important;               /* 검은색 글씨 */
+#toast-container > .toast {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 15px 20px 15px 50px !important; /* 아이콘을 위한 왼쪽 여백 추가 */
+  opacity: 0.95 !important;
+  border: none !important;
+  font-family: 'Pretendard-Regular', sans-serif !important;
+  position: relative !important; /* 아이콘 위치 지정을 위해 */
 }
+
+#toast-container > .toast::before {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#toast-container > .toast:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+  opacity: 1 !important;
+}
+
 #toast-container > .toast-success {
-  background-color: #cbfcd1 !important; /* 노란색 배경 */
-  color: #000 !important;               /* 검은색 글씨 */
+  background-color: #E6F4EA !important;
+  color: #1E4620 !important;
 }
+
+#toast-container > .toast-success::before {
+  content: '✔';
+  color: #2E7D32 !important;
+}
+
+#toast-container > .toast-warning {
+  background-color: #FFFBEA !important;
+  color: #614700 !important;
+}
+
+#toast-container > .toast-warning::before {
+  content: '⚠';
+  color: #F57C00 !important;
+}
+
 #toast-container > .toast-error {
-  background-color: #fccbcb !important; /* 노란색 배경 */
-  color: #000 !important;               /* 검은색 글씨 */
+  background-color: #FBEBEA !important;
+  color: #611A15 !important;
+}
+
+#toast-container > .toast-error::before {
+  content: '✖';
+  color: #D32F2F !important;
+}
+
+.toast-title {
+  font-weight: bold !important;
+}
+
+.toast-message {
+  font-size: 14px !important;
 }
 #content {
   min-height: 80vh; /* 화면 전체 높이 유지 */
