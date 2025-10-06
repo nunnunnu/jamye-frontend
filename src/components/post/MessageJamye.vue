@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div class="editMode" v-if="isEditing != null && message.createdUserSequence == useqSeq">
+        <div class="editMode" v-if="isEditing != null">
             <div>
                 <div class="row g-2">
                     <div class="col-auto">
