@@ -126,26 +126,9 @@ export default{
     watch: {
         types: {
             handler() {
-                const typesArray = Array.from(this.types);
-                this.$router.push({
-                    name: this.$route.name,
-                    query: {
-                        ...this.$route.query,
-                        types: typesArray.join(','),
-                        page: 0
-                    }
-                }).then(() => {
-                    this.currentPage = 0;
-                    this.jamyeSearch();
-                });
-            },
-            deep: true
-        },
-        selectedTags: {
-            handler() {
                 this.jamyeSearch();
             },
-            deep: true 
+            deep: true
         }
     },
     created() {
@@ -179,7 +162,7 @@ export default{
         }
         
         // 선택된 태그들 복원
-        if (query.selectedTags) {
+        if (query.selectedTags && query.selectedTags !== '') {
             this.selectedTags = query.selectedTags.split(',').map(tag => parseInt(tag));
         }
         
@@ -205,7 +188,7 @@ export default{
             const safeParam = encodeURIComponent(this.keyword);
             axios.get(`/api/post/${this.groupSeq}?page=${this.currentPage}` 
                 + (this.keyword==null?"":`&keyword=${safeParam}`)
-                + (this.selectedTags == null || this.selectedTags.size == 0 ? "" : `&tagSeqs=${Array.from(this.selectedTags).join(", ")}`)
+                + (this.selectedTags == null || this.selectedTags.length == 0 ? "" : `&tagSeqs=${Array.from(this.selectedTags).join(", ")}`)
                 + (this.types == null || this.types.size == 0 ? "" : `&types=${Array.from(this.types).join(", ")}`)
             , {
                     headers: {
@@ -266,9 +249,10 @@ export default{
                     ...this.$route.query,
                     keyword: this.keyword,
                     page: 0,
-                    selectedTags: this.selectedTags.join(',')
+                    selectedTags: this.selectedTags.join(','),
+                    types: Array.from(this.types).join(',')
                 }
-            });
+            }).catch(()=>{});
             
             this.jamyeList();
         },
@@ -332,16 +316,7 @@ export default{
             } else {
                 this.selectedTags.splice(index, 1);
             }
-            
-            // URL 업데이트
-            this.$router.push({
-                name: this.$route.name,
-                query: {
-                    ...this.$route.query,
-                    selectedTags: this.selectedTags.join(','), // 배열을 콤마로 구분
-                    page: 0 // 태그 변경시 첫 페이지로
-                }
-            });
+            this.jamyeSearch();
         },
     }
     
