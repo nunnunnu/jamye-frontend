@@ -600,12 +600,12 @@ export default {
         }
     },
     mounted() {
-        setInterval(async () => {
-            await this.sendMessagesFromData(this.messageResponse)
-            await this.sendNickname()
-            await this.sendImage()
-            this.showToast("임시저장되었습니다.");
-        }, 1 * 60 * 1000) // 1분마다
+        // setInterval(async () => {
+        //     await this.sendMessagesFromData(this.messageResponse)
+        //     await this.sendNickname()
+        //     await this.sendImage()
+        //     this.showToast("임시저장되었습니다.");
+        // }, 1 * 60 * 1000) // 1분마다
     },
     methods: {
         showToast(message) {
@@ -905,206 +905,126 @@ export default {
             this.messageResponseTempRemove(this.messageResponse)
         },
         moveMessageUp(key, seq) {
-            if(key==1 && seq ==1) {
-                return
-            }
-            const messageArray = this.messageResponse[key].message;
+            key = Number(key);
+            seq = Number(seq);
 
-            if (seq === 1) {
-                var preMessageCut = JSON.parse(JSON.stringify(this.messageResponse[key-1]))
-                console.log("preMessageCut" + JSON.stringify(preMessageCut))
-                if(preMessageCut.message.length == 1) {
-                    var editMessage = JSON.parse(JSON.stringify(this.messageResponse[key]))
-                    var upMessage = editMessage.message.shift()
-                    this.messageResponse[key - 1] = {
-                        ...this.messageResponse[key],
-                        message: [upMessage]
-                    };
-                    this.messageResponse[key] = preMessageCut 
-                    var downMap = new Map
-                    var downKey = 1
-                    for(let [id, value] of Object.entries(this.messageResponse)) {
-                        console.log(downKey)
-                        if(editMessage.message.length != 0 && id == (Number(key) + 1)) {
-                            downMap[downKey++] = editMessage
-                        } 
-                        downMap[downKey++] = value
-                    }
-                    this.messageResponseTempRemove(downMap)
-                    return
+            // Flatten the current structure into a list of individual messages
+            let flatMessages = [];
+            const sortedKeys = Object.keys(this.messageResponse).sort((a, b) => Number(a) - Number(b));
+            sortedKeys.forEach(k => {
+                const block = this.messageResponse[k];
+                if (block && block.message) {
+                    block.message.forEach(msg => {
+                        flatMessages.push({
+                            blockInfo: { sendUser: block.sendUser, myMessage: block.myMessage, sendDate: block.sendDate },
+                            msg: msg
+                        });
+                    });
                 }
+            });
 
-                var messageText = JSON.parse(JSON.stringify(this.messageResponse[key].message.filter(msg => msg.seq == seq)));
-                var messageTextHeader = this.messageResponse[key]
-                this.messageResponse[key].message = this.messageResponse[key].message.filter(msg => msg.seq != seq)
-                console.log(JSON.parse(JSON.stringify(messageText)))
-                var orderSeq = 1
-                if(this.messageResponse[key].message.length != 0) {
-                    this.messageResponse[key].message.forEach(msg => {
-                        msg.seq = orderSeq++
-                    })
-                }
-                console.log(JSON.parse(JSON.stringify(this.messageResponse[key])))
-                
-                var messageNewObject = JSON.parse(JSON.stringify(this.messageResponse[key]));
-                
-                console.log(JSON.parse(JSON.stringify(preMessageCut)))
-                if(preMessageCut.sendUser == messageTextHeader.sendUser) {
-                    const maxSeq = preMessageCut.message.reduce((max, msg) => {
-                        return msg.seq > max ? msg.seq : max;
-                    }, 0);
+            // Find the global index of the message to move
+            let globalIndex = -1;
+            let count = 0;
+            for (const k of sortedKeys) {
+                const block = this.messageResponse[k];
+                if (!block || !block.message) continue;
 
-                    var maxMsg = preMessageCut.message.pop()
-                    console.log("maxMsg")
-                    console.log(JSON.parse(JSON.stringify(maxMsg)))
-                    var lastMessage = messageText.pop()
-                    console.log("lastMessage")
-                    console.log(JSON.parse(JSON.stringify(lastMessage)))
-                    preMessageCut.message.push({
-                        seq: maxSeq,
-                        message: lastMessage.message,
-                        imageKey: lastMessage.imageKey,
-                        imageUri: lastMessage.imageUri,
-                        isReply: lastMessage.isReply,
-                        replyMessage: lastMessage.replyMessage,
-                        replyTo: lastMessage.replyTo
-                    })
-                    preMessageCut.message.push({
-                        seq: maxSeq + 1,
-                        message: maxMsg.message,
-                        imageKey: maxMsg.imageKey,
-                        imageUri: maxMsg.imageUri,
-                        isReply: maxMsg.isReply,
-                        replyMessage: maxMsg.replyMessage,
-                        replyTo: maxMsg.replyTo
-                    })
-                    console.log("mm")
-                    console.log(JSON.parse(JSON.stringify(preMessageCut)))
-                    this.messageResponse[key - 1].message = []
-                } else {
-                    preMessageCut.message = [preMessageCut.message.pop()]
-                    messageNewObject.message = messageText
-                    messageNewObject.sendDate = null
-                }
-                const lastSeq = preMessageCut.message.reduce((max, msg) => {
-                    return msg.seq > max ? msg.seq : max;
-                    }, 0);
-                this.messageResponse[key - 1].message = this.messageResponse[key - 1].message.filter(msg => msg.seq != lastSeq)
-
-                var tempMap = new Map
-                var tempKey = 1
-                console.log(JSON.parse(JSON.stringify(messageNewObject)))
-                for(let [id, value] of Object.entries(this.messageResponse)) {
-                    if(id == key) {
-                        if(messageNewObject.message.length != 0 && key == tempKey) {
-                            tempMap[tempKey++] = messageNewObject
-                            console.log("new")
-                            console.log(tempKey)
-                            console.log(JSON.parse(JSON.stringify(tempMap)))
-                        }
-                        
-                        if(preMessageCut.message.length != 0) {
-                            tempMap[tempKey++] = preMessageCut
-                            console.log("pre")
-                            console.log(tempKey)
-                            console.log(JSON.parse(JSON.stringify(tempMap)))
-                        }
-                        
-                        if(value.message.length != 0) {
-                            tempMap[tempKey++] = value
-                            console.log("length")
-                            console.log(tempKey)
-                            console.log(JSON.parse(JSON.stringify(tempMap)))
-                        }
-
-                    } else if(value.message.length != 0){
-                        tempMap[tempKey++] = value
-                    }
-                }
-                console.log("last")
-                console.log(JSON.parse(JSON.stringify(tempMap)))
-                this.messageResponseTempRemove(tempMap)
-            } else {
-                const index = messageArray.findIndex(msg => msg.seq === seq);
-                if (index > 0) {
-                    [messageArray[index - 1], messageArray[index]] = [messageArray[index], messageArray[index - 1]];
-                    
-                    messageArray[index - 1].seq -= 1;
-                    messageArray[index].seq += 1;
+                if (Number(k) < key) {
+                    count += block.message.length;
+                } else if (Number(k) === key) {
+                    globalIndex = count + (seq - 1);
+                    break;
                 }
             }
 
+            if (globalIndex <= 0) return; // Cannot move up if it's the first message
+
+            // Reorder the flat list
+            const [messageToMove] = flatMessages.splice(globalIndex, 1);
+            flatMessages.splice(globalIndex - 1, 0, messageToMove);
+
+            // Rebuild the messageResponse object from the flat list
+            this.messageResponse = this.rebuildMessageResponseFromFlat(flatMessages);
         },
         moveMessageDown(key, seq) {
-            const maxKey = Math.max(...Object.keys(this.messageResponse).map(Number));
-            const maxSeq = this.messageResponse[maxKey].message.reduce((max, msg) => {
-                        return msg.seq > max ? msg.seq : max;
-                    }, 0);
+            key = Number(key);
+            seq = Number(seq);
 
-            if(key==maxKey && seq ==maxSeq) {
-                return
-            }
-
-            const messageArray = this.messageResponse[key].message;
-            const editMapMaxSeq = messageArray.reduce((max, msg) => {
-                        return msg.seq > max ? msg.seq : max;
-                    }, 0);
-
-            if (seq === editMapMaxSeq) {
-                var messageText = JSON.parse(JSON.stringify(this.messageResponse[key]))
-                messageText.message = []
-                var lastMessage = this.messageResponse[key].message.pop()
-                messageText.message.push({
-                    seq: 1,
-                    message: lastMessage.message,
-                    imageKey: lastMessage.imageKey,
-                    imageUri: lastMessage.imageUri,
-                    isReply: lastMessage.isReply,
-                    replyMessage: lastMessage.replyMessage,
-                    replyTo: lastMessage.replyTo
-                })
-                var nextKey = Number(key) + 1
-                var upMessage = JSON.parse(JSON.stringify(this.messageResponse[nextKey]))
-                upMessage.message = this.messageResponse[nextKey].message.filter(msg => msg.seq == 1)
-                this.messageResponse[nextKey].message = this.messageResponse[nextKey].message.filter(msg => msg.seq != 1)
-                var orderSeq = 1
-                if(this.messageResponse[nextKey].message.length != 0) {
-                    this.messageResponse[nextKey].message.forEach(msg => {
-                        msg.seq = orderSeq++
-                    })
+            // Flatten the current structure
+            let flatMessages = [];
+            const sortedKeys = Object.keys(this.messageResponse).sort((a, b) => Number(a) - Number(b));
+            sortedKeys.forEach(k => {
+                const block = this.messageResponse[k];
+                if (block && block.message) {
+                    block.message.forEach(msg => {
+                        flatMessages.push({
+                            blockInfo: { sendUser: block.sendUser, myMessage: block.myMessage, sendDate: block.sendDate },
+                            msg: msg
+                        });
+                    });
                 }
-                var tempMap = new Map
-                var tempKey = 1
-                for(let [id, value] of Object.entries(this.messageResponse)) {
-                    if(id == key) {
-                        if(value.message.length != 0) {
-                            tempMap[tempKey++] = value
-                        }
-                        if(upMessage.message.length != 0) {
-                            tempMap[tempKey++] = upMessage
-                        }
-                        if(messageText.message.length != 0) {
-                            tempMap[tempKey++] = messageText
-                        }
-                    } else if(value.message.length != 0){
-                        tempMap[tempKey++] = value
-                    }
-                }
-                this.messageResponseTempRemove(tempMap)
+            });
 
-            } else {
-                // seq가 최대값이 아닌 경우 배열 내에서 순서 변경
-                const index = messageArray.findIndex(msg => msg.seq === seq);
-                if (index < messageArray.length - 1) {
-                    // 현재 메시지를 한 단계 아래로 내림
-                    [messageArray[index], messageArray[index + 1]] = [messageArray[index + 1], messageArray[index]];
-
-                    // seq 값을 업데이트
-                    messageArray[index].seq -= 1;
-                    messageArray[index + 1].seq += 1;
-
+            // Find the global index of the message to move
+            let globalIndex = -1;
+            let count = 0;
+            for (const k of sortedKeys) {
+                const block = this.messageResponse[k];
+                if (!block || !block.message) continue;
+                
+                if (Number(k) < key) {
+                    count += block.message.length;
+                } else if (Number(k) === key) {
+                    globalIndex = count + (seq - 1);
+                    break;
                 }
             }
+
+            if (globalIndex === -1 || globalIndex >= flatMessages.length - 1) return;
+
+            // Reorder the flat list
+            const [messageToMove] = flatMessages.splice(globalIndex, 1);
+            flatMessages.splice(globalIndex + 1, 0, messageToMove);
+
+            // Rebuild the messageResponse object from the flat list
+            this.messageResponse = this.rebuildMessageResponseFromFlat(flatMessages);
+        },
+        rebuildMessageResponseFromFlat(flatMessageList) {
+            if (!flatMessageList || flatMessageList.length === 0) {
+                return {};
+            }
+
+            const newResponse = {};
+            let currentBlock = null;
+            let blockKey = 1;
+
+            flatMessageList.forEach(msgWrapper => {
+                const { blockInfo, msg } = msgWrapper;
+                
+                if (!currentBlock || 
+                    currentBlock.myMessage !== blockInfo.myMessage || 
+                    currentBlock.sendUser !== blockInfo.sendUser) 
+                {
+                    currentBlock = {
+                        sendUser: blockInfo.sendUser,
+                        myMessage: blockInfo.myMessage,
+                        sendDate: blockInfo.sendDate,
+                        message: []
+                    };
+                    newResponse[blockKey++] = currentBlock;
+                }
+                
+                currentBlock.message.push(msg);
+            });
+
+            Object.values(newResponse).forEach(block => {
+                block.message.forEach((msg, index) => {
+                    msg.seq = index + 1;
+                });
+            });
+
+            return newResponse;
         },
         createPost() {
             if(this.postTitle == null) {
