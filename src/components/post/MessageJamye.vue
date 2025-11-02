@@ -61,83 +61,113 @@
 
             <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
                 <div class="modal fade" id="nickNameMapping" tabindex="-1" aria-labelledby="nickNameMapping" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="nickNameMapping">닉네임</h1>
+                                <h1 class="modal-title fs-5" id="nickNameMapping">
+                                    <i class="fas fa-user-tag"></i> 닉네임 및 그룹 회원 연결 관리
+                                </h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                        <div class="modal-body">
-                            <div v-for="[key, value] in Object.entries(this.nickNameMap)" :key = key>
-                                <div v-if="value != null && value.nickName != null">
-                                    {{ value.nickName }} : 
-                                    <button v-if="value.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
-                                            </button>
-                                            <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                {{ value.userNameInGroup }}
-                                            </button>
-                                            <ul 
-                                                class="dropdown-menu" 
-                                                style="max-height: 200px; overflow-y: auto;"
+                            <div class="modal-body">
+                                <!-- 기존 닉네임 목록 -->
+                                <div class="nickname-modal-section">
+                                    <h6>등록된 닉네임 목록</h6>
+                                    <div v-for="[key, value] in Object.entries(this.nickNameMap)" :key="key">
+                                        <div v-if="value != null && value.nickName != null" class="nickname-item">
+                                            <span class="nickname-item-name">{{ value.nickName }}</span>
+                                            <div class="nickname-item-mapping">
+                                                <label>그룹 회원 연결:</label>
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    :value="value.userSeqInGroup || ''"
+                                                    @change="handleUserMapping(key, $event.target.value, 'existing')"
+                                                >
+                                                    <option value="">연결 안함</option>
+                                                    <option
+                                                        v-for="user in userInGroup"
+                                                        :key="user.groupUserSequence"
+                                                        :value="user.groupUserSequence"
+                                                    >
+                                                        {{ user.nickname }}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <button
+                                                class="nickname-item-remove"
+                                                @click="removeNickname(key)"
+                                                title="삭제"
                                             >
-                                                <li 
-                                                    v-for="user in userInGroup" 
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 새로 추가된 닉네임 -->
+                                    <div v-for="info in this.addNickNameSet" :key="info.nickName" class="nickname-item">
+                                        <span class="nickname-item-name">{{ info.nickName }}</span>
+                                        <div class="nickname-item-mapping">
+                                            <label>그룹 회원 연결:</label>
+                                            <select
+                                                class="form-select form-select-sm"
+                                                :value="info.userSeqInGroup || ''"
+                                                @change="handleUserMapping(info.nickName, $event.target.value, 'new')"
+                                            >
+                                                <option value="">연결 안함</option>
+                                                <option
+                                                    v-for="user in userInGroup"
                                                     :key="user.groupUserSequence"
-                                                    @click="userInGroupSet(key, user)"
-                                                    style="padding: 8px; cursor: pointer;"
+                                                    :value="user.groupUserSequence"
                                                 >
                                                     {{ user.nickname }}
-                                                </li>
-                                            </ul>
-                                    <span class="remove-butto" @click="removeNickname(key)">X</span>
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <button
+                                            class="nickname-item-remove"
+                                            @click="removeNewNickname(info.nickName)"
+                                            title="삭제"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 닉네임 추가 -->
+                                <div class="nickname-modal-section">
+                                    <h6>새 닉네임 추가</h6>
+                                    <button class="btn btn-dark" @click="nickNameAdd" v-if="!nickNameEditMod">
+                                        <i class="fas fa-plus"></i> 닉네임 추가
+                                    </button>
+                                    <div class="nickname-add-form" v-if="nickNameEditMod">
+                                        <input
+                                            class="form-control"
+                                            v-model="nicknameInput"
+                                            placeholder="메시지에 표시된 이름을 입력하세요"
+                                        />
+                                        <button class="btn btn-dark" @click="nickNameAddComplate">
+                                            <i class="fas fa-check"></i> 추가 완료
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 안내 -->
+                                <div class="nickname-modal-notice">
+                                    <i class="fas fa-info-circle"></i>
+                                    변경사항은 '반영하기' 버튼을 클릭해야 저장됩니다.
                                 </div>
                             </div>
-                            <div v-for="info in this.addNickNameSet" :key="info.nickName">
-                                {{ info.nickName }}
-                                <button v-if="info.userSeqInGroup == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
-                                            </button>
-                                            <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                {{ info.userNameInGroup }}
-                                            </button>
-                                            <ul 
-                                                class="dropdown-menu" 
-                                                style="max-height: 200px; overflow-y: auto;"
-                                            >
-                                                <li 
-                                                    v-for="user in userInGroup" 
-                                                    :key="user.groupUserSequence"
-                                                    @click="addUserInGroupSet(info.nickName, user)"
-                                                    style="padding: 8px; cursor: pointer;"
-                                                >
-                                                    {{ user.nickname }}
-                                                </li>
-                                            </ul>
-                                    <span class="remove-butto" @click="removeNewNickname(info.nickName)">X</span>
-                            </div>
-                            <button class="btn btn-dark" @click="nickNameAdd">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
-                                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
-                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                                </svg>
-                                닉네임 추가
-                            </button>
-                            <div class="nickNameAdd" v-if="nickNameEditMod">
-                                <input v-model="nicknameInput" placeholder="닉네임 입력" />
-                                <button class="btn btn-dark btn-sm" @click="nickNameAddComplate">
-                                    추가 완료
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" @click="updateNickNameInfo" data-bs-dismiss="modal" aria-label="Close">
+                                    <i class="fas fa-save"></i> 반영하기
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">
+                                    닫기
                                 </button>
                             </div>
-                            <div class="des">반영하기 버튼을 클릭 시 바로 적용됩니다. </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-dark" @click="updateNickNameInfo" data-bs-dismiss="modal" aria-label="Close">반영하기</button>
-                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">닫기</button>
                         </div>
                     </div>
                 </div>
-            </div>
             <div class="collapse" id="collapseExample">
                 <div class="card card-body">
                     <div class="verification-group">
@@ -1045,6 +1075,44 @@ export default {
             .then(r => {
                 this.userInGroup = r.data.data
             })
+        },
+        handleUserMapping(identifier, userSeqValue, type) {
+            if (!userSeqValue || userSeqValue === '') {
+                // "연결 안함" 선택
+                if (type === 'existing') {
+                    this.nickNameMap[identifier] = {
+                        "nickName": this.nickNameMap[identifier].nickName,
+                        "userSeqInGroup": null,
+                        "userNameInGroup": null,
+                        "imageUri": null
+                    }
+                } else {
+                    const newSet = new Set();
+                    this.addNickNameSet.forEach(add => {
+                        if (add.nickName === identifier) {
+                            newSet.add({
+                                "nickName": identifier,
+                                "userSeqInGroup": null,
+                                "userNameInGroup": null,
+                                "imageUri": null
+                            });
+                        } else {
+                            newSet.add(add);
+                        }
+                    });
+                    this.addNickNameSet = newSet;
+                }
+            } else {
+                // 그룹 회원 선택
+                const userInGroupInfo = this.userInGroup.find(u => u.groupUserSequence == userSeqValue);
+                if (userInGroupInfo) {
+                    if (type === 'existing') {
+                        this.userInGroupSet(identifier, userInGroupInfo);
+                    } else {
+                        this.addUserInGroupSet(identifier, userInGroupInfo);
+                    }
+                }
+            }
         },
         userInGroupSet(nickNameSeq, userInGroupInfo) {
             console.log(userInGroupInfo)

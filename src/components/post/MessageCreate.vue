@@ -138,51 +138,93 @@
                     </div>
                 </div>
                     <div class="modal fade" id="nicknameAdd" tabindex="-1" aria-labelledby="nicknameAdd" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="jamye-create1">프로필 닉네임 추가</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click.stop></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <input type="text" class="form-control" placeholder="업로드할 메세지 이미지에 캡쳐된 상대의 이름을 입력해주세요" v-model="nickname">
-                                        <div v-if="userInGroup != 0">
-                                            <br>
-                                            <button v-if="userInGroupInfo == null" class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            해당 회원과 매핑할 그룹 내 유저가 있다면 선택해주세요
-                                            </button>
-                                            <button v-else class="btn btn-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                {{ userInGroupInfo.nickname }}
-                                            </button>
-                                            <ul 
-                                                class="dropdown-menu" 
-                                                style="max-height: 200px; overflow-y: auto;"
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="jamye-create1">
+                                        <i class="fas fa-user-plus"></i> 프로필 닉네임 관리
+                                    </h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click.stop></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 닉네임 추가 섹션 -->
+                                    <div class="nickname-modal-section">
+                                        <h6>새 닉네임 추가</h6>
+                                        <div class="nickname-add-form">
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder="메시지에 표시된 상대방 이름을 입력하세요"
+                                                v-model="nickname"
                                             >
-                                                <li 
-                                                    v-for="user in userInGroup" 
+                                            <button class="btn btn-dark" @click="nicknameAdd">
+                                                <i class="fas fa-plus"></i> 추가
+                                            </button>
+                                        </div>
+                                        <div v-if="userInGroup != 0" style="margin-top: 12px;">
+                                            <label class="form-label" style="font-size: 13px; color: #6c757d;">
+                                                그룹 회원과 연결 (선택사항)
+                                            </label>
+                                            <select
+                                                class="form-select"
+                                                :value="userInGroupInfo ? userInGroupInfo.groupUserSequence : null"
+                                                @change="userInGroupSet(userInGroup.find(u => u.groupUserSequence == $event.target.value))"
+                                            >
+                                                <option :value="null">연결 안함</option>
+                                                <option
+                                                    v-for="user in userInGroup"
                                                     :key="user.groupUserSequence"
-                                                    @click="userInGroupSet(user)"
-                                                    style="padding: 8px; cursor: pointer;"
+                                                    :value="user.groupUserSequence"
                                                 >
                                                     {{ user.nickname }}
-                                                </li>
-                                            </ul>
+                                                </option>
+                                            </select>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-dark" @click="nicknameAdd">추가</button>
+
+                                    <!-- 등록된 닉네임 목록 -->
+                                    <div v-if="nicknames && nicknames.length > 0" class="nickname-modal-section">
+                                        <h6>등록된 닉네임 ({{ nicknames.length }}개)</h6>
+                                        <div
+                                            v-for="nickname in nicknames"
+                                            :key="nickname"
+                                            class="nickname-item"
+                                        >
+                                            <span class="nickname-item-name">{{ nickname }}</span>
+                                            <div class="nickname-item-mapping" v-if="userInGroup != 0">
+                                                <label>그룹 회원:</label>
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    :value="userNameMap[nickname] ? userNameMap[nickname].groupUserSequence : ''"
+                                                    @change="updateNicknameMapping(nickname, $event.target.value)"
+                                                >
+                                                    <option value="">연결 안함</option>
+                                                    <option
+                                                        v-for="user in userInGroup"
+                                                        :key="user.groupUserSequence"
+                                                        :value="user.groupUserSequence"
+                                                    >
+                                                        {{ user.nickname }}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <button
+                                                class="nickname-item-remove"
+                                                @click="removeNickname(nickname)"
+                                                title="삭제"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 안내 -->
+                                    <div class="nickname-modal-notice">
+                                        <i class="fas fa-info-circle"></i>
+                                        메시지 이미지에 표시된 상대방 이름을 미리 등록하면 자동으로 인식됩니다.
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    <div class="nicknames-container">
-                        <div
-                            v-for="nickname in nicknames"
-                            :key="nickname"
-                            class="nickname"
-                            >
-                            {{ nickname }}
-                            <span class="remove-button" @click="removeNickname(nickname)">X</span>
                         </div>
                     </div>
                     <!-- 프로필 닉네임 관리 -->
@@ -731,10 +773,23 @@ export default {
             this.nicknames.push(this.nickname)
             this.userNameMap[this.nickname] = this.userInGroupInfo
             this.nickname = null
-            this.userInGroupInfo = null 
+            this.userInGroupInfo = null
+        },
+        updateNicknameMapping(nickname, userSeqValue) {
+            if (!userSeqValue || userSeqValue === '') {
+                // "연결 안함" 선택
+                this.userNameMap[nickname] = null;
+            } else {
+                // 그룹 회원 선택
+                const userInfo = this.userInGroup.find(u => u.groupUserSequence == userSeqValue);
+                if (userInfo) {
+                    this.userNameMap[nickname] = userInfo;
+                }
+            }
         },
         removeNickname(nickname) {
             this.nicknames = this.nicknames.filter(value => value !== nickname);
+            delete this.userNameMap[nickname];
         },
         messageListGet() {
             if(this.messageImage == null) {
