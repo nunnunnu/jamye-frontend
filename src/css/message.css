@@ -259,3 +259,257 @@ input.reply-header-them {
     visibility: visible;
     opacity: 1;
 }
+
+/* 공통 버튼 스타일 */
+.btn-custom {
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    line-height: 1.5;
+    border-radius: 4px;
+}
+
+.btn-custom-sm {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    line-height: 1.4;
+    border-radius: 4px;
+}
+
+/* btn-area 클래스 수정 - 대칭적인 패딩 */
+.btn-area {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+}
+
+a.btn-area {
+    display: inline-block;
+    line-height: 1.5;
+    vertical-align: middle;
+}
+
+/* 모달 버튼 스타일 */
+.btn-modal {
+    background-color: #cdd6d6 !important;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 기능별 버튼 스타일 구분 */
+
+/* 1. 모달 열기 버튼 (이미지 보관함, 닉네임) */
+.btn-modal-trigger {
+    background-color: white !important;
+    border: 2px solid #343a40 !important;
+    color: #343a40 !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    min-height: 44px; /* 모바일 터치 영역 */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-modal-trigger:hover {
+    background-color: #343a40 !important;
+    color: white !important;
+}
+
+/* 2. 토글 버튼 (문자일괄제거, 태그) */
+.btn-toggle {
+    background-color: #f8f9fa !important;
+    border: 2px solid #dee2e6 !important;
+    color: #495057 !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle:hover {
+    background-color: #e9ecef !important;
+    border-color: #adb5bd !important;
+}
+
+.btn-toggle.active {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+}
+
+/* 3. 주요 액션 버튼 (수정완료, 생성) */
+.btn-primary-action {
+    background-color: #343a40 !important;
+    border: 2px solid #343a40 !important;
+    color: white !important;
+    padding: 10px 24px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    min-height: 44px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.btn-primary-action:hover {
+    background-color: #23272b !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+}
+
+/* 버튼 컨테이너 - 그룹화 및 반응형 */
+.button-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .btn-modal-trigger,
+    .btn-toggle,
+    .btn-primary-action {
+        min-height: 48px; /* 모바일에서 더 큰 터치 영역 */
+        padding: 10px 16px !important;
+    }
+
+    .button-toolbar {
+        gap: 10px;
+    }
+}
+
+/* 제목 입력 필드 스타일 */
+.post-title-input {
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    border: 2px solid #e9ecef !important;
+    border-radius: 8px !important;
+    padding: 14px 18px !important;
+    transition: all 0.3s ease;
+    background-color: #fff !important;
+}
+
+.post-title-input:focus {
+    border-color: #343a40 !important;
+    box-shadow: 0 0 0 0.2rem rgba(52, 58, 64, 0.15) !important;
+    outline: none;
+}
+
+.post-title-input::placeholder {
+    color: #adb5bd;
+    font-weight: 400;
+}
+
+/* 작성자 정보 스타일 */
+.post-meta-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.post-meta-label {
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.post-meta-value {
+    font-size: 15px;
+    color: #212529;
+    font-weight: 600;
+}
+
+.post-meta-divider {
+    width: 1px;
+    height: 16px;
+    background-color: #dee2e6;
+}
+
+/* 파일 입력 필드 스타일 */
+.file-input-wrapper {
+    flex: 1;
+    max-width: 100%;
+}
+
+.file-input-wrapper input[type="file"] {
+    width: 100%;
+    min-width: 300px;
+}
+
+/* 메시지 편집 툴바 (본문 바로 위) */
+.message-editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    border: 1px solid #dee2e6;
+    border-bottom: 1px solid #adb5bd;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.message-editor-toolbar .btn {
+    margin: 0;
+    border-left: 1px solid #dee2e6;
+    padding-left: 12px;
+}
+
+.message-editor-toolbar .btn:first-of-type {
+    border-left: none;
+}
+
+/* 메시지 영역 상단 라운드 제거 (툴바와 연결) */
+.message-card-with-toolbar {
+    border-radius: 0 0 8px 8px !important;
+    margin-top: 0 !important;
+}
+
+/* 메시지 변환 섹션 */
+.message-convert-section {
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.message-convert-section h6 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 12px;
+}
+
+.message-convert-section .file-input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.message-convert-section .file-input-wrapper input[type="file"] {
+    flex: 7;
+    min-width: 0;
+}
+
+.message-convert-section .file-input-wrapper .btn {
+    flex: 3;
+    white-space: nowrap;
+}

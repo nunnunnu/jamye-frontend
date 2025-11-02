@@ -1,5 +1,5 @@
 <template>
-    <div class="b-container">
+    <div class="b-container" style="padding-top: 80px;">
         <div class="save-toast" v-if="showSaveToast">{{ saveToastMessage }}</div>
         <div>
             <div class="guide-overlay" v-if="showModal">
@@ -112,14 +112,31 @@
                 </div>
             </div>
         </div>
-                <h1 class="title fs-5" id="jamye-create1">{{ groupName }}가챠 잼얘 넣기 - 메세지 타입</h1>
-                <div class="form-group">
-                    <input type="text" class="form-control" name="post-title" id="post-title" v-model="postTitle" placeholder="게시글 제목">
+                <!-- 제목 입력 -->
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <input type="text" class="form-control post-title-input" name="post-title" id="post-title" v-model="postTitle" placeholder="게시글 제목을 입력하세요">
                 </div>
-                    <br>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-dark mb-3"  data-bs-toggle="modal" data-bs-target="#nicknameAdd" @click="groupUserList()">프로필 닉네임 추가</button>
+
+                <!-- 작성자 정보 -->
+                <div class="post-meta-container">
+                    <span class="post-meta-label">그룹</span>
+                    <span class="post-meta-value">{{ groupName }}</span>
+                    <div class="post-meta-divider"></div>
+                    <span class="post-meta-label">타입</span>
+                    <span class="post-meta-value">메시지</span>
+                </div>
+
+                <!-- 전체 편집 도구 (상단) -->
+                <div class="button-toolbar">
+                    <div class="button-group">
+                        <button @click="toggleInput" class="btn btn-toggle" :class="{ active: isInputVisible }">
+                            <i class="fas fa-hashtag"></i> {{ isInputVisible ? "태그 완료" : "태그 추가" }}
+                        </button>
+                        <button class="btn btn-toggle" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                            <i class="fas fa-eraser"></i> 문자일괄제거
+                        </button>
                     </div>
+                </div>
                     <div class="modal fade" id="nicknameAdd" tabindex="-1" aria-labelledby="nicknameAdd" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
@@ -168,27 +185,26 @@
                             <span class="remove-button" @click="removeNickname(nickname)">X</span>
                         </div>
                     </div>
-                    <div>
-                        <div class="row g-2">
-                        <div class="col-auto">
-                            <input type="file" accept="image/*" class="form-control" id="inputPassword2" placeholder="" @change="messageImageChange">
-                        </div>
-                        <div class="col-auto">
-                            <button type="submit" class="btn btn-dark mb-3" @click="messageListGet">메세지 변환</button>
-                        </div>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-dark btn-area" data-bs-toggle="modal" data-bs-target="#imageModal">이미지 보관함</button>
-                        <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
-                        <button @click="toggleInput" class="btn btn-dark btn-area">
-                            {{ isInputVisible ? "입력완료" : "태그 추가" }}
+                    <!-- 프로필 닉네임 관리 -->
+                    <div class="button-toolbar">
+                        <button type="button" class="btn btn-modal-trigger" data-bs-toggle="modal" data-bs-target="#nicknameAdd" @click="groupUserList()">
+                            <i class="fas fa-user-plus"></i> 프로필 닉네임 추가
                         </button>
-                        <p class="d-inline-flex gap-1">
-                            <a class="btn btn-dark btn-area " data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                                문자일괄제거
-                            </a>
-                        </p>
                     </div>
+
+                    <!-- 메시지 변환 섹션 -->
+                    <div class="message-convert-section">
+                        <h6><i class="fas fa-file-import"></i> 카카오톡 메시지 이미지 변환</h6>
+                        <div class="button-group file-input-wrapper">
+                            <input type="file" accept="image/*" class="form-control" id="inputPassword2" placeholder="" @change="messageImageChange">
+                            <button type="submit" class="btn btn-dark" @click="messageListGet">
+                                <i class="fas fa-sync-alt"></i> 메시지 변환
+                            </button>
+                        </div>
+                    </div>
+
+                    <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
+
                     <div class="collapse" id="collapseExample">
                         <div class="card card-body">
                             <div class="verification-group">
@@ -230,9 +246,16 @@
                             </div>
                         </div>
                     </div>
+
+                <!-- 메시지 편집 툴바 (본문 바로 위) -->
+                <div class="message-editor-toolbar">
+                    <span style="font-size: 13px; color: #6c757d; font-weight: 500; margin-right: 8px;">메시지 편집:</span>
+                    <button type="button" class="btn btn-modal-trigger btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
+                        <i class="fas fa-images"></i> 이미지
+                    </button>
                 </div>
 
-                <div class="card card-body">
+                <div class="card card-body message-card-with-toolbar">
                     <div class="chat-room">
                         <div v-for="[key, text] in Object.entries(messageResponse)" :key="key">                                                                        
                             <!-- 내 매세지 -->
@@ -505,7 +528,13 @@
                         <img :src="this.imageMap[previewImage]" alt="Preview Image" class="large-image" />
                     </div>
                 </div>
-                <button class="btn btn-dark btn-block" @click="createPost()">생성</button>
+
+                <!-- 생성 버튼 -->
+                <div class="button-toolbar" style="justify-content: flex-end; margin-top: 20px;">
+                    <button class="btn btn-primary-action" @click="createPost()">
+                        <i class="fas fa-check-circle"></i> 게시글 생성
+                    </button>
+                </div>
             </div>
 </template>
 <script>
@@ -1716,25 +1745,6 @@ export default {
 .chat-room {
     height: 600px;
 }
-.btn-area {
-    padding-top: 3px !important; 
-    padding-bottom: 8px !important;
-}
-a.btn-area {
-  display: inline-block;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  line-height: 1.5;
-  vertical-align: middle;
-}
-
-a.btn-area {
-  display: inline-block;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  line-height: 1.5;
-  vertical-align: middle;
-}
 
 /* 가이드 모달 스타일 */
 .guide-overlay {
@@ -1911,9 +1921,5 @@ a.btn-area {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.10);
   background: #f8f9fa;
-}
-
-.btn-modal {
-    background-color: #cdd6d6 !important;
 }
 </style>

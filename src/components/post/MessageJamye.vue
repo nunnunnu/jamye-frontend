@@ -1,15 +1,29 @@
 <template>
-    <div class="b-container">
-        <div v-if="isEditing">
-            <input class="title" type="text" v-model="message.title" style="width: 100%;">
+    <div class="b-container" style="padding-top: 80px;">
+        <!-- 제목 -->
+        <div v-if="isEditing" class="form-group" style="margin-bottom: 20px;">
+            <input class="form-control post-title-input" type="text" v-model="message.title">
         </div>
-        <div v-else>
-            <h1 class="title">{{ message.title }}</h1>
+        <div v-else style="margin-bottom: 16px; margin-top: -50px;">
+            <h1 class="title" style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">{{ message.title }}</h1>
         </div>
-        <div class="create-user">작성자: {{ message.createdUserNickName }}</div>
+
+        <!-- 작성자 정보 -->
+        <div class="post-meta-container">
+            <span class="post-meta-label">작성자</span>
+            <span class="post-meta-value">{{ message.createdUserNickName }}</span>
+        </div>
         <div class="editModeOpen" v-if="isEditing == null && message.createdUserSequence == userSeq">
-            <button @click="editMode" class="btn btn-dark btn-area">수정</button>
-            <button @click="deletePost" class="btn btn-dark btn-area">삭제</button>
+            <div class="button-toolbar" style="margin-bottom: 12px;">
+                <div class="button-group">
+                    <button @click="editMode" class="btn btn-dark">
+                        <i class="fas fa-edit"></i> 수정
+                    </button>
+                    <button @click="deletePost" class="btn btn-dark">
+                        <i class="fas fa-trash"></i> 삭제
+                    </button>
+                </div>
+            </div>
             <div class="tag-list">
                 <div
                     v-for="tag in tags" :key="tag.tagPostConnectionSeq"
@@ -22,21 +36,30 @@
             </div>
         </div>
         <div class="editMode" v-if="isEditing != null">
-            <div>
-                <div class="row g-2">
-                    <div class="col-auto">
-                        <input type="file" accept="image/*" class="form-control" id="inputPassword2" placeholder="" @change="messageImageChange">
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-dark mb-3" @click="messageListGet">메세지 변환</button>
-                    </div>
+            <!-- 전체 편집 도구 (상단) -->
+            <div class="button-toolbar">
+                <div class="button-group">
+                    <button @click="toggleInput" class="btn btn-toggle" :class="{ active: isInputVisible }">
+                        <i class="fas fa-hashtag"></i> {{ isInputVisible ? "태그 완료" : "태그 추가" }}
+                    </button>
+                    <button class="btn btn-toggle" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                        <i class="fas fa-eraser"></i> 문자일괄제거
+                    </button>
                 </div>
             </div>
-            <button type="button" class="btn btn-dark btn-area btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
-                <span style="font-size: 10px;">이미지 보관함</span>
-            </button>
-                <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
-            <button class="btn btn-dark btn-area btn-sm" data-bs-toggle="modal" data-bs-target="#nickNameMapping" @click="groupNickNameInfo()">닉네임</button>
+
+            <!-- 메시지 변환 섹션 -->
+            <div class="message-convert-section">
+                <h6><i class="fas fa-file-import"></i> 카카오톡 메시지 이미지 변환</h6>
+                <div class="button-group file-input-wrapper">
+                    <input type="file" accept="image/*" class="form-control" id="inputPassword2" placeholder="" @change="messageImageChange">
+                    <button type="submit" class="btn btn-dark" @click="messageListGet">
+                        <i class="fas fa-sync-alt"></i> 메시지 변환
+                    </button>
+                </div>
+            </div>
+
+            <image-box :type="'MSG'" :imageKey="this.imageAddKey" :imageSeq="this.imageAddSeq" :message="this.messageResponse" :imageUidMap = "this.imageMap" @imageMap="handleImageMapUpdate" @messageImage="messageUpdate"></image-box>
                 <div class="modal fade" id="nickNameMapping" tabindex="-1" aria-labelledby="nickNameMapping" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -115,15 +138,6 @@
                     </div>
                 </div>
             </div>
-            <p class="d-inline-flex gap-1">
-                <a class="btn btn-dark btn-area btn-sm" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                    <span style="font-size: 10px;">문자일괄제거</span>
-                </a>
-            </p>
-            <button @click="toggleInput" class="btn btn-dark btn-area btn-sm">
-                {{ isInputVisible ? "입력완료" : "태그 추가" }}
-            </button>
-            <button  @click="editModeClose" class="btn btn-dark btn-area btn-sm">수정완료</button>
             <div class="collapse" id="collapseExample">
                 <div class="card card-body">
                     <div class="verification-group">
@@ -172,7 +186,19 @@
                 </div>
             </div>
         </div>
-        <div class="card card-body">
+
+        <!-- 메시지 편집 툴바 (본문 바로 위, 수정 모드일 때만 표시) -->
+        <div v-if="isEditing != null" class="message-editor-toolbar">
+            <span style="font-size: 13px; color: #6c757d; font-weight: 500; margin-right: 8px;">메시지 편집:</span>
+            <button type="button" class="btn btn-modal-trigger btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
+                <i class="fas fa-images"></i> 이미지
+            </button>
+            <button class="btn btn-modal-trigger btn-sm" data-bs-toggle="modal" data-bs-target="#nickNameMapping" @click="groupNickNameInfo()">
+                <i class="fas fa-user-tag"></i> 닉네임
+            </button>
+        </div>
+
+        <div class="card card-body" :class="{ 'message-card-with-toolbar': isEditing != null }">
                     <div class="chat-room">
                         <div v-for="[key, text] in Object.entries(this.messageResponse)" :key="key">                                                                        
                             <!-- 내 매세지 -->
@@ -530,6 +556,14 @@
                         답장 연결
                     </button>
                 </div>
+
+                <!-- 수정완료 버튼 (수정 모드일 때만 표시) -->
+                <div v-if="isEditing != null" class="button-toolbar" style="justify-content: flex-end; margin-top: 20px;">
+                    <button @click="editModeClose" class="btn btn-primary-action">
+                        <i class="fas fa-check-circle"></i> 수정완료
+                    </button>
+                </div>
+
                 <div v-if="isPreviewOpen" class="image-preview-overlay" @click="closePreview">
                     <div class="image-preview-container">
                         <img 
@@ -538,10 +572,10 @@
                             alt="Preview Image" 
                             class="large-image" 
                             />
-                        <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image"/>  
+                        <img v-else :src="imageUrl(previewImage)" alt="Preview Image" class="large-image"/>
                     </div>
                 </div>
-                <comment-list v-if="message.postSequence != null" class="comment" :postSeq= "postSeq" :groupSeq="groupSeq"></comment-list>
+                <comment-list v-if="message.postSequence != null && isEditing == null" class="comment" :postSeq= "postSeq" :groupSeq="groupSeq"></comment-list>
     </div>    
 </template>
 <script>
@@ -1668,13 +1702,5 @@ export default {
 .scroll-btn:hover,
 .return-btn:hover {
   background-color: #e0e0e0;
-}
-
-a.btn-area {
-  display: inline-block;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  line-height: 1.5;
-  vertical-align: middle;
 }
 </style>
