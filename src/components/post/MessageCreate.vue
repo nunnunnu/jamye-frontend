@@ -1720,8 +1720,8 @@ export default {
         handleDragOver(event, key, seq) {
             event.preventDefault();
             event.stopPropagation();
+            event.dataTransfer.dropEffect = 'move';
             this.dragOverMessage = { key: Number(key), seq: Number(seq) };
-            console.log('Drag over:', this.dragOverMessage);
         },
         handleDragLeave(event) {
             event.stopPropagation();
@@ -1729,8 +1729,14 @@ export default {
         },
         handleDrop(event, targetKey, targetSeq) {
             event.preventDefault();
+            event.stopPropagation();
 
-            if (!this.draggedMessage) return;
+            console.log('DROP EVENT FIRED!');
+
+            if (!this.draggedMessage) {
+                console.log('No dragged message!');
+                return;
+            }
 
             const sourceKey = this.draggedMessage.key;
             const sourceSeq = this.draggedMessage.seq;
@@ -2767,6 +2773,18 @@ export default {
   opacity: 0.5;
   transform: scale(0.95);
   cursor: grabbing;
+}
+
+/* 드래그 중일 때 자식 요소들이 이벤트를 받지 않도록 */
+.message-container-me.dragging *,
+.message-container.dragging * {
+  pointer-events: none;
+}
+
+/* 드래그 오버 시에도 자식 요소들이 이벤트를 받지 않도록 */
+.message-container-me.drag-over *,
+.message-container.drag-over * {
+  pointer-events: none;
 }
 
 /* 드래그 오버 중인 메시지 (드롭 대상) */
