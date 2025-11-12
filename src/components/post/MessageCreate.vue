@@ -303,6 +303,11 @@
                             <!-- 내 매세지 -->
                             <div v-if="text.myMessage" class="chat-message mt-3">
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(key, msg)"   :id="'message-' + key + '_' + msg.seq"
+                                    draggable="true"
+                                    @dragstart="handleDragStart($event, key, msg.seq)"
+                                    @dragover="handleDragOver($event, key, msg.seq)"
+                                    @drop="handleDrop($event, key, msg.seq)"
+                                    @dragend="handleDragEnd()"
                                     :class="{
                                         'message-hover-delete': isMessageHighlighted(key, msg.seq, 'delete'),
                                         'message-hover-edit': isMessageHighlighted(key, msg.seq, 'edit'),
@@ -311,7 +316,9 @@
                                         'message-hover-move-down': isMessageHighlighted(key, msg.seq, 'move-down'),
                                         'message-hover-add': isMessageHighlighted(key, msg.seq, 'add'),
                                         'message-hover-camera': isMessageHighlighted(key, msg.seq, 'camera'),
-                                        'message-hover-switch': isMessageHighlighted(key, msg.seq, 'switch')
+                                        'message-hover-switch': isMessageHighlighted(key, msg.seq, 'switch'),
+                                        'dragging': draggedMessage && draggedMessage.key === Number(key) && draggedMessage.seq === msg.seq,
+                                        'drag-over': dragOverMessage && dragOverMessage.key === Number(key) && dragOverMessage.seq === msg.seq
                                     }"
                                 >
                                     <div class="info-container">
@@ -516,6 +523,11 @@
                                 </div>
 
                                 <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(key, msg)"
+                                    draggable="true"
+                                    @dragstart="handleDragStart($event, key, msg.seq)"
+                                    @dragover="handleDragOver($event, key, msg.seq)"
+                                    @drop="handleDrop($event, key, msg.seq)"
+                                    @dragend="handleDragEnd()"
                                     :class="{
                                         'message-hover-delete': isMessageHighlighted(key, msg.seq, 'delete'),
                                         'message-hover-edit': isMessageHighlighted(key, msg.seq, 'edit'),
@@ -524,7 +536,9 @@
                                         'message-hover-move-down': isMessageHighlighted(key, msg.seq, 'move-down'),
                                         'message-hover-add': isMessageHighlighted(key, msg.seq, 'add'),
                                         'message-hover-camera': isMessageHighlighted(key, msg.seq, 'camera'),
-                                        'message-hover-switch': isMessageHighlighted(key, msg.seq, 'switch')
+                                        'message-hover-switch': isMessageHighlighted(key, msg.seq, 'switch'),
+                                        'dragging': draggedMessage && draggedMessage.key === Number(key) && draggedMessage.seq === msg.seq,
+                                        'drag-over': dragOverMessage && dragOverMessage.key === Number(key) && dragOverMessage.seq === msg.seq
                                     }"
                                 >
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
@@ -684,7 +698,6 @@ import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts'
 import { getCurrentStep, setStep, TutorialStep } from '@/js/tutorialHelper';
 import { saveMessage, getAllMessages, saveNickname, getNicknames, saveImage, getAllImages, hasSavedMessages, clearMessages, saveNicknamesArray, getNicknamesArray } from '@/js/store'
-import Sortable from 'sortablejs';
 
 export default {
     components: {
@@ -731,6 +744,8 @@ export default {
             showSaveToast: false,
             saveToastMessage: '',
             hoveredAction: { type: null, key: null, seq: null }, // 호버 상태 추적
+            draggedMessage: null, // 드래그 중인 메시지 정보 { key, seq }
+            dragOverMessage: null, // 드래그 오버 중인 메시지 정보 { key, seq }
         }
     },
     props: {
@@ -778,58 +793,6 @@ export default {
         //     await this.sendImage()
         //     this.showToast("임시저장되었습니다.");
         // }, 1 * 60 * 1000) // 1분마다
-
-        // Sortable.js 초기화
-        this.$nextTick(() => {
-            const chatRoom = this.$el.querySelector('.chat-room');
-            if (chatRoom) {
-                this.sortableInstance = Sortable.create(chatRoom, {
-                    animation: 150,
-                    handle: '.drag-handle', // 드래그 핸들 지정
-                    ghostClass: 'sortable-ghost',
-                    chosenClass: 'sortable-chosen',
-                    dragClass: 'sortable-drag',
-                    onEnd: (evt) => {
-                        this.handleDragEnd(evt);
-                    }
-                });
-            }
-        });
-    },
-    computed: {
-        // 모든 메시지를 flat list로 변환
-        flatMessages() {
-            const result = [];
-            const sortedKeys = Object.keys(this.messageResponse).sort((a, b) => Number(a) - Number(b));
-
-            let prevSendUser = null;
-            let prevMyMessage = null;
-
-            sortedKeys.forEach(key => {
-                const block = this.messageResponse[key];
-                if (block && block.message) {
-                    block.message.forEach((msg, msgIndex) => {
-                        const isFirstInBlock = msgIndex === 0 &&
-                            (prevSendUser !== block.sendUser || prevMyMessage !== block.myMessage);
-
-                        result.push({
-                            key: Number(key),
-                            blockInfo: {
-                                sendUser: block.sendUser,
-                                myMessage: block.myMessage,
-                                sendDate: block.sendDate
-                            },
-                            msg: msg,
-                            isFirstInBlock: isFirstInBlock // 새 유저 영역의 첫 메시지인지 표시
-                        });
-                    });
-                    prevSendUser = block.sendUser;
-                    prevMyMessage = block.myMessage;
-                }
-            });
-
-            return result;
-        }
     },
     methods: {
         showToast(message) {
@@ -1740,19 +1703,133 @@ export default {
             this.currentStep = step;
         },
         // 드래그 앤 드롭 핸들러
-        handleDragEnd(evt) {
-            const oldIndex = evt.oldIndex;
-            const newIndex = evt.newIndex;
+        handleDragStart(event, key, seq) {
+            console.log('Drag start:', { key, seq, keyType: typeof key, seqType: typeof seq });
+            this.draggedMessage = { key: Number(key), seq: Number(seq) };
 
-            if (oldIndex === newIndex) return;
+            // 말풍선을 드래그 이미지로 사용 (흰색 배경 제거)
+            const target = event.currentTarget;
+            const bubble = target.querySelector('p.from-me, p.from-them');
 
-            // flatMessages의 순서를 업데이트
-            const flatList = [...this.flatMessages];
-            const [movedItem] = flatList.splice(oldIndex, 1);
-            flatList.splice(newIndex, 0, movedItem);
+            if (bubble) {
+                // 말풍선 요소를 직접 드래그 이미지로 설정
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setDragImage(bubble, bubble.offsetWidth / 2, bubble.offsetHeight / 2);
+            }
+        },
+        handleDragOver(event, key, seq) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.dragOverMessage = { key: Number(key), seq: Number(seq) };
+            console.log('Drag over:', this.dragOverMessage);
+        },
+        handleDragLeave(event) {
+            event.stopPropagation();
+            this.dragOverMessage = null;
+        },
+        handleDrop(event, targetKey, targetSeq) {
+            event.preventDefault();
 
-            // messageResponse 재구성
-            this.messageResponse = this.rebuildMessageResponseFromFlat(flatList);
+            if (!this.draggedMessage) return;
+
+            const sourceKey = this.draggedMessage.key;
+            const sourceSeq = this.draggedMessage.seq;
+            targetKey = Number(targetKey);
+            targetSeq = Number(targetSeq);
+
+            console.log('Drag drop:', { sourceKey, sourceSeq, targetKey, targetSeq });
+
+            // 같은 메시지면 아무것도 안 함
+            if (sourceKey === targetKey && sourceSeq === targetSeq) {
+                this.draggedMessage = null;
+                this.dragOverMessage = null;
+                return;
+            }
+
+            // 전체 메시지 리스트를 flat하게 만들기
+            const flatMessages = [];
+            const sortedKeys = Object.keys(this.messageResponse).sort((a, b) => Number(a) - Number(b));
+
+            let sourceIndex = -1;
+            let targetIndex = -1;
+            let currentIndex = 0;
+
+            sortedKeys.forEach(k => {
+                const block = this.messageResponse[k];
+                if (block && block.message) {
+                    block.message.forEach(msg => {
+                        // sourceIndex와 targetIndex 찾기
+                        if (Number(k) === sourceKey && msg.seq === sourceSeq) {
+                            sourceIndex = currentIndex;
+                        }
+                        if (Number(k) === targetKey && msg.seq === targetSeq) {
+                            targetIndex = currentIndex;
+                        }
+
+                        flatMessages.push({
+                            blockInfo: {
+                                sendUser: block.sendUser,
+                                myMessage: block.myMessage,
+                                sendDate: block.sendDate
+                            },
+                            msg: msg
+                        });
+                        currentIndex++;
+                    });
+                }
+            });
+
+            if (sourceIndex === -1 || targetIndex === -1) {
+                console.log('Index not found:', { sourceIndex, targetIndex });
+                this.draggedMessage = null;
+                this.dragOverMessage = null;
+                return;
+            }
+
+            console.log('Found indices:', { sourceIndex, targetIndex, totalMessages: flatMessages.length });
+
+            // flatMessages 배열에서 순서 변경
+            const [movedItem] = flatMessages.splice(sourceIndex, 1);
+            flatMessages.splice(targetIndex, 0, movedItem);
+
+            console.log('Reordered, rebuilding messageResponse...');
+
+            // rebuildMessageResponseFromFlat을 사용하여 messageResponse 재구성
+            this.messageResponse = this.rebuildMessageResponseFromFlat(flatMessages);
+
+            console.log('Rebuild complete');
+
+            this.draggedMessage = null;
+            this.dragOverMessage = null;
+        },
+        handleDragEnd() {
+            this.draggedMessage = null;
+            this.dragOverMessage = null;
+        },
+        // 헬퍼 메서드: 현재 메시지를 flat 리스트로 반환
+        getFlatMessages() {
+            const result = [];
+            const sortedKeys = Object.keys(this.messageResponse).sort((a, b) => Number(a) - Number(b));
+
+            sortedKeys.forEach(key => {
+                const block = this.messageResponse[key];
+                if (block && block.message) {
+                    block.message.forEach(msg => {
+                        result.push({
+                            key: Number(key),
+                            seq: msg.seq,
+                            blockInfo: {
+                                sendUser: block.sendUser,
+                                myMessage: block.myMessage,
+                                sendDate: block.sendDate
+                            },
+                            msg: msg
+                        });
+                    });
+                }
+            });
+
+            return result;
         },
         // 호버 핸들러
         setHoverAction(type, key, seq) {
@@ -2675,5 +2752,40 @@ export default {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.10);
   background: #f8f9fa;
+}
+
+/* 드래그 앤 드롭 시각 효과 */
+.message-container-me,
+.message-container {
+  cursor: move;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+/* 드래그 중인 메시지 */
+.message-container-me.dragging,
+.message-container.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  cursor: grabbing;
+}
+
+/* 드래그 오버 중인 메시지 (드롭 대상) */
+.message-container-me.drag-over,
+.message-container.drag-over {
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.5) !important;
+  background-color: rgba(13, 110, 253, 0.05) !important;
+  border-radius: 8px;
+}
+
+/* 드래그 오버 중인 메시지의 말풍선 */
+.message-container-me.drag-over p,
+.message-container.drag-over p {
+  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3) !important;
+}
+
+/* 드래그 중 커서 변경 */
+.message-container-me[draggable="true"]:active,
+.message-container[draggable="true"]:active {
+  cursor: grabbing;
 }
 </style>
