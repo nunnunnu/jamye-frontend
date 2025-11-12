@@ -302,38 +302,76 @@
                         <div v-for="[key, text] in Object.entries(messageResponse)" :key="key">                                                                        
                             <!-- 내 매세지 -->
                             <div v-if="text.myMessage" class="chat-message mt-3">
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(key, msg)"   :id="'message-' + key + '_' + msg.seq" >
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container-me"  @click="scrollToMessage(key, msg)"   :id="'message-' + key + '_' + msg.seq"
+                                    :class="{
+                                        'message-hover-delete': isMessageHighlighted(key, msg.seq, 'delete'),
+                                        'message-hover-edit': isMessageHighlighted(key, msg.seq, 'edit'),
+                                        'message-hover-reply': isMessageHighlighted(key, msg.seq, 'reply'),
+                                        'message-hover-move-up': isMessageHighlighted(key, msg.seq, 'move-up'),
+                                        'message-hover-move-down': isMessageHighlighted(key, msg.seq, 'move-down'),
+                                        'message-hover-add': isMessageHighlighted(key, msg.seq, 'add'),
+                                        'message-hover-camera': isMessageHighlighted(key, msg.seq, 'camera'),
+                                        'message-hover-switch': isMessageHighlighted(key, msg.seq, 'switch')
+                                    }"
+                                >
                                     <div class="info-container">
                                         <div class="button-container">
-                                            <button class="circle-btn add tooltip-btn" @click="addEmptyMessage(key, msg.seq)">
+                                            <button class="circle-btn add tooltip-btn"
+                                                @click="addEmptyMessage(key, msg.seq)"
+                                                @mouseenter="setHoverAction('add', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-plus"></i>
                                                 <span class="tooltip-text">하단 메세지 추가</span>
                                             </button>
-                                            <button class="circle-btn up-arrow tooltip-btn" @click="moveMessageUp(key, msg.seq)">
+                                            <button class="circle-btn up-arrow tooltip-btn"
+                                                @click="moveMessageUp(key, msg.seq)"
+                                                @mouseenter="setHoverAction('move-up', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-up"></i>
                                                 <span class="tooltip-text">위로 이동</span>
                                             </button>
-                                            <button class="circle-btn down-arrow tooltip-btn" @click="moveMessageDown(key, msg.seq)">
+                                            <button class="circle-btn down-arrow tooltip-btn"
+                                                @click="moveMessageDown(key, msg.seq)"
+                                                @mouseenter="setHoverAction('move-down', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-down"></i>
                                                 <span class="tooltip-text">아래로 이동</span>
                                             </button>
-                                            <button class="circle-btn edit tooltip-btn" @click="editMessage(key, msg.seq)">
+                                            <button class="circle-btn edit tooltip-btn"
+                                                @click="editMessage(key, msg.seq)"
+                                                @mouseenter="setHoverAction('edit', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-pencil-alt"></i>
                                                 <span class="tooltip-text">메세지 수정</span>
                                             </button>
-                                            <button class="circle-btn delete tooltip-btn" @click="removeMessageSeq(key, msg.seq)">
+                                            <button class="circle-btn delete tooltip-btn"
+                                                @click="removeMessageSeq(key, msg.seq)"
+                                                @mouseenter="setHoverAction('delete', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-trash"></i>
                                                 <span class="tooltip-text">메세지 삭제</span>
                                             </button>
-                                            <button class="circle-btn camera tooltip-btn" data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)">
+                                            <button class="circle-btn camera tooltip-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#imageModal"
+                                                @click="selectImageKey(key, msg.seq)"
+                                                @mouseenter="setHoverAction('camera', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-camera"></i>
                                                 <span class="tooltip-text">이미지 메세지 추가</span>
                                             </button>
-                                            <button class="circle-btn left tooltip-btn" @click="moveLeft(key, msg.seq)">
+                                            <button class="circle-btn left tooltip-btn"
+                                                @click="moveLeft(key, msg.seq)"
+                                                @mouseenter="setHoverAction('switch', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-left"></i>
                                                 <span class="tooltip-text">상대방 메세지로 이동</span>
                                             </button>
-                                            <button class="circle-btn down-arrow tooltip-btn" @click="toggleReplyMode(msg)" title="답장 연결">
+                                            <button class="circle-btn down-arrow tooltip-btn"
+                                                @click="toggleReplyMode(msg)"
+                                                title="답장 연결"
+                                                @mouseenter="setHoverAction('reply', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-link"></i>
                                                 <span class="tooltip-text">답장 연결</span>
                                             </button>
@@ -401,7 +439,15 @@
                                 </div>
                             </div>
                             <!-- 상대 메세지 -->
-                            <div v-else class="chat-message mt-3">
+                            <div v-else class="chat-message mt-3"
+                                :class="{
+                                    'user-hover-delete': hoveredAction.type === 'user-delete' && hoveredAction.key === key,
+                                    'user-hover-edit': hoveredAction.type === 'user-edit' && hoveredAction.key === key,
+                                    'user-hover-move-up': hoveredAction.type === 'user-move-up' && hoveredAction.key === key,
+                                    'user-hover-move-down': hoveredAction.type === 'user-move-down' && hoveredAction.key === key,
+                                    'user-hover-switch': hoveredAction.type === 'user-switch' && hoveredAction.key === key
+                                }"
+                            >
                                 <div class="info-container">
                                     <div v-if="nickNameEdit[key]">
                                         <button v-if="userNameMap[text.sendUser] != null" class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -431,30 +477,56 @@
                                         <div v-else class="send-user">{{ text.sendUser }}</div>
                                     </div>
                                     <div class="button-container">
-                                            <button class="circle-btn up-arrow tooltip-btn" @click="moveSendUserUp(key)">
+                                            <button class="circle-btn up-arrow tooltip-btn"
+                                                @click="moveSendUserUp(key)"
+                                                @mouseenter="setHoverAction('user-move-up', key, null)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-up"></i>
                                                 <span class="tooltip-text">유저 메세지 영역 위로 이동</span>
                                             </button>
-                                            <button class="circle-btn down-arrow tooltip-btn" @click="moveSendUserDown(key)">
+                                            <button class="circle-btn down-arrow tooltip-btn"
+                                                @click="moveSendUserDown(key)"
+                                                @mouseenter="setHoverAction('user-move-down', key, null)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-down"></i>
                                                 <span class="tooltip-text">유저 메세지 영역 아래로 이동</span>
                                             </button>
-                                            <button class="circle-btn edit tooltip-btn" @click="editNickName(key)">
+                                            <button class="circle-btn edit tooltip-btn"
+                                                @click="editNickName(key)"
+                                                @mouseenter="setHoverAction('user-edit', key, null)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-pencil-alt"></i>
                                                 <span class="tooltip-text">유저 변경</span>
                                             </button>
-                                            <button class="circle-btn delete tooltip-btn" @click="removeSendUser(key)">
+                                            <button class="circle-btn delete tooltip-btn"
+                                                @click="removeSendUser(key)"
+                                                @mouseenter="setHoverAction('user-delete', key, null)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-trash"></i>
-                                                <span class="tooltip-text">유저 메세지 영억 삭제</span>
+                                                <span class="tooltip-text">유저 메세지 영역 삭제</span>
                                             </button>
-                                            <button class="circle-btn right tooltip-btn" @click="moveRight(key)">
+                                            <button class="circle-btn right tooltip-btn"
+                                                @click="moveRight(key)"
+                                                @mouseenter="setHoverAction('user-switch', key, null)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-right"></i>
                                                 <span class="tooltip-text">내가 보낸 메세지로 이동</span>
                                             </button>
                                     </div>
                                 </div>
-                                
-                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(key, msg)">
+
+                                <div v-for="msg in text.message" :key="msg.seq" class="message-container" :id="'message-' + key + '_' + msg.seq" @click="scrollToMessage(key, msg)"
+                                    :class="{
+                                        'message-hover-delete': isMessageHighlighted(key, msg.seq, 'delete'),
+                                        'message-hover-edit': isMessageHighlighted(key, msg.seq, 'edit'),
+                                        'message-hover-reply': isMessageHighlighted(key, msg.seq, 'reply'),
+                                        'message-hover-move-up': isMessageHighlighted(key, msg.seq, 'move-up'),
+                                        'message-hover-move-down': isMessageHighlighted(key, msg.seq, 'move-down'),
+                                        'message-hover-add': isMessageHighlighted(key, msg.seq, 'add'),
+                                        'message-hover-camera': isMessageHighlighted(key, msg.seq, 'camera'),
+                                        'message-hover-switch': isMessageHighlighted(key, msg.seq, 'switch')
+                                    }"
+                                >
                                     <p v-if="this.isEditing[key] && this.isEditing[key][msg.seq]" class="from-them" @blur="saveMessage(key, msg)">
                                         <template v-if="msg.isReply">
                                             <div v-if="userNameMap[msg.replyTo] != null">
@@ -517,35 +589,62 @@
                                     <div class="info-container-them">
                                         <span class="send-date">{{ text.sendDate }}</span>
                                         <div class="button-container">
-                                            <button class="circle-btn add tooltip-btn" @click="addEmptyMessage(key, msg.seq)">
+                                            <button class="circle-btn add tooltip-btn"
+                                                @click="addEmptyMessage(key, msg.seq)"
+                                                @mouseenter="setHoverAction('add', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-plus"></i>
                                                 <span class="tooltip-text">하단 메세지 추가</span>
                                             </button>
-                                            <button class="circle-btn up-arrow tooltip-btn" @click="moveMessageUp(key, msg.seq)">
+                                            <button class="circle-btn up-arrow tooltip-btn"
+                                                @click="moveMessageUp(key, msg.seq)"
+                                                @mouseenter="setHoverAction('move-up', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-up"></i>
                                                 <span class="tooltip-text">위로 이동</span>
                                             </button>
-                                            <button class="circle-btn down-arrow tooltip-btn" @click="moveMessageDown(key, msg.seq)">
+                                            <button class="circle-btn down-arrow tooltip-btn"
+                                                @click="moveMessageDown(key, msg.seq)"
+                                                @mouseenter="setHoverAction('move-down', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-down"></i>
                                                 <span class="tooltip-text">아래로 이동</span>
                                             </button>
-                                            <button class="circle-btn edit tooltip-btn" @click="editMessage(key, msg.seq)">
+                                            <button class="circle-btn edit tooltip-btn"
+                                                @click="editMessage(key, msg.seq)"
+                                                @mouseenter="setHoverAction('edit', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-pencil-alt"></i>
                                                 <span class="tooltip-text">메세지 수정</span>
                                             </button>
-                                            <button class="circle-btn delete tooltip-btn" @click="removeMessageSeq(key, msg.seq)">
+                                            <button class="circle-btn delete tooltip-btn"
+                                                @click="removeMessageSeq(key, msg.seq)"
+                                                @mouseenter="setHoverAction('delete', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-trash"></i>
                                                 <span class="tooltip-text">메세지 삭제</span>
                                             </button>
-                                            <button class="circle-btn camera tooltip-btn"  data-bs-toggle="modal" data-bs-target="#imageModal" @click="selectImageKey(key, msg.seq)">
+                                            <button class="circle-btn camera tooltip-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#imageModal"
+                                                @click="selectImageKey(key, msg.seq)"
+                                                @mouseenter="setHoverAction('camera', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-camera"></i>
                                                 <span class="tooltip-text">이미지 메세지 추가</span>
                                             </button>
-                                            <button class="circle-btn right tooltip-btn" @click="moveOnlyMsgRight(key, msg.seq)">
+                                            <button class="circle-btn right tooltip-btn"
+                                                @click="moveOnlyMsgRight(key, msg.seq)"
+                                                @mouseenter="setHoverAction('switch', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-arrow-right"></i>
                                                 <span class="tooltip-text">내가보낸 메세지로 이동</span>
                                             </button>
-                                            <button class="circle-btn down-arrow tooltip-btn" @click="toggleReplyMode(msg)" title="답장 연결">
+                                            <button class="circle-btn down-arrow tooltip-btn"
+                                                @click="toggleReplyMode(msg)"
+                                                title="답장 연결"
+                                                @mouseenter="setHoverAction('reply', key, msg.seq)"
+                                                @mouseleave="clearHoverAction">
                                                 <i class="fas fa-link"></i>
                                                 <span class="tooltip-text">답장 연결</span>
                                             </button>
@@ -585,6 +684,7 @@ import ImageBox from './ImageBox.vue';
 import { base64ToFile } from '@/js/fileScripts'
 import { getCurrentStep, setStep, TutorialStep } from '@/js/tutorialHelper';
 import { saveMessage, getAllMessages, saveNickname, getNicknames, saveImage, getAllImages, hasSavedMessages, clearMessages, saveNicknamesArray, getNicknamesArray } from '@/js/store'
+import Sortable from 'sortablejs';
 
 export default {
     components: {
@@ -605,9 +705,9 @@ export default {
             userInGroup: [],
             userInGroupInfo: null,
             userNameMap: new Map,
-            replyMode: false, 
-            selectedReplyKey: null, 
-            selectedReplySeq: null, 
+            replyMode: false,
+            selectedReplyKey: null,
+            selectedReplySeq: null,
             replyOriginMessage: null,
             selectedImages: [],
             imageAddKey: null,
@@ -630,6 +730,7 @@ export default {
             showModal: false,
             showSaveToast: false,
             saveToastMessage: '',
+            hoveredAction: { type: null, key: null, seq: null }, // 호버 상태 추적
         }
     },
     props: {
@@ -677,6 +778,58 @@ export default {
         //     await this.sendImage()
         //     this.showToast("임시저장되었습니다.");
         // }, 1 * 60 * 1000) // 1분마다
+
+        // Sortable.js 초기화
+        this.$nextTick(() => {
+            const chatRoom = this.$el.querySelector('.chat-room');
+            if (chatRoom) {
+                this.sortableInstance = Sortable.create(chatRoom, {
+                    animation: 150,
+                    handle: '.drag-handle', // 드래그 핸들 지정
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    onEnd: (evt) => {
+                        this.handleDragEnd(evt);
+                    }
+                });
+            }
+        });
+    },
+    computed: {
+        // 모든 메시지를 flat list로 변환
+        flatMessages() {
+            const result = [];
+            const sortedKeys = Object.keys(this.messageResponse).sort((a, b) => Number(a) - Number(b));
+
+            let prevSendUser = null;
+            let prevMyMessage = null;
+
+            sortedKeys.forEach(key => {
+                const block = this.messageResponse[key];
+                if (block && block.message) {
+                    block.message.forEach((msg, msgIndex) => {
+                        const isFirstInBlock = msgIndex === 0 &&
+                            (prevSendUser !== block.sendUser || prevMyMessage !== block.myMessage);
+
+                        result.push({
+                            key: Number(key),
+                            blockInfo: {
+                                sendUser: block.sendUser,
+                                myMessage: block.myMessage,
+                                sendDate: block.sendDate
+                            },
+                            msg: msg,
+                            isFirstInBlock: isFirstInBlock // 새 유저 영역의 첫 메시지인지 표시
+                        });
+                    });
+                    prevSendUser = block.sendUser;
+                    prevMyMessage = block.myMessage;
+                }
+            });
+
+            return result;
+        }
     },
     methods: {
         showToast(message) {
@@ -1113,12 +1266,19 @@ export default {
         createPost() {
             if(this.postTitle == null) {
                 this.$toastr.warning("게시글 제목을 입력해주세요")
-                const title = document.getElementById("post-title")          
+                const title = document.getElementById("post-title")
                 if(title) {
                     title.scrollIntoView({ behavior: "smooth", block: "start" })
-                }  
+                }
                 return
             }
+
+            // 메시지 본문이 비어있는지 확인
+            if(!this.messageResponse || Object.keys(this.messageResponse).length === 0) {
+                this.$toastr.warning("메시지를 작성해주세요")
+                return
+            }
+
             const formdata = new FormData()
             Object.entries(this.imageMap).forEach(([key, value]) => {
                 if (value instanceof File) {
@@ -1579,12 +1739,516 @@ export default {
         goToStep(step) {
             this.currentStep = step;
         },
+        // 드래그 앤 드롭 핸들러
+        handleDragEnd(evt) {
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+
+            if (oldIndex === newIndex) return;
+
+            // flatMessages의 순서를 업데이트
+            const flatList = [...this.flatMessages];
+            const [movedItem] = flatList.splice(oldIndex, 1);
+            flatList.splice(newIndex, 0, movedItem);
+
+            // messageResponse 재구성
+            this.messageResponse = this.rebuildMessageResponseFromFlat(flatList);
+        },
+        // 호버 핸들러
+        setHoverAction(type, key, seq) {
+            this.hoveredAction = { type, key, seq };
+        },
+        clearHoverAction() {
+            this.hoveredAction = { type: null, key: null, seq: null };
+        },
+        isMessageHighlighted(key, seq, highlightType) {
+            return this.hoveredAction.type === highlightType &&
+                   this.hoveredAction.key === key &&
+                   this.hoveredAction.seq === seq;
+        },
     }
 }
 </script>
 <style>
 @import url("/src/css/message.css");
 @import url("/src/css/tag.css");
+
+/* 메시지 호버 시각적 효과 - 실제 동작 미리보기 */
+
+/* 모든 호버 라벨은 클릭 이벤트를 방해하지 않도록 */
+.message-hover-delete::after,
+.message-hover-edit::before,
+.message-hover-reply::before,
+.message-hover-reply::after,
+.message-hover-move-up::before,
+.message-hover-move-down::after,
+.message-hover-add::after,
+.message-hover-camera::after,
+.message-hover-switch::before,
+.user-hover-delete::after,
+.user-hover-edit::before,
+.user-hover-move-up::before,
+.user-hover-move-down::after,
+.user-hover-switch::before {
+    pointer-events: none !important;
+}
+
+/* 삭제 - 서서히 사라지는 효과 */
+.message-hover-delete {
+    opacity: 0.3 !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+}
+
+.message-hover-delete::after {
+    content: '🗑️ 삭제됨';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(220, 53, 69, 0.95);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* 수정 - 포커스 효과 */
+.message-hover-edit {
+    outline: 3px solid #0d6efd !important;
+    outline-offset: 3px;
+    box-shadow: 0 0 20px rgba(13, 110, 253, 0.5) !important;
+    transform: scale(1.03) !important;
+    transition: all 0.3s ease !important;
+    z-index: 5 !important;
+    position: relative !important;
+}
+
+.message-hover-edit::before {
+    content: '✏️ 수정 가능';
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(13, 110, 253, 0.95);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+/* 답장 연결 - 다른 메시지 선택 안내 */
+.message-hover-reply {
+    outline: 3px solid #20c997 !important;
+    outline-offset: 3px;
+    box-shadow: 0 0 20px rgba(32, 201, 151, 0.5) !important;
+    transform: scale(1.03) !important;
+    transition: all 0.3s ease !important;
+    z-index: 5 !important;
+    position: relative !important;
+}
+
+.message-hover-reply::before {
+    content: '🔗 답장 모드 활성화';
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(32, 201, 151, 0.95);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    animation: reply-pulse 1s ease-in-out infinite;
+}
+
+.message-hover-reply::after {
+    content: '👆 클릭 후 연결할 메시지를 선택하세요';
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(32, 201, 151, 0.95);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+@keyframes reply-pulse {
+    0%, 100% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* 위로 이동 - 위로 이동하는 애니메이션 */
+.message-hover-move-up {
+    position: relative !important;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4) !important;
+    z-index: 5 !important;
+}
+
+/* 말풍선만 움직이도록 */
+.message-hover-move-up p {
+    animation: move-up-preview 0.6s ease-in-out infinite !important;
+}
+
+@keyframes move-up-preview {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.message-hover-move-up::before {
+    content: '⬆️ 위로 이동';
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(25, 135, 84, 0.95);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    animation: arrow-bounce-up 0.6s ease-in-out infinite;
+}
+
+@keyframes arrow-bounce-up {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-5px); }
+}
+
+/* 아래로 이동 - 아래로 이동하는 애니메이션 */
+.message-hover-move-down {
+    position: relative !important;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4) !important;
+    z-index: 5 !important;
+}
+
+/* 말풍선만 움직이도록 */
+.message-hover-move-down p {
+    animation: move-down-preview 0.6s ease-in-out infinite !important;
+}
+
+@keyframes move-down-preview {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(10px);
+    }
+}
+
+.message-hover-move-down::after {
+    content: '⬇️ 아래로 이동';
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(25, 135, 84, 0.95);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    animation: arrow-bounce-down 0.6s ease-in-out infinite;
+}
+
+@keyframes arrow-bounce-down {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(5px); }
+}
+
+/* 추가 - 새 메시지 위치 표시 (메시지 바로 아래) */
+.message-hover-add {
+    position: relative !important;
+}
+
+.message-hover-add::after {
+    content: '➕ 새 메시지';
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 10px;
+    background: rgba(108, 117, 125, 0.9);
+    border-radius: 4px;
+    text-align: center;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+    animation: arrow-point 1s ease-in-out infinite;
+    z-index: 10;
+}
+
+@keyframes arrow-point {
+    0%, 100% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateX(-50%) translateY(3px);
+        opacity: 1;
+    }
+}
+
+@keyframes fade-in-out {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+
+/* 이미지 추가 (메시지 바로 아래) */
+.message-hover-camera {
+    position: relative !important;
+}
+
+.message-hover-camera::after {
+    content: '➕ 이미지';
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 10px;
+    background: rgba(111, 66, 193, 0.9);
+    border-radius: 4px;
+    text-align: center;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+    animation: arrow-point 1s ease-in-out infinite;
+    z-index: 10;
+}
+
+@keyframes image-pulse {
+    0%, 100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.02);
+    }
+}
+
+/* 좌우 전환 - 반대편으로 이동하는 효과 */
+.message-hover-switch {
+    position: relative !important;
+    box-shadow: 0 4px 15px rgba(253, 126, 20, 0.4) !important;
+    z-index: 5 !important;
+}
+
+/* 말풍선만 움직이도록 */
+.message-hover-switch p {
+    animation: switch-preview 0.8s ease-in-out infinite !important;
+}
+
+@keyframes switch-preview {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-15px);
+    }
+}
+
+.message-container-me .message-hover-switch p {
+    animation: switch-preview-right 0.8s ease-in-out infinite !important;
+}
+
+@keyframes switch-preview-right {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(15px);
+    }
+}
+
+.message-hover-switch::before {
+    content: '⬅️ 상대방 메시지로';
+    position: absolute;
+    top: -35px;
+    left: 0;
+    background: rgba(253, 126, 20, 0.95);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.message-container-me .message-hover-switch::before {
+    content: '➡️ 내 메시지로';
+    left: auto;
+    right: 0;
+}
+
+/* ========== 유저 메시지 영역 전체 제어 효과 ========== */
+
+/* 유저 영역 삭제 */
+.user-hover-delete {
+    opacity: 0.3 !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+}
+
+.user-hover-delete::after {
+    content: '🗑️ 유저 메시지 영역 삭제됨';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(220, 53, 69, 0.95);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* 유저 이름 수정 */
+.user-hover-edit {
+    outline: 3px solid #0d6efd !important;
+    outline-offset: 3px;
+    box-shadow: 0 0 20px rgba(13, 110, 253, 0.5) !important;
+    transition: all 0.3s ease !important;
+    z-index: 5 !important;
+    position: relative !important;
+}
+
+.user-hover-edit::before {
+    content: '✏️ 유저 이름 변경';
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(13, 110, 253, 0.95);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+/* 유저 영역 위로 이동 */
+.user-hover-move-up {
+    position: relative !important;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4) !important;
+    z-index: 5 !important;
+}
+
+.user-hover-move-up .send-user,
+.user-hover-move-up .message-container p {
+    animation: move-up-preview 0.6s ease-in-out infinite !important;
+}
+
+.user-hover-move-up::before {
+    content: '⬆️ 유저 영역 위로 이동';
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(25, 135, 84, 0.95);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    animation: arrow-bounce-up 0.6s ease-in-out infinite;
+}
+
+/* 유저 영역 아래로 이동 */
+.user-hover-move-down {
+    position: relative !important;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4) !important;
+    z-index: 5 !important;
+    margin-bottom: 50px !important;
+}
+
+.user-hover-move-down .send-user,
+.user-hover-move-down .message-container p {
+    animation: move-down-preview 0.6s ease-in-out infinite !important;
+}
+
+.user-hover-move-down::after {
+    content: '⬇️ 유저 영역 아래로 이동';
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(25, 135, 84, 0.95);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    animation: arrow-bounce-down 0.6s ease-in-out infinite;
+}
+
+/* 유저 영역 좌우 전환 (내 메시지로) */
+.user-hover-switch {
+    position: relative !important;
+    box-shadow: 0 4px 15px rgba(253, 126, 20, 0.4) !important;
+    z-index: 5 !important;
+}
+
+.user-hover-switch .send-user,
+.user-hover-switch .message-container p {
+    animation: switch-preview-right 0.8s ease-in-out infinite !important;
+}
+
+.user-hover-switch::before {
+    content: '➡️ 내 메시지 영역으로 전환';
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(253, 126, 20, 0.95);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+}
 
 .save-toast {
   position: fixed;
@@ -1797,8 +2461,43 @@ export default {
   background-color: #e0e0e0;
 }
 
-.chat-room {
-    height: 600px;
+/* 채팅룸 스타일 오버라이드 */
+.card.card-body .chat-room {
+    height: 600px !important;
+    max-height: 600px !important;
+    padding-top: 15px !important; /* 상단 라벨이 잘리지 않도록 */
+    padding-bottom: 20px !important; /* 하단 라벨이 잘리지 않도록 */
+    padding-left: 10px !important; /* 좌측 라벨 공간 */
+    padding-right: 10px !important; /* 우측 라벨 공간 */
+    overflow: visible auto !important; /* 좌우는 visible, 세로는 auto */
+}
+
+/* 채팅룸 부모 컨테이너도 overflow 조정 */
+.card.card-body.message-card-with-toolbar {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* 메시지 컨테이너들도 오버플로우 허용 */
+.chat-message {
+    overflow: visible !important;
+}
+
+/* 첫 번째 메시지에 상단 여백 추가 */
+.chat-message:first-child {
+    margin-top: 10px !important;
+}
+
+/* 마지막 메시지에 하단 여백 추가 */
+.chat-message:last-child {
+    margin-bottom: 10px !important;
+}
+
+/* 호버 효과가 있을 때 추가 여백 확보 */
+.message-container-me,
+.message-container {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 /* 가이드 모달 스타일 */
