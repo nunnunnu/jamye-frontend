@@ -6,7 +6,7 @@
     <allow-intent href="*" />
     
     <!-- WebSocket을 위한 추가 설정 -->
-    <access origin="https://jamye-backend.o-r.kr" subdomains="true" />
+    <access origin=" https://people-transportation-namely-adams.trycloudflare.com" subdomains="true" />
     <access origin="wss://jamye-backend.o-r.kr" subdomains="true" />
     
     <!-- CSP 메타 태그 설정 -->

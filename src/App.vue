@@ -192,7 +192,7 @@ export default {
   }
 
   // WebSocket URL 설정
-  const wsUrl = 'https://jamye-backend.o-r.kr/ws';
+  const wsUrl = ' https://people-transportation-namely-adams.trycloudflare.com/ws';
   console.log("WebSocket URL:", wsUrl);
   console.log("사용자 시퀀스:", userSeq);
 
