@@ -192,7 +192,7 @@ export default {
   }
 
   // WebSocket URL 설정
-  const wsUrl = ' https://people-transportation-namely-adams.trycloudflare.com/ws';
+  const wsUrl = ' https://pushing-reaching-limited-continental.trycloudflare.com/ws';
   console.log("WebSocket URL:", wsUrl);
   console.log("사용자 시퀀스:", userSeq);
 

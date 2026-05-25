@@ -4,7 +4,7 @@
 
 프론트 주소: https://jamye.p-e.kr
 
-백엔드 주소:  https://people-transportation-namely-adams.trycloudflare.com
+백엔드 주소:  https://pushing-reaching-limited-continental.trycloudflare.com
 
 구글 플레이스토어: https://play.google.com/store/apps/details?id=com.jamye.android&pcampaignid=web_share
 
