@@ -21,6 +21,7 @@ import { Client } from '@stomp/stompjs';
 import axios from '@/js/axios';
 import VoteStatusBar from './components/group/VoteStatusBar.vue';
 import { cordovaSetFcmToken } from './js/cordova-fcm'
+import { WS_URL } from '@/js/config';
 
 export default {
   name: 'App',
@@ -191,8 +192,8 @@ export default {
     return;
   }
 
-  // WebSocket URL 설정
-  const wsUrl = ' https://pushing-reaching-limited-continental.trycloudflare.com/ws';
+  // WebSocket URL: config.js의 VUE_APP_API_URL + /ws
+  const wsUrl = WS_URL;
   console.log("WebSocket URL:", wsUrl);
   console.log("사용자 시퀀스:", userSeq);
 
