@@ -1,7 +1,11 @@
 node_modules
 dist/
-src/js/config.js
 jamye-app/plugins/
 jamye-app/platforms/
 jamye-app/www/
 .aider*
+
+# Local env files. Vue CLI reads these at build time; never commit them.
+.env
+.env.*
+!.env.example
