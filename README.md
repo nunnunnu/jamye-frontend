@@ -4,9 +4,7 @@
 
 프론트 주소: https://jamye.p-e.kr
 
-백엔드 주소:  https://pushing-reaching-limited-continental.trycloudflare.com
-
-구글 플레이스토어: https://play.google.com/store/apps/details?id=com.jamye.android&pcampaignid=web_share
+백엔드 주소: https://jamye-backend.o-r.kr
 
   
 잼얘가챠는 친구들과의 추억을 메시지나 게시글 형식으로 저장하고,
@@ -26,10 +24,47 @@
 - vue-cookies
 
 ### ☁️ 인프라 및 배포 환경
-- AWS S3
-- AWS CloudFront
-- AWS ACM
-- Android (Google Play 등록 심사 중)
+- 프론트: AWS S3 버킷 `jamye-frontend` + CloudFront + ACM. 서비스 주소는 https://jamye.p-e.kr
+- `main` 브랜치에 푸시하면 GitHub Actions 워크플로 `.github/workflows/AwsS3.yml`이 빌드 후 배포
+- 백엔드: Google Cloud 무료 티어 VM (저장소 `jamye-backend`). 비용 때문에 AWS에서 이전
+- 웹 프론트엔드를 Cordova로 APK로 변환해 Play 스토어에 배포했었으나, 웹뷰 방식이 불안정해 현재는 웹(https://jamye.p-e.kr)으로만 서비스 중이며 네이티브 앱으로 재개발할 계획입니다.
+
+### 🔌 API 주소
+API 오리진은 빌드할 때 넣습니다. 저장소에 커밋된 `src/.env`는 없습니다.
+
+- GitHub 저장소 Variable `API_BASE_URL` (Actions Variables. Secrets 항목이 아님)
+- 현재 값: `https://jamye-backend.o-r.kr` (끝 슬래시 없음, `/ws` 없음)
+- 워크플로 `npm build` 스텝이 이 값을 환경 변수 `VUE_APP_API_URL`로 넘긴 뒤 `npm run build`를 실행합니다. 값이 비어 있으면 빌드를 중단합니다.
+- Vue CLI는 `VUE_APP_`로 시작하는 변수만 클라이언트 번들에 넣습니다.
+- `src/js/config.js`가 `VUE_APP_API_URL`의 앞뒤 공백과 끝 슬래시를 지우고 `BASE_URL`로 씁니다. WebSocket 주소 `WS_URL`은 그 뒤에 `/ws`를 붙입니다.
+
+### 💻 로컬 개발
+`.gitignore`는 `.env`와 `.env.*`를 무시하고, `.env.example`만 예외로 둡니다. 저장소에는 `.env.example`이 없습니다.
+
+프로젝트 루트에 커밋하지 않는 `.env`를 만들고 아래처럼 적습니다.
+
+```
+VUE_APP_API_URL=https://jamye-backend.o-r.kr
+```
+
+끝 슬래시와 `/ws`는 붙이지 않습니다.
+
+```bash
+npm install
+npm run serve
+```
+
+`npm run serve`와 `npm run build`가 이 값을 읽습니다. `.env`를 바꾼 뒤에는 개발 서버를 다시 띄웁니다.
+
+### 🚀 배포
+`main`에 푸시되면 `.github/workflows/AwsS3.yml`(워크플로 이름 `Main CI`)이 순서대로 실행됩니다.
+
+1. 체크아웃 후 `npm install`
+2. 저장소 변수 `API_BASE_URL`을 `VUE_APP_API_URL`로 넣어 `npm run build`
+3. `dist`를 리전 `ap-northeast-2`의 S3 버킷 `jamye-frontend`에 업로드 (`aws s3 cp --recursive`). AWS 자격 증명은 저장소 시크릿으로 넘깁니다.
+4. CloudFront 캐시 무효화 (`aws cloudfront create-invalidation --paths "/*"`, 리전 `us-east-1`)
+
+무효화 스텝은 저장소 시크릿 `CLOUDFRONT_DISTRIBUTION_ID`를 사용합니다. 시크릿이 비어 있으면 이 스텝은 에러로 끝납니다. IAM 사용자에게 `cloudfront:CreateInvalidation` 권한이 없으면 무효화 명령이 실패합니다. S3 업로드 스텝은 그 전에 끝나 있으므로 버킷 반영은 유지됩니다. `vue.config.js`의 `filenameHashing`이 꺼져 있어 파일명이 바뀌지 않으니, 무효화가 실패하면 이전 파일이 CloudFront에 남을 수 있습니다.
 
 ---
 
